@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.12)
+project(vocaloid_pro)
+set(CMAKE_CXX_STANDARD 14)
+add_subdirectory(vocaloid)
+add_subdirectory(vocaloid_test)
