@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.12)
+project(pcm_player)
+set(CMAKE_CXX_STANDARD 14)
+aux_source_directory(. SRCS)
+add_library(${PROJECT_NAME} ${SRCS})
+target_link_libraries(${PROJECT_NAME} winmm)

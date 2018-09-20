@@ -13,6 +13,7 @@
 #include <thread>
 #include <buffer.hpp>
 #include <wav.hpp>
+#include <pcm_player.h>
 
 using namespace std;
 using namespace vocaloid;
@@ -41,49 +42,6 @@ TEST(TestNoteToFequency, Normal){
     ASSERT_FLOAT_EQ(frequency, 7902.133);
 }
 
-//TEST(TestGain, Normal){
-//	vector<float> samples(512);
-//	GenWaveform(WAVEFORM_TYPE::SINE, 440.0f, 512, samples);
-//    vector<float> output(512);
-//    Gain(samples, 2.0, 512, output);
-//    ASSERT_FLOAT_EQ(samples[1] * 2.0f, output[1]);
-//}
-
-//TEST(TestAudioGraph, FindNodeByName) {
-//	auto ctx = new AudioContext();
-//	auto node = new AudioNode(ctx);
-//	auto node1 = new AudioNode(ctx);
-//	auto node2 = new AudioNode(ctx);
-//	node1->name = "node1";
-//	node2->name = "node2";
-//	node->name = "root-node";
-//	ctx->AddNode(node);
-//	ctx->AddNode(node1);
-//	ctx->AddNode(node2);
-//	ctx->Connect(node, node1);
-//	ctx->Connect(node, node2);
-//	ctx->Connect(node1, node2);
-//	ctx->DumpInfo();
-//	/*vector<AudioNode*> sources = ctx->GetRoots();
-//	auto result = ctx->FindNodeByName("node1");
-//	ASSERT_TRUE(result == node);*/
-//}
-
-//TEST(Interpolator, Linear) {
-//	Interpolator<float> *interpolator = new CubicInterpolator<float>();
-//	int input_len = 16, output_len = 32;
-//	vector<float> input(input_len);
-//	for (int i = 0; i < input_len; i++) {
-//		input[i] = i;
-//	}
-//	vector<float> output(output_len);
-//	interpolator->Interpolate(input, input_len, output, output_len);
-//	for (auto o : output) {
-//		cout << o << " ";
-//	}
-//	cout << endl;
-//}
-
 //int main(int argc, char** argv) {
 //    ::testing::InitGoogleTest(&argc, argv);
 //    int result = RUN_ALL_TESTS();
@@ -91,24 +49,28 @@ TEST(TestNoteToFequency, Normal){
 //    return result;
 //}
 
-#include <cmath>
-#include <fstream>
-#include <iostream>
-using namespace std;
+// Read pcm data from wav file
+int PlayWavFile(){
+    auto *reader = new wav::Reader();
+    uint16_t ret = reader->Open("output.wav");
+    if(ret < 0)return -1;
+    uint64_t byte_length = 4096;
+    auto *bytes = new uint8_t[byte_length];
 
-namespace little_endian_io
-{
-    template <typename Word>
-    std::ostream& write_word( std::ostream& outs, Word value, unsigned size = sizeof( Word ) )
-    {
-        for (; size; --size, value >>= 8)
-            outs.put( static_cast <char> (value & 0xFF) );
-        return outs;
+    auto *pcm_player = new PCMPlayer();
+    wav::WAV_HEADER header = reader->GetHeader();
+    pcm_player->Open(header.samples_per_sec, header.bits_per_sec, header.channels);
+    while(!reader->IsEnd()){
+        uint64_t data_size = reader->ReadPCMData(bytes, byte_length);
+        pcm_player->Push((const char*)bytes, data_size);
     }
+    pcm_player->Flush();
+    pcm_player->Close();
+    reader->Close();
+    return 0;
 }
-using namespace little_endian_io;
 
-
+// Write pcm data to wav file
 uint64_t FloatToBytes(vector<float> input, uint64_t n, uint16_t bits, uint8_t *output) {
     int depth = bits / 8;
     int output_len = (int)floorf(n * depth);
@@ -120,64 +82,6 @@ uint64_t FloatToBytes(vector<float> input, uint64_t n, uint16_t bits, uint8_t *o
         }
     }
     return output_len;
-}
-
-int GenerateWav()
-{
-    ofstream f( "example.wav", ios::binary );
-
-    // Write the file headers
-    f << "RIFF----WAVEfmt ";     // (chunk size to be filled in later)
-    write_word( f,     16, 4 );  // no extension data
-    write_word( f,      1, 2 );  // PCM - integer samples
-    write_word( f,      1, 2 );  // two channels (stereo file)
-    write_word( f,  44100, 4 );  // samples per second (Hz)
-    write_word( f, 176400, 4 );  // (Sample Rate * BitsPerSample * Channels) / 8
-    write_word( f,      4, 2 );  // data block size (size of two integer samples, one for each channel, in bytes)
-    write_word( f,     16, 2 );  // number of bits per sample (use a multiple of 8)
-
-    // Write the data chunk header
-    size_t data_chunk_pos = f.tellp();
-    f << "data----";  // (chunk size to be filled in later)
-
-    // Write the audio samples
-    // (We'll generate a single C4 note with a sine wave, fading from left to right)
-    constexpr double two_pi = 6.283185307179586476925286766559;
-    constexpr double max_amplitude = 32760;  // "volume"
-
-    double hz        = 44100;    // samples per second
-    double frequency = 261.626;  // middle C
-    double seconds   = 2.5;      // time
-
-    double sample_rate = 440.f;
-    long samples = 4096;
-    vector<float> waveform(samples);
-    vector<float> output;
-    GenWaveform(WAVEFORM_TYPE::SINE, sample_rate, samples, waveform);
-
-    // Resample
-    auto *sampler = new Resampler<float>(hz/(sample_rate * samples), INTERPOLATOR_TYPE::CUBIC);
-    uint64_t out_size = sampler->Resample(waveform, samples, output);
-
-    uint8_t* bytes = new uint8_t[2 * out_size];
-    uint64_t byte_length = FloatToBytes(output, out_size, 16, bytes);
-
-    int N = hz * 2;  // total number of samples
-    for (int n = 0; n < N; n ++) {
-        uint16_t value = output[n % out_size] * max_amplitude;
-        write_word(f, value, 2);
-    }
-
-    // (We'll need the final file size to fix the chunk sizes above)
-    size_t file_length = f.tellp();
-
-    // Fix the data chunk header to contain the data size
-    f.seekp( data_chunk_pos + 4 );
-    write_word( f, file_length - data_chunk_pos + 8 );
-
-    // Fix the file header to contain the proper RIFF chunk size, which is (file size - 8) bytes
-    f.seekp( 0 + 4 );
-    write_word( f, file_length - 8, 4 );
 }
 
 int GenerateWavWithWAVWriter(){
@@ -198,7 +102,7 @@ int GenerateWavWithWAVWriter(){
     auto *writer = new wav::Writer(sample_rate, bits, channels);
     writer->Open("output.wav");
 
-    double seconds = 2.0f;
+    double seconds = 5.0f;
     uint64_t N = (uint64_t)ceil((double)sample_rate * seconds * bits/8),
             times = N / byte_length;
     for(int i = 0;i < times;i++){
@@ -208,8 +112,8 @@ int GenerateWavWithWAVWriter(){
     return 0;
 }
 
-int main(){
-    GenerateWav();
-    GenerateWavWithWAVWriter();
-    return 0;
-}
+//int main(){
+//    GenerateWavWithWAVWriter();
+//    PlayWavFile();
+//    return 0;
+//}

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <string.h>
 #include <fstream>
 #include <vector>
 using namespace std;
@@ -10,10 +11,10 @@ namespace vocaloid{
     namespace wav{
 
         struct WAV_HEADER{
-            char riff[4];
+            char riff[5];
             uint32_t size0;
-            char wave[4];
-            char fmt[4];
+            char wave[5];
+            char fmt[5];
             uint32_t size1;
             uint16_t format_tag;
             uint16_t channels;
@@ -21,7 +22,7 @@ namespace vocaloid{
             uint32_t bytes_per_sec;
             uint16_t block_align;
             uint16_t bits_per_sec;
-            char data[4];
+            char data[5];
             uint32_t size2;
         };
 
@@ -43,10 +44,10 @@ namespace vocaloid{
                 uint16_t block_align = bits / 8 * channels;
                 uint32_t bytes_per_sec = block_align * sample_rate;
                 header_ = {
-                    {'R', 'I', 'F', 'F'},
+                    {'R', 'I', 'F', 'F', '\0'},
                     36,
-                    {'W', 'A', 'V', 'E'},
-                    {'f', 'm', 't', ' '},
+                    {'W', 'A', 'V', 'E', '\0'},
+                    {'f', 'm', 't', ' ', '\0'},
                     16,
                     1,
                     channels,
@@ -54,23 +55,33 @@ namespace vocaloid{
                     bytes_per_sec,
                     block_align,
                     bits,
-                    {'d', 'a', 't', 'a'},
+                    {'d', 'a', 't', 'a', '\0'},
                     0
                 };
                 data_chunk_pos_ = 0;
             }
 
-            uint16_t Open(string output_path){
-                out_.open(output_path.c_str(), ios::binary);
-                out_.write((char*)&header_, sizeof header_);
+            uint16_t Open(const char* output_path){
+                out_.open(output_path, ios::binary);
+                out_.write((char*)&header_.riff, 4);
+                out_.write((char*)&header_.size0, sizeof header_.size0);
+                out_.write((char*)&header_.wave, 4);
+                out_.write((char*)&header_.fmt, 4);
+                out_.write((char*)&header_.size1, sizeof header_.size1);
+                out_.write((char*)&header_.format_tag, sizeof header_.format_tag);
+                out_.write((char*)&header_.channels, sizeof header_.channels);
+                out_.write((char*)&header_.samples_per_sec, sizeof header_.samples_per_sec);
+                out_.write((char*)&header_.bytes_per_sec, sizeof header_.bytes_per_sec);
+                out_.write((char*)&header_.block_align, sizeof header_.block_align);
+                out_.write((char*)&header_.bits_per_sec, sizeof header_.bits_per_sec);
+                out_.write((char*)&header_.data, 4);
+                out_.write((char*)&header_.size2, sizeof header_.size2);
                 data_chunk_pos_ = out_.tellp();
                 return 0;
             }
 
             uint64_t WritePCMData(uint8_t* bytes, uint64_t byte_length){
-                for(int i = 0;i < byte_length;i++){
-                    out_.put(bytes[i]);
-                }
+                out_.write((char*)bytes, byte_length);
                 header_.size0 += byte_length;
                 header_.size2 += byte_length;
                 return header_.size2;
@@ -82,6 +93,91 @@ namespace vocaloid{
                 out_.seekp(0 + 4);
                 Write(out_, header_.size0, 4);
                 out_.close();
+            }
+
+            WAV_HEADER GetHeader(){
+                return header_;
+            }
+        };
+
+        class Reader{
+        private:
+            WAV_HEADER header_;
+            ifstream in_;
+            uint64_t pos_;
+        public:
+            uint16_t Open(const char* source_path){
+                header_ = {
+                    {' ', ' ', ' ', ' ', '\0'},
+                    36,
+                    {' ', ' ', ' ', ' ', '\0'},
+                    {' ', ' ', ' ', ' ', '\0'},
+                    16,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    {' ', ' ', ' ', ' ', '\0'},
+                    0
+                };
+                in_.open(source_path, ios::in | ios::binary);
+                in_.read((char*)&header_.riff, 4);
+                if(strcmp(header_.riff, "RIFF") != 0){
+                    return -1;
+                }
+                in_.read((char*)&header_.size0, sizeof(uint32_t));
+                in_.read((char*)&header_.wave, 4);
+                if(strcmp(header_.wave, "WAVE") != 0){
+                    return -1;
+                }
+                in_.read((char*)&header_.fmt, 4);
+                if(strcmp(header_.fmt, "fmt ") != 0){
+                    return -1;
+                }
+                in_.read((char*)&header_.size1, sizeof(uint32_t));
+                in_.read((char*)&header_.format_tag, sizeof(uint16_t));
+                in_.read((char*)&header_.channels, sizeof(uint16_t));
+                in_.read((char*)&header_.samples_per_sec, sizeof(uint32_t));
+                in_.read((char*)&header_.bytes_per_sec, sizeof(uint32_t));
+                in_.read((char*)&header_.block_align, sizeof(uint16_t));
+                in_.read((char*)&header_.bits_per_sec, sizeof(uint16_t));
+                in_.read((char*)&header_.data, 4);
+                if(strcmp(header_.data, "data") != 0)return -1;
+                in_.read((char*)&header_.size2, sizeof(uint32_t));
+                pos_ = 0;
+                return 0;
+            }
+
+            uint64_t Seek(uint64_t pos){
+                if(pos < header_.size2 && pos > 0){
+                    pos_ = pos;
+                    in_.seekg(pos_ + 44);
+                }
+            }
+
+            uint64_t ReadPCMData(uint8_t *bytes, uint64_t byte_length){
+                if(IsEnd())return 0;
+                uint64_t left = header_.size2 - pos_;
+                if(left < byte_length){
+                    byte_length = left;
+                }
+                in_.read((char*)bytes, byte_length);
+                pos_ += byte_length;
+                return byte_length;
+            }
+
+            bool IsEnd(){
+                return in_.eof() || header_.size2 - pos_ <= 0;
+            }
+
+            void Close(){
+                in_.close();
+            }
+
+            WAV_HEADER GetHeader(){
+                return header_;
             }
         };
     };
