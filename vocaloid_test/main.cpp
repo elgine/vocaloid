@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include <stdio.h>
 #include <gtest/gtest.h>
 #include <waveform.hpp>
@@ -14,6 +15,7 @@
 #include <buffer.hpp>
 #include <wav.hpp>
 #include <pcm_player.h>
+#include <stft.hpp>
 
 using namespace std;
 using namespace vocaloid;
@@ -92,8 +94,10 @@ int GenerateWavWithWAVWriter(){
     vector<float> resampled_waveform;
     GenWaveform(WAVEFORM_TYPE::SINE, waveform_sample_rate, waveform_size, waveform);
     // Resammple waveform
-    auto *resampler = new Resampler<float>((float)sample_rate/float(waveform_sample_rate * waveform_size), INTERPOLATOR_TYPE::CUBIC);
-    uint64_t resampled_waveform_len = resampler->Resample(waveform, waveform_size, resampled_waveform);
+    uint64_t resampled_waveform_len = Resample(waveform, waveform_size,
+                                               INTERPOLATOR_TYPE::CUBIC,
+                                               (float)sample_rate/float(waveform_sample_rate * waveform_size),
+                                               resampled_waveform);
 
     // Transfer to byte array
     uint8_t *bytes = new uint8_t[bits/8 * channels * resampled_waveform_len];
@@ -113,7 +117,12 @@ int GenerateWavWithWAVWriter(){
 }
 
 //int main(){
-//    GenerateWavWithWAVWriter();
-//    PlayWavFile();
-//    return 0;
+//    auto *stft = new STFT();
+//    stft->Initialize(256, 44100, 0.5, WINDOW_TYPE::HANNING);
 //}
+
+int main(){
+    GenerateWavWithWAVWriter();
+    PlayWavFile();
+    return 0;
+}

@@ -108,7 +108,7 @@ namespace vocaloid {
 
 
 	template<typename T>
-	void GenerateWin(WINDOW_TYPE type, float extra, int length, vector<T> &output) {
+	void GenerateWin(WINDOW_TYPE type, int length, vector<T> &output, float extra = 1.0) {
 		switch (type) {
 		case WINDOW_TYPE::HANNING:
 			Hanning(length, extra, output);

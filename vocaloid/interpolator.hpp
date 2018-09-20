@@ -2,6 +2,7 @@
 #include <math.h>
 #include <vector>
 #include <stdio.h>
+#include <stdint.h>
 using namespace std;
 namespace vocaloid {
 
@@ -44,7 +45,6 @@ namespace vocaloid {
 	}
 
 	enum INTERPOLATOR_TYPE {
-		NONE,
 		LINEAR,
 		CUBIC
 	};
@@ -69,7 +69,7 @@ namespace vocaloid {
 
 	// Cubic spline interpolator
 	template<typename T>
-	void CubicInterpolate(const vector<T> input, int input_len, vector<T> &output, int output_len) {
+	void CubicInterpolate(const vector<T> input, uint64_t input_len, vector<T> &output, uint64_t output_len) {
 		vector<float> D(input_len);
 		CalD(input, input_len, D);
 		float ratio = (float)output_len / (input_len - 1);
@@ -87,7 +87,7 @@ namespace vocaloid {
 	}
 
 	template<typename T>
-	void Interpolate(INTERPOLATOR_TYPE type, const vector<T> input, int input_len, vector<T> &output, int output_len) {
+	void Interpolate(INTERPOLATOR_TYPE type, const vector<T> input, uint64_t input_len, vector<T> &output, uint64_t output_len) {
 		switch (type) {
 		case INTERPOLATOR_TYPE::CUBIC:
 			CubicInterpolate(input, input_len, output, output_len);

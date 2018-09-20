@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include <vector>
 #include <math.h>
 using namespace std;
@@ -8,54 +9,55 @@ namespace vocaloid {
 	// Fast Fourier Transformation
 	class FFT{
 	private:
-		int buffer_size_;
+        vector<int> reverse_table_;
+        vector<float> sin_table_;
+        vector<float> cos_table_;
+
+	protected:
+        uint32_t buffer_size_;
 		float sample_rate_;
 		float band_width_;
-		float peak_band_;
-		float peak_;
-		vector<float> spectrum_;
-		vector<float> real_;
-		vector<float> imag_;
-
-		vector<int> reverse_table_;
-		vector<float> sin_table_;
-		vector<float> cos_table_;
-
-		bool spectrum_dirty_;
-
-		void CalculateSpectrum() {
-			float b_si = 2 / buffer_size_, rval, ival, mag;
-			for (int i = 0, N = buffer_size_ / 2; i < N; i++) {
-				rval = real_[i];
-				ival = imag_[i];
-				mag = (float)(b_si * sqrt(powf(rval, 2) + powf(ival, 2)));
-				if (mag > peak_) {
-					peak_band_ = i;
-					peak_ = mag;
-				}
-				spectrum_[i] = mag;
-			}
-		}
-
-		void UpdateSpectrum() {
-			if (spectrum_dirty_) {
-				CalculateSpectrum();
-				spectrum_dirty_ = false;
-			}
-		}
-
 	public:
 
-		FFT() {}
+        vector<float> real_;
+        vector<float> imag_;
+
+        static float CalculateMagnitude(float real, float imag){
+            return sqrtf(powf(real, 2) + powf(imag, 2));
+        }
+
+        static float CalculatePhase(float real, float imag){
+            return atan2f(imag, real);
+        }
+
+        static float MapRadianToPi(float rad) {
+            while (rad > M_PI)
+                rad -= 2 * M_PI;
+            while (rad < -M_PI)
+                rad += 360;
+            return rad;
+        }
+
+        void CalculateSpectrum(vector<float> &spectrum, float &peak_band, float &peak) {
+            spectrum.resize(buffer_size_ / 2, 0);
+            float b_si = 2 / buffer_size_, rval, ival, mag;
+            for (int i = 0, N = buffer_size_ / 2; i < N; i++) {
+                rval = real_[i];
+                ival = imag_[i];
+                mag = (float)(b_si * sqrt(powf(rval, 2) + powf(ival, 2)));
+                if (mag > peak) {
+                    peak_band = i;
+                    peak = mag;
+                }
+                spectrum[i] = mag;
+            }
+        }
 
 		void Initialize(int buffer_size, float sample_rate) {
 			buffer_size_ = buffer_size;
 			sample_rate_ = sample_rate;
-			spectrum_ = vector<float>(buffer_size_ / 2, 0);
 			real_ = vector<float>(buffer_size_, 0);
 			imag_ = vector<float>(buffer_size_, 0);
-			peak_band_ = 0;
-			peak_ = 0;
 			band_width_ = 2.0f / buffer_size_ * sample_rate_ / 2.0f;
 			reverse_table_ = vector<int>(buffer_size_);
 			int limit = 1;
@@ -74,10 +76,9 @@ namespace vocaloid {
 				sin_table_[i] = sinf(-M_PI / (float)i);
 				cos_table_[i] = cosf(-M_PI / (float)i);
 			}
-			spectrum_dirty_ = false;
 		}
 
-		int GetBufferSize() {
+		uint32_t GetBufferSize() {
 			return buffer_size_;
 		}
 
@@ -85,20 +86,8 @@ namespace vocaloid {
 			return sample_rate_;
 		}
 
-		vector<float> GetSpectrum() {
-			return spectrum_;
-		}
-
 		float GetBandWidth() {
 			return band_width_;
-		}
-
-		float GetPeakBand() {
-			return peak_band_;
-		}
-
-		float GetPeak() {
-			return peak_;
 		}
 
 		// Do FFT
@@ -205,15 +194,11 @@ namespace vocaloid {
 		}
 
 		void Dispose() {
-			spectrum_.clear();
 			real_.clear();
 			imag_.clear();
 			reverse_table_.clear();
 			sin_table_.clear();
 			cos_table_.clear();
-			spectrum_dirty_ = false;
-			peak_band_ = 0;
-			peak_ = 0;
 			band_width_ = 0;
 		}
 	};
