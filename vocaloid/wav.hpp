@@ -22,6 +22,8 @@ namespace vocaloid{
             uint32_t bytes_per_sec;
             uint16_t block_align;
             uint16_t bits_per_sec;
+            uint32_t extra_size;
+            uint8_t *extra;
             char data[5];
             uint32_t size2;
         };
@@ -55,13 +57,15 @@ namespace vocaloid{
                     bytes_per_sec,
                     block_align,
                     bits,
+                    0,
+                    {},
                     {'d', 'a', 't', 'a', '\0'},
                     0
                 };
                 data_chunk_pos_ = 0;
             }
 
-            uint16_t Open(const char* output_path){
+            int16_t Open(const char* output_path){
                 out_.open(output_path, ios::binary);
                 out_.write((char*)&header_.riff, 4);
                 out_.write((char*)&header_.size0, sizeof header_.size0);
@@ -105,8 +109,10 @@ namespace vocaloid{
             WAV_HEADER header_;
             ifstream in_;
             uint64_t pos_;
+            bool has_extra_data_;
         public:
-            uint16_t Open(const char* source_path){
+            int16_t Open(const char* source_path){
+                has_extra_data_ = false;
                 header_ = {
                     {' ', ' ', ' ', ' ', '\0'},
                     36,
@@ -119,6 +125,8 @@ namespace vocaloid{
                     0,
                     0,
                     0,
+                    0,
+                    {},
                     {' ', ' ', ' ', ' ', '\0'},
                     0
                 };
@@ -144,16 +152,32 @@ namespace vocaloid{
                 in_.read((char*)&header_.block_align, sizeof(uint16_t));
                 in_.read((char*)&header_.bits_per_sec, sizeof(uint16_t));
                 in_.read((char*)&header_.data, 4);
-                if(strcmp(header_.data, "data") != 0)return -1;
+                if(strcmp(header_.data, "data") != 0){
+                    has_extra_data_ = true;
+                    in_.read((char*)&header_.extra_size, sizeof(uint32_t));
+                    header_.extra = new uint8_t[header_.extra_size];
+                    in_.read((char*)header_.extra, header_.extra_size);
+                    in_.read((char*)&header_.data, 4);
+                    if(strcmp(header_.data, "data") != 0)return -1;
+                    printf("%s\n", header_.extra);
+                }
                 in_.read((char*)&header_.size2, sizeof(uint32_t));
                 pos_ = 0;
                 return 0;
             }
 
+            uint32_t GetHeaderLength(){
+                uint32_t length = 44;
+                if(has_extra_data_){
+                    length += 4 + header_.extra_size;
+                }
+                return length;
+            }
+
             uint64_t Seek(uint64_t pos){
                 if(pos < header_.size2 && pos > 0){
                     pos_ = pos;
-                    in_.seekg(pos_ + 44);
+                    in_.seekg(pos_ + GetHeaderLength());
                 }
             }
 

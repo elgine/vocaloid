@@ -8,12 +8,14 @@
 #include <window.hpp>
 #include <emitter.hpp>
 #include <interpolator.hpp>
-#include <resampler.hpp>
-#include <resampler.hpp>
+#include <resample.hpp>
+#include <resample.hpp>
 #include <fstream>
 #include <thread>
-#include <buffer.hpp>
 #include <wav.hpp>
+#include <pitch_shfiter.hpp>
+#include <buffer.hpp>
+#include <buffer_queue.hpp>
 #include <pcm_player.h>
 #include <stft.hpp>
 
@@ -54,17 +56,43 @@ TEST(TestNoteToFequency, Normal){
 // Read pcm data from wav file
 int PlayWavFile(){
     auto *reader = new wav::Reader();
-    uint16_t ret = reader->Open("output.wav");
+    int16_t ret = reader->Open("output1.wav");
     if(ret < 0)return -1;
-    uint64_t byte_length = 4096;
+    uint64_t byte_length = 1024;
     auto *bytes = new uint8_t[byte_length];
+    auto *output_bytes = new uint8_t[byte_length];
+
+    auto header = reader->GetHeader();
+    auto **pitch_shifters = new PitchShifter*[header.channels];
+    for(int i = 0;i < header.channels;i++){
+        pitch_shifters[i] = new PitchShifter();
+        pitch_shifters[i]->Initialize(byte_length * 0.5f, reader->GetHeader().samples_per_sec, 0.5f);
+    }
+
+    auto *buffer = new Buffer();
+    buffer->Initialize(header.samples_per_sec, header.bits_per_sec, header.channels);
+
+    auto *buffer_queue = new BufferQueue<float>(header.channels);
 
     auto *pcm_player = new PCMPlayer();
-    wav::WAV_HEADER header = reader->GetHeader();
     pcm_player->Open(header.samples_per_sec, header.bits_per_sec, header.channels);
+
     while(!reader->IsEnd()){
         uint64_t data_size = reader->ReadPCMData(bytes, byte_length);
-        pcm_player->Push((const char*)bytes, data_size);
+        buffer->FromByteArray(bytes, data_size);
+        for(int i = 0;i < buffer->GetChannels();i++){
+            pitch_shifters[i]->Process(buffer->GetChannelAt(i), buffer->GetBufferSize());
+            while(!pitch_shifters[i]->IsOutputQueueEmpty(byte_length)){
+                vector<float> data(byte_length);
+                uint32_t length = pitch_shifters[i]->PopFrame(data);
+                buffer_queue->Push(i, data, length);
+            }
+        }
+        while(buffer_queue->IsCountAvalidated(byte_length)){
+            buffer_queue->Pop(buffer->GetData(), byte_length);
+            buffer->ToByteArray(output_bytes, data_size);
+            pcm_player->Push((const char*)output_bytes, data_size);
+        }
     }
     pcm_player->Flush();
     pcm_player->Close();
@@ -122,7 +150,7 @@ int GenerateWavWithWAVWriter(){
 //}
 
 int main(){
-    GenerateWavWithWAVWriter();
+//    GenerateWavWithWAVWriter();
     PlayWavFile();
     return 0;
 }

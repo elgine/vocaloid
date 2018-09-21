@@ -2,8 +2,8 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
-      <config projectName="vocaloid_pro" targetName="vocaloid_test" />
       <config projectName="vocaloid_pro" targetName="pcm_player" />
+      <config projectName="vocaloid_pro" targetName="vocaloid_test" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -13,13 +13,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f2c1540-eaed-4347-951e-72d149d8f910" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vocaloid/stft.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vocaloid/buffer_queue.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/fft.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/fft.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/interpolator.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/interpolator.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/resampler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/resampler.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/window.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/window.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/buffer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/buffer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/resampler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/resample.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/stft.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/stft.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/wav.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/wav.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vocaloid_test/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid_test/main.cpp" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -76,49 +77,51 @@
     <session id="-1465652137">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="4" />
+          <entry key="project.closed" value="6" />
           <entry key="project.open.time.17" value="1" />
+          <entry key="project.open.time.18" value="1" />
           <entry key="project.open.time.20" value="2" />
+          <entry key="project.open.time.21" value="1" />
           <entry key="project.open.time.5" value="1" />
           <entry key="project.open.time.6" value="1" />
-          <entry key="project.opened" value="5" />
+          <entry key="project.opened" value="7" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="cpp" value="7" />
+          <entry key="cpp" value="8" />
           <entry key="gitignore" value="2" />
-          <entry key="h" value="15" />
-          <entry key="hpp" value="66" />
+          <entry key="h" value="22" />
+          <entry key="hpp" value="75" />
           <entry key="md" value="3" />
           <entry key="tcc" value="4" />
           <entry key="txt" value="7" />
-          <entry key="vocaloid_test (disassembly)" value="5" />
+          <entry key="vocaloid_test (disassembly)" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CMakeLists.txt" value="7" />
-          <entry key="Disassembly" value="5" />
+          <entry key="Disassembly" value="11" />
           <entry key="Markdown" value="3" />
-          <entry key="ObjectiveC" value="92" />
+          <entry key="ObjectiveC" value="109" />
           <entry key="PLAIN_TEXT" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="3388" />
+          <entry key="cpp" value="4855" />
           <entry key="gitignore" value="42" />
           <entry key="h" value="14" />
-          <entry key="hpp" value="19302" />
-          <entry key="mm" value="282" />
+          <entry key="hpp" value="25665" />
+          <entry key="mm" value="363" />
           <entry key="txt" value="100" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CMakeLists.txt" value="100" />
-          <entry key="ObjectiveC" value="22986" />
+          <entry key="ObjectiveC" value="30897" />
           <entry key="PLAIN_TEXT" value="42" />
         </counts>
       </usages-collector>
@@ -127,25 +130,12 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/vocaloid/resampler.hpp">
+        <entry file="file://$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="434">
-              <caret line="22" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="22" selection-end-column="22" />
+            <state relative-caret-position="-930">
+              <caret column="12" selection-start-column="12" selection-end-column="12" />
               <folding>
-                <element signature="e#13#30#0" expanded="true" />
-                <element signature="e#132#144#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/vocaloid/interpolator.hpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="48" column="13" lean-forward="true" selection-start-line="48" selection-start-column="13" selection-end-line="48" selection-end-column="13" />
-              <folding>
-                <element signature="e#13#30#0" expanded="true" />
+                <element signature="e#13#32#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -154,10 +144,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vocaloid/stft.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="36" column="16" selection-start-line="36" selection-start-column="16" selection-end-line="36" selection-end-column="16" />
+            <state relative-caret-position="540">
+              <caret line="63" column="30" lean-forward="true" selection-start-line="63" selection-start-column="30" selection-end-line="63" selection-end-column="30" />
               <folding>
                 <element signature="e#13#30#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/vocaloid_test/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="433">
+              <caret line="83" column="34" selection-start-line="83" selection-start-column="34" selection-end-line="83" selection-end-column="34" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -166,10 +168,23 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vocaloid/fft.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="589">
-              <caret line="37" column="23" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
+            <state relative-caret-position="217">
+              <caret line="56" column="21" lean-forward="true" selection-start-line="56" selection-start-column="21" selection-end-line="56" selection-end-column="21" />
               <folding>
                 <element signature="e#13#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vocaloid/buffer_queue.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="248">
+              <caret line="26" column="42" lean-forward="true" selection-start-line="26" selection-start-column="42" selection-end-line="26" selection-end-column="42" />
+              <folding>
+                <element signature="e#13#29#0" expanded="true" />
+                <element signature="e#128#140#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -214,7 +229,6 @@
         <option value="$PROJECT_DIR$/vocaloid/predefine.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/biquad.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/emitter.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/buffer.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/audio_node.hpp" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
@@ -224,23 +238,26 @@
         <option value="$PROJECT_DIR$/pcm_player/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/pcm_player/pcm_player.h" />
         <option value="$PROJECT_DIR$/pcm_player/pcm_player.cpp" />
-        <option value="$PROJECT_DIR$/vocaloid/wav.hpp" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/vocaloid/waveform.hpp" />
         <option value="$PROJECT_DIR$/vocaloid_test/fft.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/window.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid_test/main.cpp" />
-        <option value="$PROJECT_DIR$/vocaloid_test/main.cpp" />
-        <option value="$PROJECT_DIR$/vocaloid/stft.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/fft.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/fft.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/resampler.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/interpolator.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/interpolator.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/wav.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/buffer_queue.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/buffer.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid_test/main.cpp" />
+        <option value="$PROJECT_DIR$/vocaloid_test/main.cpp" />
+        <option value="$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/stft.hpp" />
       </list>
     </option>
   </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="281" />
     <option name="width" value="1178" />
@@ -254,7 +271,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -276,6 +292,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -335,30 +352,32 @@
       <workItem from="1537316683121" duration="11936000" />
       <workItem from="1537335275183" duration="430000" />
       <workItem from="1537335877595" duration="15142000" />
-      <workItem from="1537405650914" duration="23518000" />
+      <workItem from="1537405650914" duration="23626000" />
+      <workItem from="1537489708537" duration="11389000" />
+      <workItem from="1537507861310" duration="9314000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="71741000" />
+    <option name="totallyTimeSpent" value="92552000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1456" height="876" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24355301" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25071633" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.44474393" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.43665767" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.38679245" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.4439946" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32928476" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.30904183" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Messages" order="8" weight="0.4973046" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.20889488" />
+      <window_info anchor="bottom" id="Messages" order="8" weight="0.3859649" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.12955466" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" />
       <window_info anchor="bottom" id="CMake" order="12" weight="0.08490566" />
@@ -396,61 +415,81 @@
   <component name="XDebuggerManager">
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
-        <watch expression="sizeof(header_.fmt_data.format_tag) + sizeof(header_.fmt_data.channels) + sizeof(header_.fmt_data.sample_per_sec) + sizeof(header_.fmt_data.bytes_per_sec) + sizeof(header_.fmt_data.block_align) + sizeof(header_.fmt_data.bits_per_sample)" language="ObjectiveC" />
-        <watch expression="header_" language="ObjectiveC" />
-        <watch expression="in_.eof()" language="ObjectiveC" />
+        <watch expression="data_[0]" language="ObjectiveC" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
+    <expressions id="breakpointCondition">
+      <expression>
+        <expression-string>value != 0</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>j == 1</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>j == 1 &amp;&amp; i == 1029</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>i == 1029</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
     <expressions id="watch">
       <expression>
+        <expression-string>data_[0]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[0][0]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[0][1024]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[0][1030]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[0].size()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_.size()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[j].size()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[j][0]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_[j][i]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>in_.eof()</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data.format_tag) + sizeof(header_.fmt_data.channels) + sizeof(header_.fmt_data.sample_per_sec) + sizeof(header_.fmt_data.bytes_per_sec) + sizeof(header_.fmt_data.block_align) + sizeof(header_.fmt_data.bits_per_sample)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data.format_tag) + sizeof(header_.fmt_data.channels) + sizeof(header_.fmt_data.sample_per_sec) + sizeof(header_.fmt_data.bytes_per_sec)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data.format_tag) + sizeof(header_.fmt_data.channels) + sizeof(header_.fmt_data.sample_per_sec)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.format_tag) + sizeof(header_.channels) + sizeof(header_.sample_per_sec)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.format_tag) + sizeof(header_.channels) + sieof(header_.sample_per_sec)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data.format_tag)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data.channels)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sizeof(header_.fmt_data.bytes_per_sec)</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -578,30 +617,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/wav.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="95" column="13" lean-forward="true" selection-start-line="95" selection-start-column="13" selection-end-line="95" selection-end-column="13" />
-          <folding>
-            <element signature="e#13#30#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_node.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/channel_layout.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="23" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_node.hpp" />
+    <entry file="file://$PROJECT_DIR$/vocaloid/channel_layout.hpp" />
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="93">
@@ -619,20 +636,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid_test/fft.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="4" column="4" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/stl_vector.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="589">
-          <caret line="851" column="6" selection-start-line="851" selection-start-column="6" selection-end-line="851" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid_test/fft.hpp" />
     <entry file="file://$PROJECT_DIR$/vocaloid/window.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="348">
@@ -644,16 +648,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="62">
           <caret line="6" column="20" lean-forward="true" selection-start-line="6" selection-start-column="20" selection-end-line="6" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/buffer.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3069">
-          <caret line="99" selection-start-line="99" selection-end-line="99" />
-          <folding>
-            <element signature="e#13#30#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -671,57 +665,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/waveform.hpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid/interpolator.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1829">
-          <caret line="60" column="43" lean-forward="true" selection-start-line="60" selection-start-column="43" selection-end-line="60" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid_test/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2493">
-          <caret line="91" column="34" lean-forward="true" selection-start-line="91" selection-start-column="34" selection-end-line="91" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/stft.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="36" column="16" selection-start-line="36" selection-start-column="16" selection-end-line="36" selection-end-column="16" />
+        <state relative-caret-position="210">
+          <caret line="48" column="13" lean-forward="true" selection-start-line="48" selection-start-column="13" selection-end-line="48" selection-end-column="13" />
           <folding>
             <element signature="e#13#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/fft.hpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid/wav.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="589">
-          <caret line="37" column="23" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
+        <state relative-caret-position="341">
+          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
           <folding>
-            <element signature="e#13#32#0" expanded="true" />
+            <element signature="e#13#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid/resample.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="10" column="37" lean-forward="true" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
-          <folding>
-            <element signature="e#13#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/resampler.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="434">
-          <caret line="22" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="22" selection-end-column="22" />
+        <state>
+          <caret column="12" lean-forward="true" selection-start-column="12" selection-end-column="12" />
           <folding>
             <element signature="e#13#30#0" expanded="true" />
             <element signature="e#132#144#0" expanded="true" />
@@ -729,12 +696,77 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/interpolator.hpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid/waveform.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="48" column="13" lean-forward="true" selection-start-line="48" selection-start-column="13" selection-end-line="48" selection-end-column="13" />
+        <state relative-caret-position="659">
+          <caret line="60" column="43" lean-forward="true" selection-start-line="60" selection-start-column="43" selection-end-line="60" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/stl_vector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="784" column="64" selection-start-line="784" selection-start-column="64" selection-end-line="784" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/buffer.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="403">
+          <caret line="109" column="25" selection-start-line="109" selection-start-column="25" selection-end-line="109" selection-end-column="25" />
           <folding>
             <element signature="e#13#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/stft.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="63" column="30" lean-forward="true" selection-start-line="63" selection-start-column="30" selection-end-line="63" selection-end-column="30" />
+          <folding>
+            <element signature="e#13#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-930">
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
+          <folding>
+            <element signature="e#13#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/fft.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="56" column="21" lean-forward="true" selection-start-line="56" selection-start-column="21" selection-end-line="56" selection-end-column="21" />
+          <folding>
+            <element signature="e#13#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/buffer_queue.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="248">
+          <caret line="26" column="42" lean-forward="true" selection-start-line="26" selection-start-column="42" selection-end-line="26" selection-end-column="42" />
+          <folding>
+            <element signature="e#13#29#0" expanded="true" />
+            <element signature="e#128#140#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid_test/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="433">
+          <caret line="83" column="34" selection-start-line="83" selection-start-column="34" selection-end-line="83" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>

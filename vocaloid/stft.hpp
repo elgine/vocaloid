@@ -28,13 +28,13 @@ namespace vocaloid{
                 input_queue_.push(data);
         }
 
-        void Processing(){
-
-        }
+        virtual void Processing() = 0;
 
     public:
 
-        STFT(){}
+        STFT(){
+            fft_ = new FFT();
+        }
 
         void Initialize(uint32_t fft_size, float sample_rate, float overlap, WINDOW_TYPE win_type, float extra = 1.0f){
             fft_->Initialize(fft_size, sample_rate);
@@ -45,7 +45,7 @@ namespace vocaloid{
             GenerateWin(win_type, fft_size, win_, extra);
         }
 
-        void Process(const vector<float> buffer, uint32_t len){
+        void Process(const vector<float> buffer, uint64_t len){
             uint32_t fft_size = fft_->GetBufferSize();
             vector<float> frame = vector<float>(fft_size);
             frame.assign(buffer.begin(), buffer.end());
@@ -56,7 +56,7 @@ namespace vocaloid{
                     frame[i] = value * win_[i];
                 }
                 fft_->Forward(frame, fft_size);
-                Processing();
+                //Processing();
                 fft_->Inverse(frame);
                 for(int i = 0;i < fft_size;i++){
                     frame[i] *= win_[i];
@@ -81,8 +81,8 @@ namespace vocaloid{
             }
         }
 
-        bool IsOutputQueueEmpty(){
-            return output_queue_.empty();
+        bool IsOutputQueueEmpty(uint64_t length){
+            return output_queue_.size() < length;
         }
 
         uint32_t PopFrame(vector<float> &frame){

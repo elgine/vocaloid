@@ -1,122 +1,139 @@
 #pragma once
-#include <math.h>
 #include <vector>
 #include <stdint.h>
+#include <math.h>
+#include <stdio.h>
+#include "disposable.h"
 using namespace std;
 namespace vocaloid{
 
-    class Buffer{
-
+    class Buffer: IDisposable{
     private:
+        static const uint16_t max_channels = 6;
+        vector<float> data_[max_channels];
+        uint32_t buffer_size_;
 
-        vector<vector<float>> data_;
-
-        int channels_;
-        int bits_;
-        float sample_rate_;
-
-        int buffer_size_;
-
+        uint16_t channels_ = 2;
+        uint16_t bits_ = 16;
+        uint32_t sample_rate_ = 44100;
     public:
 
-        Buffer(float sample_rate, int bits, int channels){
-            sample_rate_ = sample_rate;
-            bits_ = bits;
-            channels_ = channels;
-            buffer_size_ = 0;
-            data_ = vector<vector<float>>(8);
-        }
-
-        void Initialize(float sample_rate, int bits, int channels){
-            sample_rate_ = sample_rate;
-            bits_ = bits;
-            channels_ = channels;
-        }
-
-        vector<float> GetChannel(int index){
-            return data_[index];
-        }
-
-        float GetSampleRate(){
-            return sample_rate_;
-        }
-
-        int GetBits(){
-            return bits_;
-        }
-
-        double GetDuration(){
-            return buffer_size_ * GetChannelCount() / sample_rate_ / GetBlockAlign();
-        }
-
-        int GetBlockAlign(){
-            return bits_/8 * channels_;
-        }
-
-        int GetChannelCount(){
-            return channels_;
-        }
-
-        int GetBufferSize(){
-            return buffer_size_;
-        }
-
-        void CopyFrom(Buffer *b){
-            Initialize(b->GetSampleRate(), b->GetBits(), b->GetChannelCount());
-        }
-
-        int FromPCMData(uint32_t sample_rate, uint16_t bits, uint16_t channels, const uint8_t* bytes, uint64_t length){
-            Initialize(sample_rate, bits, channels);
-            return FromPCMData(bytes, length);
-        }
-
-        int FromPCMData(const uint8_t *bytes, int length){
-            int depth = bits_ / 8;
-            int output_index = 0;
-            int output_len = (int)floorf(float(length - length%depth) / depth);
-            float range = powf(2, bits_ - 1);
-            int step = depth * channels_;
-            for(auto i = 0;i < length;i += step){
-                for(auto j = 0;j < channels_;j++){
-                    data_[j].reserve(output_len);
-                    int offset = i + j * depth;
-                    long v = bytes[offset];
-                    for(auto k = 1;k < depth;k++){
-                        v |= bytes[offset + k] << (k * 8);
-                    }
-                    data_[j][output_index] = v/range;
-                }
-                output_index++;
+        Buffer(uint32_t buffer_size = 1024):buffer_size_(buffer_size){
+            for(int i = 0;i < max_channels;i++){
+                data_[i] = vector<float>(buffer_size_);
             }
-            buffer_size_ = output_len;
-            return output_len;
         }
 
-        uint64_t ToPCMData(uint8_t *bytes, bool planar = false){
-            int depth = bits_ / 8;
-            int step = depth * channels_;
-            float range = powf(2, bits_ - 1);
-            int index = 0;
+        void Initialize(uint32_t sample_rate, uint16_t bits, uint16_t channels){
+            channels_ = channels;
+            bits_ = bits;
+            sample_rate_ = sample_rate;
+        }
+
+        void FromByteArray(uint8_t *byte_array, uint64_t byte_length){
+            uint16_t depth = bits_ / 8;
+            uint16_t step = depth * channels_;
+            uint64_t data_index = 0;
+            buffer_size_ = byte_length / step;
+            float max = powf(2.0f, bits_ - 1);
+            if(data_[0].size() < buffer_size_){
+                for(int i = 0;i < channels_;i++){
+                    data_[i].resize(buffer_size_);
+                }
+            }
+            for(int i = 0;i < byte_length;i += step){
+                for(int j = 0;j < channels_;j++){
+                    uint64_t offset = i + j * depth;
+                    long value = byte_array[offset];
+                    for(int k = 1;k < depth;k++){
+                        value |= byte_array[offset + k] << (k * 8);
+                    }
+                    data_[j][data_index] = (value - max)/max;
+                }
+                data_index++;
+            }
+        }
+
+        void ToByteArray(uint8_t *byte_array, uint64_t &byte_length, bool planar = false){
+            uint16_t depth = bits_ / 8;
+            uint16_t step = depth * channels_;
+            byte_length = step * buffer_size_;
+            float max = powf(2.0f, bits_ - 1);
             if(!planar){
-                for(int i = 0;i < buffer_size_ ;i++){
+                for(int i = 0;i < buffer_size_;i++){
                     for(int j = 0;j < channels_;j++){
-                        long value = data_[j][i] * range;
+                        long value = data_[j][i] * max + max;
                         for(int k = 0;k < depth;k++){
-                            bytes[ i * step + j * depth + k] = value >> (8 * k) & 0xFF;
+                            byte_array[i * step + j * depth + k] = (value >> (8 * k)) & 0xFF;
                         }
                     }
                 }
             }else{
-                for (int j = 0; j < channels_; j++) {
-                    for(int i = 0;i < buffer_size_ ;i++) {
-                        long value = data_[j][i] * range;
+                for(int j = 0;j < channels_;j++){
+                    for(int i = 0;i < buffer_size_;i++){
+                        long value = data_[j][i] * max + max;
+                        uint64_t offset = j * buffer_size_;
                         for(int k = 0;k < depth;k++){
-                            bytes[index++] = value >> (8 * k) & 0xFF;
+                            byte_array[offset + i * depth + k] = (value >> (8 * k)) & 0xFF;
                         }
                     }
                 }
             }
-            return buffer_size_ * step;
+        }
+
+        void AddFloatArray(vector<float> *float_array, uint64_t array_length, uint64_t offset = 0){
+            for(int i = 0;i < channels_;i++){
+                for(int j = 0;j < array_length;j++){
+                    data_[i].push_back(float_array[i][offset + j]);
+                }
+            }
+        }
+
+        void AddByteArray(uint8_t *byte_array, uint64_t array_length, uint64_t offset = 0){
+            uint16_t depth = bits_ / 8;
+            uint16_t step = depth * channels_;
+            float max = powf(2.0f, bits_ - 1);
+            for(int i = 0;i < array_length;i += step){
+                for(int j = 0;j < channels_;j++){
+                    uint64_t index = i + offset + j * depth;
+                    long value = byte_array[index];
+                    for(int k = 1;k < depth;k++){
+                        value |= byte_array[index + k] << (k * 8);
+                    }
+                    data_[j].push_back((value - max)/max);
+                }
+            }
+            buffer_size_ += array_length / step;
+        }
+
+        vector<float>* GetData(){
+            return data_;
+        }
+
+        vector<float> GetChannelAt(uint16_t channel){
+            return data_[channel];
+        }
+
+        uint64_t GetBufferSize(){
+            return buffer_size_;
+        }
+
+        uint16_t GetChannels(){
+            return channels_;
+        }
+
+        uint16_t GetBits(){
+            return bits_;
+        }
+
+        uint32_t GetSampleRate(){
+            return sample_rate_;
+        }
+
+        void Dispose() override{
+            for(int i = 0;i < max_channels;i++){
+                data_[i].clear();
+            }
         }
     };
 }
