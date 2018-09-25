@@ -41,10 +41,9 @@ namespace vocaloid {
 	* Calculates hanning window coefficients.
 	*/
 	template <typename T>
-	void Hanning(int N, T amp, vector<T> &win) {
-		for (int i = 0; i<(N + 1) / 2; ++i) {
-			win[i] = amp * T(0.5 - 0.5*cos(M_PI * 2 * i / (N - 1)));
-			win[N - 1 - i] = win[i];
+	void Hanning(int N, vector<T> &win) {
+		for (int i = 0; i < N; ++i) {
+			win[i] = 0.5f - 0.5f*cos(M_PI * 2 * i / N);
 		}
 	}
 
@@ -52,10 +51,9 @@ namespace vocaloid {
 	* Calculates hamming window coefficients.
 	*/
 	template <typename T>
-	void Hamming(int N, T amp, vector<T> &win) {
-		for (int i = 0; i<(N + 1) / 2; ++i) {
-			win[i] = amp * T(0.54 - 0.46*cos(M_PI * 2 * i / (N - 1.0)));
-			win[N - 1 - i] = win[i];
+	void Hamming(int N, vector<T> &win) {
+		for (int i = 0; i < N; ++i) {
+			win[i] = 0.54 - 0.46*cos(M_PI * 2 * i / (N - 1.0));
 		}
 	}
 
@@ -111,7 +109,7 @@ namespace vocaloid {
 	void GenerateWin(WINDOW_TYPE type, int length, vector<T> &output, float extra = 1.0) {
 		switch (type) {
 		case WINDOW_TYPE::HANNING:
-			Hanning(length, extra, output);
+			Hanning(length, output);
 			break;
 		case WINDOW_TYPE::BARTLETT:
 			Bartlett(length, extra, output);

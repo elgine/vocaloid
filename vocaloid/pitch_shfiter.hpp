@@ -31,19 +31,21 @@ namespace vocaloid{
 
     public:
 
+        PitchShifter():STFT(){}
+
         void Initialize(uint32_t fft_size,
                         float sample_rate,
                         float overlap,
-                        WINDOW_TYPE win_type = WINDOW_TYPE::HANNING,
+                        WINDOW_TYPE win_type = WINDOW_TYPE::HAMMING,
                         float extra = 1.0f) {
             STFT::Initialize(fft_size, sample_rate, overlap, win_type, extra);
             prev_in_phase_.resize(fft_size);
             prev_out_phase_.resize(fft_size);
         }
 
-        uint32_t PopFrame(vector<float> &frame){
+        uint32_t PopFrame(vector<float> &frame, uint32_t len){
             vector<float> temp(fft_->GetBufferSize());
-            uint32_t temp_len = STFT::PopFrame(temp);
+            uint32_t temp_len = STFT::PopFrame(temp, len);
             uint32_t frame_len = Resample(temp, temp_len, interpolator_, pitch_/tempo_, frame);
             return frame_len;
         }

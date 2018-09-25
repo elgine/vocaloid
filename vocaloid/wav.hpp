@@ -187,7 +187,7 @@ namespace vocaloid{
                 if(left < byte_length){
                     byte_length = left;
                 }
-                in_.read((char*)bytes, byte_length);
+                in_.read((char*)bytes, (long)byte_length);
                 pos_ += byte_length;
                 return byte_length;
             }

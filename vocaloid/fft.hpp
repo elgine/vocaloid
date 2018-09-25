@@ -53,7 +53,7 @@ namespace vocaloid {
             }
         }
 
-		void Initialize(int buffer_size, float sample_rate) {
+		void Initialize(uint32_t buffer_size, float sample_rate) {
 			buffer_size_ = buffer_size;
 			sample_rate_ = sample_rate;
 			real_ = vector<float>(buffer_size_, 0);
@@ -106,15 +106,15 @@ namespace vocaloid {
 			int i, half_size = 1, off;
 			for (i = 0; i < buffer_size_; i++) {
 				real_[i] = buffer[reverse_table_[i]];
-				imag_[i] = 0;
+				imag_[i] = 0.0f;
 			}
 
 			while (half_size < buffer_size_) {
 				phase_shift_step_real = cos_table_[half_size];
 				phase_shift_step_imag = sin_table_[half_size];
 
-				cur_phase_shift_real = 1;
-				cur_phase_shift_imag = 0;
+				cur_phase_shift_real = 1.0f;
+				cur_phase_shift_imag = 0.0f;
 
 				for (int fft_step = 0; fft_step < half_size; fft_step++) {
 					i = fft_step;
@@ -141,6 +141,9 @@ namespace vocaloid {
 
 		void Inverse(vector<float> &output) {
 			Inverse(real_, imag_, buffer_size_, output);
+			for(int i = 0;i < buffer_size_;i++){
+			    output[i] /= buffer_size_;
+			}
 		}
 
 		// Do IFFT
@@ -150,13 +153,13 @@ namespace vocaloid {
 				cur_phase_shift_real, cur_phase_shift_imag,
 				tr, ti, tmp_real;
 			for (i = 0; i < buffer_size_; i++) {
-				imag[i] *= -1;
+				imag[i] *= -1.0f;
 			}
 
-			vector<float>rev_real = vector<float>(buffer_size_),
+			vector<float> rev_real = vector<float>(buffer_size_),
 				rev_imag = vector<float>(buffer_size_);
 
-			for (i = 0; i < len; i++) {
+			for (i = 0; i < buffer_size_; i++) {
 				rev_real[i] = real[reverse_table_[i]];
 				rev_imag[i] = imag[reverse_table_[i]];
 			}
@@ -166,8 +169,8 @@ namespace vocaloid {
 			while (half_size < buffer_size_) {
 				phase_shift_step_real = cos_table_[half_size];
 				phase_shift_step_imag = sin_table_[half_size];
-				cur_phase_shift_real = 1;
-				cur_phase_shift_imag = 0;
+				cur_phase_shift_real = 1.0f;
+				cur_phase_shift_imag = 0.0f;
 
 				for (int fft_step = 0; fft_step < half_size; fft_step++) {
 					i = fft_step;

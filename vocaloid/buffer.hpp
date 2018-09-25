@@ -10,7 +10,7 @@ namespace vocaloid{
     class Buffer: IDisposable{
     private:
         static const uint16_t max_channels = 6;
-        vector<float> data_[max_channels];
+        vector<float> *data_;
         uint32_t buffer_size_;
 
         uint16_t channels_ = 2;
@@ -19,8 +19,9 @@ namespace vocaloid{
     public:
 
         Buffer(uint32_t buffer_size = 1024):buffer_size_(buffer_size){
+            data_ = new vector<float>[max_channels];
             for(int i = 0;i < max_channels;i++){
-                data_[i] = vector<float>(buffer_size_);
+                data_[i].resize(buffer_size_);
             }
         }
 
@@ -30,27 +31,26 @@ namespace vocaloid{
             sample_rate_ = sample_rate;
         }
 
-        void FromByteArray(uint8_t *byte_array, uint64_t byte_length){
+        void FromByteArray(uint8_t *byte_array, uint32_t byte_length){
             uint16_t depth = bits_ / 8;
             uint16_t step = depth * channels_;
-            uint64_t data_index = 0;
-            buffer_size_ = byte_length / step;
+            uint32_t new_buffer_size = byte_length / step;
             float max = powf(2.0f, bits_ - 1);
-            if(data_[0].size() < buffer_size_){
+            if(buffer_size_ < new_buffer_size){
                 for(int i = 0;i < channels_;i++){
-                    data_[i].resize(buffer_size_);
+                    data_[i].resize(new_buffer_size);
                 }
             }
+            buffer_size_ = new_buffer_size;
             for(int i = 0;i < byte_length;i += step){
                 for(int j = 0;j < channels_;j++){
-                    uint64_t offset = i + j * depth;
+                    long offset = i + j * depth;
                     long value = byte_array[offset];
                     for(int k = 1;k < depth;k++){
                         value |= byte_array[offset + k] << (k * 8);
                     }
-                    data_[j][data_index] = (value - max)/max;
+                    data_[j][i / step] = (value - max)/max;
                 }
-                data_index++;
             }
         }
 
@@ -62,7 +62,9 @@ namespace vocaloid{
             if(!planar){
                 for(int i = 0;i < buffer_size_;i++){
                     for(int j = 0;j < channels_;j++){
-                        long value = data_[j][i] * max + max;
+                        float clipped = fmaxf(-1.0f, data_[j][i]);
+                            clipped = fminf(1.0f, clipped);
+                        int64_t value = clipped * max + max;
                         for(int k = 0;k < depth;k++){
                             byte_array[i * step + j * depth + k] = (value >> (8 * k)) & 0xFF;
                         }
