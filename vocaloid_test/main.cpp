@@ -59,8 +59,8 @@ int PlayWavFile(){
     int16_t ret = reader->Open("output1.wav");
     if(ret < 0)return -1;
     uint64_t byte_length = 1024;
-    auto *bytes = new uint8_t[byte_length];
-    auto *output_bytes = new uint8_t[byte_length];
+    auto *bytes = new char[byte_length];
+    auto *output_bytes = new char[byte_length];
 
     auto header = reader->GetHeader();
     vector<PitchShifter*> pitch_shifters = {
@@ -68,10 +68,14 @@ int PlayWavFile(){
         new PitchShifter()
     };
 
+    auto *data = new vector<float>[header.channels];
+
     uint32_t float_length = byte_length / header.block_align;
     for(int i = 0;i < header.channels;i++){
         pitch_shifters[i]->Initialize(float_length,
-                reader->GetHeader().samples_per_sec, 0.5f);
+                reader->GetHeader().samples_per_sec, 0.75f);
+        pitch_shifters[i]->SetPitch(1.2f);
+        data[i].resize(float_length);
     }
 
     auto *buffer = new Buffer();
@@ -82,23 +86,27 @@ int PlayWavFile(){
     auto *pcm_player = new PCMPlayer();
     pcm_player->Open(header.samples_per_sec, header.bits_per_sec, header.channels);
 
+    auto *writer = new wav::Writer(header.samples_per_sec, header.bits_per_sec, header.channels);
+    writer->Open("pitch.wav");
+
     while(!reader->IsEnd()){
         uint64_t data_size = reader->ReadPCMData(bytes, byte_length);
         buffer->FromByteArray(bytes, data_size);
         for(int i = 0;i < buffer->GetChannels();i++){
-            pitch_shifters[i]->Process(buffer->GetChannelAt(i), buffer->GetBufferSize());
+            pitch_shifters[i]->Process(buffer->GetChannelAt(i), float_length);
             while(!pitch_shifters[i]->IsOutputQueueEmpty(float_length)){
-                vector<float> data(float_length);
-                uint32_t length = pitch_shifters[i]->PopFrame(data, float_length);
-                buffer_queue->Push(i, data, length);
+                uint32_t length = pitch_shifters[i]->PopFrame(data[i], float_length);
+                buffer_queue->Push(i, data[i], length);
             }
         }
         while(buffer_queue->IsCountAvalidated(float_length)){
             data_size = buffer_queue->Pop(buffer->GetData(), float_length);
             buffer->ToByteArray(output_bytes, data_size);
-            pcm_player->Push((const char*)output_bytes, data_size);
+//            pcm_player->Push(output_bytes, data_size);
+            writer->WritePCMData(output_bytes, data_size);
         }
     }
+    writer->Close();
     pcm_player->Flush();
     pcm_player->Close();
     reader->Close();
@@ -106,48 +114,48 @@ int PlayWavFile(){
 }
 
 // Write pcm data to wav file
-//uint64_t FloatToBytes(vector<float> input, uint64_t n, uint16_t bits, uint8_t *output) {
-//    int depth = bits / 8;
-//    int output_len = (int)floorf(n * depth);
-//    float range = powf(2, bits - 1);
-//    for (int i = 0; i < n; i++) {
-//        short v = input[i] * range;
-//        for (int j = 0; j < depth; j++) {
-//            output[i * depth + j] = v >> (8 * j) & 0xFF;
-//        }
-//    }
-//    return output_len;
-//}
+uint64_t FloatToBytes(vector<float> input, uint64_t n, uint16_t bits, char *output) {
+    int depth = bits / 8;
+    int output_len = (int)floorf(n * depth);
+    float range = powf(2, bits - 1);
+    for (int i = 0; i < n; i++) {
+        short v = input[i] * range;
+        for (int j = 0; j < depth; j++) {
+            output[i * depth + j] = v >> (8 * j) & 0xFF;
+        }
+    }
+    return output_len;
+}
 
-//int GenerateWavWithWAVWriter(){
-//    uint32_t sample_rate = 44100, waveform_sample_rate = 440;
-//    uint16_t bits = 16, channels = 1;
-//    uint64_t waveform_size = 4096;
-//    vector<float> waveform(waveform_size);
-//    vector<float> resampled_waveform;
-//    GenWaveform(WAVEFORM_TYPE::SINE, waveform_sample_rate, waveform_size, waveform);
-//    // Resammple waveform
-//    uint64_t resampled_waveform_len = Resample(waveform, waveform_size,
-//                                               INTERPOLATOR_TYPE::CUBIC,
-//                                               (float)sample_rate/float(waveform_sample_rate * waveform_size),
-//                                               resampled_waveform);
-//
-//    // Transfer to byte array
-//    uint8_t *bytes = new uint8_t[bits/8 * channels * resampled_waveform_len];
-//    uint64_t byte_length = FloatToBytes(resampled_waveform, resampled_waveform_len, bits, bytes);
-//
-//    auto *writer = new wav::Writer(sample_rate, bits, channels);
-//    writer->Open("output.wav");
-//
-//    double seconds = 5.0f;
-//    uint64_t N = (uint64_t)ceil((double)sample_rate * seconds * bits/8),
-//            times = N / byte_length;
-//    for(int i = 0;i < times;i++){
-//        writer->WritePCMData(bytes, byte_length);
-//    }
-//    writer->Close();
-//    return 0;
-//}
+int GenerateWavWithWAVWriter(){
+    uint32_t sample_rate = 44100, waveform_sample_rate = 440;
+    uint16_t bits = 16, channels = 1;
+    uint64_t waveform_size = 4096;
+    vector<float> waveform(waveform_size);
+    vector<float> resampled_waveform;
+    GenWaveform(WAVEFORM_TYPE::SINE, waveform_sample_rate, waveform_size, waveform);
+    // Resammple waveform
+    uint64_t resampled_waveform_len = Resample(waveform, waveform_size,
+                                               INTERPOLATOR_TYPE::CUBIC,
+                                               (float)sample_rate/float(waveform_sample_rate * waveform_size),
+                                               resampled_waveform);
+
+    // Transfer to byte array
+    char *bytes = new char[bits/8 * channels * resampled_waveform_len];
+    uint64_t byte_length = FloatToBytes(resampled_waveform, resampled_waveform_len, bits, bytes);
+
+    auto *writer = new wav::Writer(sample_rate, bits, channels);
+    writer->Open("output.wav");
+
+    double seconds = 5.0f;
+    uint64_t N = (uint64_t)ceil((double)sample_rate * seconds * bits/8),
+            times = N / byte_length;
+    for(int i = 0;i < times;i++){
+        writer->WritePCMData(bytes, byte_length);
+    }
+    writer->Close();
+    return 0;
+}
 
 int main(){
 //    GenerateWavWithWAVWriter();

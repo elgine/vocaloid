@@ -7,7 +7,7 @@ using namespace std;
 namespace vocaloid {
 
 	template<typename T>
-	uint64_t Resample(vector<T> input,  uint64_t input_len, INTERPOLATOR_TYPE interpolator, float ratio,vector<T>& output) {
+	uint64_t Resample(vector<T> input,  uint64_t input_len, INTERPOLATOR_TYPE interpolator, float ratio, vector<T>& output) {
 		uint64_t output_len = ratio * input_len;
 		if (ratio == 1)output.assign(input.begin(), input.end());
 		else {

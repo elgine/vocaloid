@@ -23,7 +23,7 @@ namespace vocaloid {
         vector<float> imag_;
 
         static float CalculateMagnitude(float real, float imag){
-            return sqrtf(powf(real, 2) + powf(imag, 2));
+            return sqrtf(powf(real, 2.0f) + powf(imag, 2.0f));
         }
 
         static float CalculatePhase(float real, float imag){
@@ -31,20 +31,18 @@ namespace vocaloid {
         }
 
         static float MapRadianToPi(float rad) {
-            while (rad > M_PI)
-                rad -= 2 * M_PI;
-            while (rad < -M_PI)
-                rad += 360;
-            return rad;
+            double a = rad + M_PI,
+                    b = -2 * M_PI;
+            return float(a - (int)(a/b)*b + M_PI);
         }
 
         void CalculateSpectrum(vector<float> &spectrum, float &peak_band, float &peak) {
             spectrum.resize(buffer_size_ / 2, 0);
-            float b_si = 2 / buffer_size_, rval, ival, mag;
+            float b_si = 2.0f / buffer_size_, rval, ival, mag;
             for (int i = 0, N = buffer_size_ / 2; i < N; i++) {
                 rval = real_[i];
                 ival = imag_[i];
-                mag = (float)(b_si * sqrt(powf(rval, 2) + powf(ival, 2)));
+                mag = b_si * sqrt(powf(rval, 2) + powf(ival, 2));
                 if (mag > peak) {
                     peak_band = i;
                     peak = mag;
@@ -73,8 +71,8 @@ namespace vocaloid {
 			sin_table_ = vector<float>(buffer_size_);
 			cos_table_ = vector<float>(buffer_size_);
 			for (i = 0; i < buffer_size_; i++) {
-				sin_table_[i] = sinf(-M_PI / (float)i);
-				cos_table_[i] = cosf(-M_PI / (float)i);
+				sin_table_[i] = (float)sin(-M_PI / i);
+				cos_table_[i] = (float)cos(-M_PI / i);
 			}
 		}
 

@@ -120,7 +120,9 @@ namespace vocaloid {
 		case WINDOW_TYPE::KAISER:
 			Kaiser(length, extra, output);
 			break;
-		default:break;
+		default:
+		    Hamming(length, output);
+		    break;
 		}
 	}
 }

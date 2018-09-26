@@ -84,8 +84,8 @@ namespace vocaloid{
                 return 0;
             }
 
-            uint64_t WritePCMData(uint8_t* bytes, uint64_t byte_length){
-                out_.write((char*)bytes, byte_length);
+            uint64_t WritePCMData(const char* bytes, uint64_t byte_length){
+                out_.write(bytes, byte_length);
                 header_.size0 += byte_length;
                 header_.size2 += byte_length;
                 return header_.size2;
@@ -181,13 +181,13 @@ namespace vocaloid{
                 }
             }
 
-            uint64_t ReadPCMData(uint8_t *bytes, uint64_t byte_length){
+            uint64_t ReadPCMData(char *bytes, uint64_t byte_length){
                 if(IsEnd())return 0;
                 uint64_t left = header_.size2 - pos_;
                 if(left < byte_length){
                     byte_length = left;
                 }
-                in_.read((char*)bytes, (long)byte_length);
+                in_.read(bytes, byte_length);
                 pos_ += byte_length;
                 return byte_length;
             }

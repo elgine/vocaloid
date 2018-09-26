@@ -31,7 +31,16 @@ namespace vocaloid{
             sample_rate_ = sample_rate;
         }
 
-        void FromByteArray(uint8_t *byte_array, uint32_t byte_length){
+        void Set(vector<float> *data, uint32_t buffer_size){
+            buffer_size_ = buffer_size;
+            for(int i = 0;i < channels_;i++){
+                if(data_[i].size() != buffer_size_)
+                    data_[i].resize(buffer_size_);
+                data_[i].assign(data[i].begin(), data[i].end());
+            }
+        }
+
+        void FromByteArray(const char *byte_array, uint32_t byte_length){
             uint16_t depth = bits_ / 8;
             uint16_t step = depth * channels_;
             uint32_t new_buffer_size = byte_length / step;
@@ -45,39 +54,27 @@ namespace vocaloid{
             for(int i = 0;i < byte_length;i += step){
                 for(int j = 0;j < channels_;j++){
                     long offset = i + j * depth;
-                    long value = byte_array[offset];
+                    long value = byte_array[offset] & 0xFF;
                     for(int k = 1;k < depth;k++){
-                        value |= byte_array[offset + k] << (k * 8);
+                        value |= (long)(byte_array[offset + k] << (k * 8));
                     }
-                    data_[j][i / step] = (value - max)/max;
+                    data_[j][i / step] = value/max;
                 }
             }
         }
 
-        void ToByteArray(uint8_t *byte_array, uint64_t &byte_length, bool planar = false){
+        void ToByteArray(char *byte_array, uint64_t &byte_length){
             uint16_t depth = bits_ / 8;
             uint16_t step = depth * channels_;
             byte_length = step * buffer_size_;
             float max = powf(2.0f, bits_ - 1);
-            if(!planar){
-                for(int i = 0;i < buffer_size_;i++){
-                    for(int j = 0;j < channels_;j++){
-                        float clipped = fmaxf(-1.0f, data_[j][i]);
-                            clipped = fminf(1.0f, clipped);
-                        int64_t value = clipped * max + max;
-                        for(int k = 0;k < depth;k++){
-                            byte_array[i * step + j * depth + k] = (value >> (8 * k)) & 0xFF;
-                        }
-                    }
-                }
-            }else{
-                for(int j = 0;j < channels_;j++){
-                    for(int i = 0;i < buffer_size_;i++){
-                        long value = data_[j][i] * max + max;
-                        uint64_t offset = j * buffer_size_;
-                        for(int k = 0;k < depth;k++){
-                            byte_array[offset + i * depth + k] = (value >> (8 * k)) & 0xFF;
-                        }
+            for(int i = 0;i < buffer_size_;i++) {
+                for (int j = 0; j < channels_; j++) {
+                    float clipped = fmaxf(-1.0f, data_[j][i]);
+                    clipped = fminf(1.0f, clipped);
+                    long value = long(clipped * max);
+                    for (int k = 0; k < depth; k++) {
+                        byte_array[i * step + j * depth + k] = (char)((value >> 8 * k) & 0xFF);
                     }
                 }
             }
@@ -91,18 +88,18 @@ namespace vocaloid{
             }
         }
 
-        void AddByteArray(uint8_t *byte_array, uint64_t array_length, uint64_t offset = 0){
+        void AddByteArray(const char *byte_array, uint64_t array_length, uint64_t offset = 0){
             uint16_t depth = bits_ / 8;
             uint16_t step = depth * channels_;
             float max = powf(2.0f, bits_ - 1);
             for(int i = 0;i < array_length;i += step){
                 for(int j = 0;j < channels_;j++){
                     uint64_t index = i + offset + j * depth;
-                    long value = byte_array[index];
+                    long value = byte_array[index] & 0xFF;
                     for(int k = 1;k < depth;k++){
-                        value |= byte_array[index + k] << (k * 8);
+                        value |= long(byte_array[index + k] << (k * 8));
                     }
-                    data_[j].push_back((value - max)/max);
+                    data_[j].push_back(value/max);
                 }
             }
             buffer_size_ += array_length / step;
