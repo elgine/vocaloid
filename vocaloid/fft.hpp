@@ -33,7 +33,7 @@ namespace vocaloid {
         static float MapRadianToPi(float rad) {
             double a = rad + M_PI,
                     b = -2 * M_PI;
-            return float(a - (int)(a/b)*b + M_PI);
+            return float(a - (int)(a/b) * b + M_PI);
         }
 
         void CalculateSpectrum(vector<float> &spectrum, float &peak_band, float &peak) {

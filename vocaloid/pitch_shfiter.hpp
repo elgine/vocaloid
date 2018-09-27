@@ -6,8 +6,9 @@ namespace vocaloid{
 
     class PitchShifter: public STFT{
     private:
-        float tempo_ = 1.0f;
-        float pitch_ = 1.0f;
+        float stretch_ = 1.0f;
+        int32_t hop_size_pitch_;
+        int32_t hop_size_tempo_;
         vector<float> omega_;
         vector<float> prev_in_phase_;
         vector<float> prev_out_phase_;
@@ -21,7 +22,7 @@ namespace vocaloid{
                 float phase = FFT::CalculatePhase(fft_->real_[i], fft_->imag_[i]);
                 float diff = phase - prev_in_phase_[i] - omega_[i];
                 float freq_diff = omega_[i] + FFT::MapRadianToPi(diff);
-                float new_phase = FFT::MapRadianToPi(prev_out_phase_[i] + freq_diff * pitch_ * tempo_);
+                float new_phase = FFT::MapRadianToPi(prev_out_phase_[i] + freq_diff * stretch_);
                 prev_out_phase_[i] = new_phase;
                 prev_in_phase_[i] = phase;
                 fft_->real_[i] = cosf(new_phase) * magn;
@@ -29,8 +30,14 @@ namespace vocaloid{
             }
         }
 
-        void UpdateHopSize(){
-            hop_size_a_ = uint32_t(hop_size_ * pitch_ * tempo_);
+        void CalculateHopSizeTempo(float tempo){
+            hop_size_tempo_ = (int32_t)roundf(hop_size_ * tempo);
+        }
+
+        void CalculateHopSizePitch(float pitch){
+            hop_size_pitch_ = (int32_t)roundf(hop_size_tempo_ * pitch);
+            stretch_ = (float)hop_size_pitch_/(float)hop_size_;
+            hop_size_a_ = (int32_t)roundf(stretch_ * hop_size_);
         }
 
     public:
@@ -49,14 +56,20 @@ namespace vocaloid{
             }
             prev_in_phase_.resize(fft_size);
             prev_out_phase_.resize(fft_size);
+            hop_size_tempo_ = hop_size_pitch_ = hop_size_;
         }
 
-//        uint64_t PopFrame(vector<float> &frame, uint32_t len){
-//            vector<float> temp(len);
-//            uint32_t temp_len = STFT::PopFrame(temp, len);
-//            uint64_t frame_len = vocaloid::Resample(temp, temp_len, interpolator_, pitch_, frame);
-//            return frame_len;
-//        }
+        uint64_t PopFrame(vector<float> &frame, uint32_t len){
+            vector<float> temp(len);
+            uint32_t temp_len = STFT::PopFrame(temp, len);
+            uint64_t frame_len = vocaloid::Resample(temp, temp_len, interpolator_, 1.000000f/GetPitch(), frame);
+            return frame_len;
+        }
+
+        void ResetPhase(){
+            fill(prev_in_phase_.begin(), prev_in_phase_.end(), 0.0f);
+            fill(prev_out_phase_.begin(), prev_out_phase_.end(), 0.0f);
+        }
 
         void SetInterpolator(INTERPOLATOR_TYPE type){
             interpolator_ = type;
@@ -67,23 +80,21 @@ namespace vocaloid{
         }
 
         void SetPitch(float v){
-            if(pitch_ == v)return;
-            pitch_ = v;
-            UpdateHopSize();
+            CalculateHopSizePitch(v);
         }
 
         float GetPitch(){
-            return pitch_;
+            return (float)hop_size_pitch_/(float)hop_size_tempo_;
         }
 
         void SetTempo(float v){
-            if(tempo_ == v)return;
-            tempo_ = v;
-            UpdateHopSize();
+            float pitch = GetPitch();
+            CalculateHopSizeTempo(v);
+            CalculateHopSizePitch(pitch);
         }
 
         float GetTempo(){
-            return tempo_;
+            return (float)hop_size_tempo_/(float)hop_size_;
         }
 
         void Dispose() override {

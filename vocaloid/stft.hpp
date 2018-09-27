@@ -13,9 +13,9 @@ namespace vocaloid{
     protected:
         FFT *fft_;
         float overlap_;
-        uint32_t overlap_size_;
-        uint32_t hop_size_;
-        uint32_t hop_size_a_;
+        int32_t overlap_size_;
+        int32_t hop_size_;
+        int32_t hop_size_a_;
         vector<float> win_;
         // Input queue buffer
         vector<float> input_queue_;
@@ -59,7 +59,7 @@ namespace vocaloid{
             if(overlap_ == o)return;
             uint32_t fft_size = fft_->GetBufferSize();
             overlap_ = o;
-            overlap_size_ = (uint32_t)(fft_size * overlap_);
+            overlap_size_ = (int32_t)(fft_size * overlap_);
             hop_size_a_ = hop_size_ = fft_size - overlap_size_;
         }
 
@@ -120,7 +120,7 @@ namespace vocaloid{
             frame_len = min(output_queue_.size(), frame_len);
             float overlap_scaling = (float) fft_->GetBufferSize() / ((float) hop_size_a_ * 2.0f);
             for(int i = 0;i < frame_len;i++){
-                frame[i] = output_queue_[i] / overlap_scaling;
+                frame[i] = output_queue_[i]/overlap_scaling;
             }
             output_queue_.erase(output_queue_.begin(), output_queue_.begin() + frame_len);
             return frame_len;

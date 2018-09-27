@@ -58,7 +58,7 @@ int PlayWavFile(){
     auto *reader = new wav::Reader();
     int16_t ret = reader->Open("output1.wav");
     if(ret < 0)return -1;
-    uint64_t byte_length = 1024;
+    uint64_t byte_length = 8192;
     auto *bytes = new char[byte_length];
     auto *output_bytes = new char[byte_length];
 
@@ -74,7 +74,8 @@ int PlayWavFile(){
     for(int i = 0;i < header.channels;i++){
         pitch_shifters[i]->Initialize(float_length,
                 reader->GetHeader().samples_per_sec, 0.75f);
-        pitch_shifters[i]->SetPitch(1.2f);
+        pitch_shifters[i]->SetPitch(0.8f);
+        pitch_shifters[i]->SetTempo(1.25f);
         data[i].resize(float_length);
     }
 
@@ -86,8 +87,8 @@ int PlayWavFile(){
     auto *pcm_player = new PCMPlayer();
     pcm_player->Open(header.samples_per_sec, header.bits_per_sec, header.channels);
 
-    auto *writer = new wav::Writer(header.samples_per_sec, header.bits_per_sec, header.channels);
-    writer->Open("pitch.wav");
+//    auto *writer = new wav::Writer(header.samples_per_sec, header.bits_per_sec, header.channels);
+//    writer->Open("pitch.wav");
 
     while(!reader->IsEnd()){
         uint64_t data_size = reader->ReadPCMData(bytes, byte_length);
@@ -102,11 +103,11 @@ int PlayWavFile(){
         while(buffer_queue->IsCountAvalidated(float_length)){
             data_size = buffer_queue->Pop(buffer->GetData(), float_length);
             buffer->ToByteArray(output_bytes, data_size);
-//            pcm_player->Push(output_bytes, data_size);
-            writer->WritePCMData(output_bytes, data_size);
+            pcm_player->Push(output_bytes, data_size);
+//            writer->WritePCMData(output_bytes, data_size);
         }
     }
-    writer->Close();
+//    writer->Close();
     pcm_player->Flush();
     pcm_player->Close();
     reader->Close();
