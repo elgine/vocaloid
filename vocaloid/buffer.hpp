@@ -8,10 +8,11 @@ using namespace std;
 namespace vocaloid{
 
     class Buffer: IDisposable{
+    friend class BufferQueue;
     private:
         static const uint16_t max_channels = 6;
         vector<float> *data_;
-        uint32_t buffer_size_;
+        uint64_t buffer_size_;
 
         uint16_t channels_ = 2;
         uint16_t bits_ = 16;
@@ -80,7 +81,7 @@ namespace vocaloid{
             }
         }
 
-        void AddFloatArray(vector<float> *float_array, uint64_t array_length, uint64_t offset = 0){
+        void PushFloatArray(vector<float> *float_array, uint64_t array_length, uint64_t offset = 0){
             for(int i = 0;i < channels_;i++){
                 for(int j = 0;j < array_length;j++){
                     data_[i].push_back(float_array[i][offset + j]);
@@ -88,7 +89,7 @@ namespace vocaloid{
             }
         }
 
-        void AddByteArray(const char *byte_array, uint64_t array_length, uint64_t offset = 0){
+        void PushByteArray(const char *byte_array, uint64_t array_length, uint64_t offset = 0){
             uint16_t depth = bits_ / 8;
             uint16_t step = depth * channels_;
             float max = powf(2.0f, bits_ - 1);

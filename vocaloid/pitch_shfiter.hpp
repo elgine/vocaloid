@@ -81,6 +81,7 @@ namespace vocaloid{
 
         void SetPitch(float v){
             CalculateHopSizePitch(v);
+            ResetPhase();
         }
 
         float GetPitch(){
@@ -91,6 +92,7 @@ namespace vocaloid{
             float pitch = GetPitch();
             CalculateHopSizeTempo(v);
             CalculateHopSizePitch(pitch);
+            ResetPhase();
         }
 
         float GetTempo(){
