@@ -11,7 +11,7 @@ using namespace std;
 using namespace vocaloid;
 // Read pcm data from wav file
 int PlayWavFile(){
-    auto *reader = new wav::Reader();
+    auto *reader = new wav::WAVReader();
     int16_t ret = reader->Open("output1.wav");
     if(ret < 0)return -1;
     uint64_t byte_length = 8192;
@@ -47,7 +47,7 @@ int PlayWavFile(){
 //    writer->Open("pitch.wav");
 
     while(!reader->IsEnd()){
-        uint64_t data_size = reader->ReadPCMData(bytes, byte_length);
+        uint64_t data_size = reader->ReadData(bytes, byte_length);
         buffer->FromByteArray(bytes, data_size);
         for(int i = 0;i < buffer->GetChannels();i++){
             pitch_shifters[i]->Process(buffer->GetChannelAt(i), float_length);

@@ -4,8 +4,8 @@
 #include <string.h>
 #include <fstream>
 #include <vector>
+#include "reader.h"
 using namespace std;
-
 namespace vocaloid{
 
     namespace wav{
@@ -28,7 +28,7 @@ namespace vocaloid{
             uint32_t size2;
         };
 
-        class Writer{
+        class WAVWriter{
         private:
             WAV_HEADER header_;
             ofstream out_;
@@ -104,14 +104,14 @@ namespace vocaloid{
             }
         };
 
-        class Reader{
+        class WAVReader: public IReader{
         private:
             WAV_HEADER header_;
             ifstream in_;
             uint64_t pos_;
             bool has_extra_data_;
         public:
-            int16_t Open(const char* source_path){
+            int16_t Open(const char* source_path) override {
                 has_extra_data_ = false;
                 header_ = {
                     {' ', ' ', ' ', ' ', '\0'},
@@ -174,14 +174,14 @@ namespace vocaloid{
                 return length;
             }
 
-            uint64_t Seek(uint64_t pos){
+            uint64_t Seek(uint64_t pos) override {
                 if(pos < header_.size2 && pos > 0){
                     pos_ = pos;
                     in_.seekg(pos_ + GetHeaderLength());
                 }
             }
 
-            uint64_t ReadPCMData(char *bytes, uint64_t byte_length){
+            uint64_t ReadData(char *bytes, uint64_t byte_length) override {
                 if(IsEnd())return 0;
                 uint64_t left = header_.size2 - pos_;
                 if(left < byte_length){
@@ -192,11 +192,11 @@ namespace vocaloid{
                 return byte_length;
             }
 
-            bool IsEnd(){
+            bool IsEnd() override {
                 return in_.eof() || header_.size2 - pos_ <= 0;
             }
 
-            void Close(){
+            void Close() override {
                 in_.close();
             }
 

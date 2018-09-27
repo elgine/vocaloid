@@ -12,9 +12,19 @@ namespace vocaloid{
         queue<float> *buffers_;
     public:
 
-        BufferQueue(uint16_t channels){
+        explicit BufferQueue(uint16_t channels){
             channels_ = channels;
             buffers_ = new queue<float>[channels_];
+        }
+
+        void Push(Buffer *buf, uint64_t length = 0){
+            if(buf->GetChannels() != channels_)
+                throw "The buffer has the difference channels with buffer queue";
+            length = length <= 0?buf->GetBufferSize():length;
+            for(int i = 0;i < channels_;i++){
+                for(int j = 0;j < length;j++)
+                    buffers_[i].push(buf->GetChannelAt(i)[j]);
+            }
         }
 
         void Push(uint16_t index, float *data, uint64_t length){
@@ -66,7 +76,8 @@ namespace vocaloid{
             return length;
         }
 
-        uint64_t Pop(Buffer *buf, uint64_t length){
+        uint64_t Pop(Buffer *buf, uint64_t length = 0){
+            length = length <= 0?buf->GetBufferSize():length;
             if(!IsCountAvalidated(length))return 0;
             for(int i = 0;i < length;i++){
                 for(int j = 0;j < channels_;j++){
@@ -87,6 +98,16 @@ namespace vocaloid{
                 }
             }
             return length;
+        }
+
+        uint32_t Least(){
+            uint32_t size = 0;
+            for(int i = 0;i < channels_;i++){
+                if(i == 0 || buffers_[i].size() < size){
+                    size = buffers_[i].size();
+                }
+            }
+            return size;
         }
 
         bool IsCountAvalidated(uint64_t length){

@@ -1,7 +1,9 @@
 #include <iostream>
 #include <stdio.h>
+#include <string>
 #include <gtest/gtest.h>
 #include <tone.hpp>
+#include <path.hpp>
 using namespace std;
 using namespace vocaloid;
 
@@ -29,9 +31,15 @@ TEST(TestNoteToFequency, Normal){
     ASSERT_FLOAT_EQ(frequency, 7902.133);
 }
 
+TEST(TestPathUtil, Normal){
+    string path = "\\Desktop\\output.wav";
+    ASSERT_EQ(GetExtension(path), ".wav");
+    ASSERT_EQ(GetSubDirectory(path), "\\Desktop");
+    ASSERT_EQ(GetFileName(path), "output.wav");
+    ASSERT_EQ(CombinePath("C:\\Users\\Elgine", path), "C:\\Users\\Elgine\\Desktop\\output.wav");
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
-    int result = RUN_ALL_TESTS();
-    getchar();
-    return result;
+    return RUN_ALL_TESTS();
 }

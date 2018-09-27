@@ -19,7 +19,7 @@ namespace vocaloid{
         uint32_t sample_rate_ = 44100;
     public:
 
-        Buffer(uint32_t buffer_size = 1024):buffer_size_(buffer_size){
+        explicit Buffer(uint32_t buffer_size = 1024):buffer_size_(buffer_size){
             data_ = new vector<float>[max_channels];
             for(int i = 0;i < max_channels;i++){
                 data_[i].resize(buffer_size_);
@@ -30,6 +30,15 @@ namespace vocaloid{
             channels_ = channels;
             bits_ = bits;
             sample_rate_ = sample_rate;
+        }
+
+        void Copy(Buffer *another){
+            channels_ = another->GetChannels();
+            buffer_size_ = another->GetBufferSize();
+            for(int i = 0;i < channels_;i++){
+                auto channel_data = another->GetChannelAt(i);
+                data_[i].assign(channel_data.begin(), channel_data.end());
+            }
         }
 
         void Set(vector<float> *data, uint32_t buffer_size){
@@ -110,7 +119,7 @@ namespace vocaloid{
             return data_;
         }
 
-        vector<float> GetChannelAt(uint16_t channel){
+        vector<float> GetChannelAt(int channel){
             return data_[channel];
         }
 

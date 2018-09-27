@@ -1,4 +1,6 @@
 #pragma once
+#include <sstream>
+using namespace std;
 // Number to string
 template<typename T>
 void Number2Str(const T &int_temp, string &string_temp) {
