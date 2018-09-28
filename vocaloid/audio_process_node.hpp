@@ -2,6 +2,8 @@
 #include "audio_node.hpp"
 namespace vocaloid {
     class AudioProcessNode : public AudioNode {
-        void Process(Buffer *in, Buffer *out) {}
+    public:
+        explicit AudioProcessNode(IAudioContext *ctx):AudioNode(ctx){}
+        virtual void Process(Buffer *in, Buffer *out){}
     };
 }

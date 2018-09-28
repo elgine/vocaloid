@@ -2,19 +2,20 @@
 #include <stdint.h>
 #include <vector>
 #include <map>
-#include <thread>
-#include <mutex>
 #include "audio_context_interface.h"
 #include "emitter.hpp"
 #include "audio_node.hpp"
 #include "audio_source_node.hpp"
 #include "audio_destination_node.hpp"
 #include "audio_chain.hpp"
+#include "ticker.hpp"
+#include "thread_pool.hpp"
 using namespace std;
 namespace vocaloid{
 
     class AudioContext: public Emitter, public IAudioContext{
     protected:
+        Ticker *ticker_;
         AudioContextState state_;
         uint32_t sample_rate_;
         vector<AudioNode*> nodes_;
@@ -82,6 +83,7 @@ namespace vocaloid{
     public:
         explicit AudioContext(uint32_t sample_rate = 44100):sample_rate_(sample_rate){
             state_ = AudioContextState::FREE;
+            ticker_ = new Ticker();
         }
 
         void Setup() override {

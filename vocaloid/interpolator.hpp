@@ -45,6 +45,7 @@ namespace vocaloid {
 	}
 
 	enum INTERPOLATOR_TYPE {
+		NONE,
 		LINEAR,
 		CUBIC
 	};
