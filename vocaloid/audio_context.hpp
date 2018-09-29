@@ -9,7 +9,6 @@
 #include "audio_destination_node.hpp"
 #include "audio_chain.hpp"
 #include "ticker.hpp"
-#include "thread_pool.hpp"
 using namespace std;
 namespace vocaloid{
 

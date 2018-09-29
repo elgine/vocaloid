@@ -52,9 +52,12 @@ const char kInternalRunDeathTestFlag[] = "internal_run_death_test";
 
 #if GTEST_HAS_DEATH_TEST
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
+/* class A needs to have dll-interface to be used by clients of class B */)
+
 // DeathTest is a class that hides much of the complexity of the
 // GTEST_DEATH_TEST_ macro.  It is abstract; its static Create method
-// returns a concrete class that depends on the prevailing death vocaloid_test
+// returns a concrete class that depends on the prevailing death test
 // style, as defined by the --gtest_death_test_style and/or
 // --gtest_internal_run_death_test flags.
 
@@ -68,19 +71,19 @@ const char kInternalRunDeathTestFlag[] = "internal_run_death_test";
 class GTEST_API_ DeathTest {
  public:
   // Create returns false if there was an error determining the
-  // appropriate action to take for the current death vocaloid_test; for example,
+  // appropriate action to take for the current death test; for example,
   // if the gtest_death_test_style flag is set to an invalid value.
   // The LastMessage method will return a more detailed message in that
-  // case.  Otherwise, the DeathTest pointer pointed to by the "vocaloid_test"
-  // argument is set.  If the death vocaloid_test should be skipped, the pointer
+  // case.  Otherwise, the DeathTest pointer pointed to by the "test"
+  // argument is set.  If the death test should be skipped, the pointer
   // is set to NULL; otherwise, it is set to the address of a new concrete
-  // DeathTest object that controls the execution of the current vocaloid_test.
+  // DeathTest object that controls the execution of the current test.
   static bool Create(const char* statement, const RE* regex,
                      const char* file, int line, DeathTest** test);
   DeathTest();
   virtual ~DeathTest() { }
 
-  // A helper class that aborts a death vocaloid_test when it's deleted.
+  // A helper class that aborts a death test when it's deleted.
   class ReturnSentinel {
    public:
     explicit ReturnSentinel(DeathTest* test) : test_(test) { }
@@ -91,13 +94,13 @@ class GTEST_API_ DeathTest {
   } GTEST_ATTRIBUTE_UNUSED_;
 
   // An enumeration of possible roles that may be taken when a death
-  // vocaloid_test is encountered.  EXECUTE means that the death vocaloid_test logic should
+  // test is encountered.  EXECUTE means that the death test logic should
   // be executed immediately.  OVERSEE means that the program should prepare
   // the appropriate environment for a child process to execute the death
-  // vocaloid_test, then wait for it to complete.
+  // test, then wait for it to complete.
   enum TestRole { OVERSEE_TEST, EXECUTE_TEST };
 
-  // An enumeration of the three reasons that a vocaloid_test might be aborted.
+  // An enumeration of the three reasons that a test might be aborted.
   enum AbortReason {
     TEST_ENCOUNTERED_RETURN_STATEMENT,
     TEST_THREW_EXCEPTION,
@@ -107,11 +110,11 @@ class GTEST_API_ DeathTest {
   // Assumes one of the above roles.
   virtual TestRole AssumeRole() = 0;
 
-  // Waits for the death vocaloid_test to finish and returns its status.
+  // Waits for the death test to finish and returns its status.
   virtual int Wait() = 0;
 
-  // Returns true if the death vocaloid_test passed; that is, the vocaloid_test process
-  // exited during the vocaloid_test, its exit status matches a user-supplied
+  // Returns true if the death test passed; that is, the test process
+  // exited during the test, its exit status matches a user-supplied
   // predicate, and its stderr output matches a user-supplied regular
   // expression.
   // The user-supplied predicate may be a macro expression rather
@@ -119,21 +122,23 @@ class GTEST_API_ DeathTest {
   // be combined.
   virtual bool Passed(bool exit_status_ok) = 0;
 
-  // Signals that the death vocaloid_test did not die as expected.
+  // Signals that the death test did not die as expected.
   virtual void Abort(AbortReason reason) = 0;
 
   // Returns a human-readable outcome message regarding the outcome of
-  // the last death vocaloid_test.
+  // the last death test.
   static const char* LastMessage();
 
   static void set_last_death_test_message(const std::string& message);
 
  private:
-  // A string containing a description of the outcome of the last death vocaloid_test.
+  // A string containing a description of the outcome of the last death test.
   static std::string last_death_test_message_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(DeathTest);
 };
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
 // Factory interface for death tests.  May be mocked out for testing.
 class DeathTestFactory {
@@ -154,7 +159,7 @@ class DefaultDeathTestFactory : public DeathTestFactory {
 // by a signal, or exited normally with a nonzero exit code.
 GTEST_API_ bool ExitedUnsuccessfully(int exit_status);
 
-// Traps C++ exceptions escaping statement and reports them as vocaloid_test
+// Traps C++ exceptions escaping statement and reports them as test
 // failures. Note that trapping SEH exceptions is not implemented here.
 # if GTEST_HAS_EXCEPTIONS
 #  define GTEST_EXECUTE_DEATH_TEST_STATEMENT_(statement, death_test) \

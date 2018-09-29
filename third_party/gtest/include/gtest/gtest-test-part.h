@@ -37,20 +37,23 @@
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-string.h"
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
+/* class A needs to have dll-interface to be used by clients of class B */)
+
 namespace testing {
 
-// A copyable object representing the result of a vocaloid_test part (i.e. an
+// A copyable object representing the result of a test part (i.e. an
 // assertion or an explicit FAIL(), ADD_FAILURE(), or SUCCESS()).
 //
 // Don't inherit from TestPartResult as its destructor is not virtual.
 class GTEST_API_ TestPartResult {
  public:
-  // The possible outcomes of a vocaloid_test part (i.e. an assertion or an
+  // The possible outcomes of a test part (i.e. an assertion or an
   // explicit SUCCEED(), FAIL(), or ADD_FAILURE()).
   enum Type {
     kSuccess,          // Succeeded.
-    kNonFatalFailure,  // Failed but the vocaloid_test can continue.
-    kFatalFailure      // Failed and the vocaloid_test should be terminated.
+    kNonFatalFailure,  // Failed but the test can continue.
+    kFatalFailure      // Failed and the test should be terminated.
   };
 
   // C'tor.  TestPartResult does NOT have a default constructor.
@@ -67,35 +70,35 @@ class GTEST_API_ TestPartResult {
         message_(a_message) {
   }
 
-  // Gets the outcome of the vocaloid_test part.
+  // Gets the outcome of the test part.
   Type type() const { return type_; }
 
-  // Gets the name of the source file where the vocaloid_test part took place, or
+  // Gets the name of the source file where the test part took place, or
   // NULL if it's unknown.
   const char* file_name() const {
     return file_name_.empty() ? NULL : file_name_.c_str();
   }
 
-  // Gets the line in the source file where the vocaloid_test part took place,
+  // Gets the line in the source file where the test part took place,
   // or -1 if it's unknown.
   int line_number() const { return line_number_; }
 
   // Gets the summary of the failure message.
   const char* summary() const { return summary_.c_str(); }
 
-  // Gets the message associated with the vocaloid_test part.
+  // Gets the message associated with the test part.
   const char* message() const { return message_.c_str(); }
 
-  // Returns true iff the vocaloid_test part passed.
+  // Returns true iff the test part passed.
   bool passed() const { return type_ == kSuccess; }
 
-  // Returns true iff the vocaloid_test part failed.
+  // Returns true iff the test part failed.
   bool failed() const { return type_ != kSuccess; }
 
-  // Returns true iff the vocaloid_test part non-fatally failed.
+  // Returns true iff the test part non-fatally failed.
   bool nonfatally_failed() const { return type_ == kNonFatalFailure; }
 
-  // Returns true iff the vocaloid_test part fatally failed.
+  // Returns true iff the test part fatally failed.
   bool fatally_failed() const { return type_ == kFatalFailure; }
 
  private:
@@ -105,14 +108,14 @@ class GTEST_API_ TestPartResult {
   // trace in it.
   static std::string ExtractSummary(const char* message);
 
-  // The name of the source file where the vocaloid_test part took place, or
+  // The name of the source file where the test part took place, or
   // "" if the source file is unknown.
   std::string file_name_;
-  // The line in the source file where the vocaloid_test part took place, or -1
+  // The line in the source file where the test part took place, or -1
   // if the line number is unknown.
   int line_number_;
-  std::string summary_;  // The vocaloid_test failure summary.
-  std::string message_;  // The vocaloid_test failure message.
+  std::string summary_;  // The test failure summary.
+  std::string message_;  // The test failure message.
 };
 
 // Prints a TestPartResult object.
@@ -141,8 +144,8 @@ class GTEST_API_ TestPartResultArray {
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestPartResultArray);
 };
 
-// This interface knows how to report a vocaloid_test part result.
-class TestPartResultReporterInterface {
+// This interface knows how to report a test part result.
+class GTEST_API_ TestPartResultReporterInterface {
  public:
   virtual ~TestPartResultReporterInterface() {}
 
@@ -153,7 +156,7 @@ namespace internal {
 
 // This helper class is used by {ASSERT|EXPECT}_NO_FATAL_FAILURE to check if a
 // statement generates new fatal failures. To do so it registers itself as the
-// current vocaloid_test part result reporter. Besides checking if fatal failures were
+// current test part result reporter. Besides checking if fatal failures were
 // reported, it only delegates the reporting to the former result reporter.
 // The original result reporter is restored in the destructor.
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
@@ -174,5 +177,7 @@ class GTEST_API_ HasNewFatalFailureHelper
 }  // namespace internal
 
 }  // namespace testing
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
 #endif  // GTEST_INCLUDE_GTEST_GTEST_TEST_PART_H_

@@ -42,6 +42,9 @@
 
 #include "gtest/internal/gtest-string.h"
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
+/* class A needs to have dll-interface to be used by clients of class B */)
+
 namespace testing {
 namespace internal {
 
@@ -80,8 +83,8 @@ class GTEST_API_ FilePath {
   // Returns the current working directory, or "" if unsuccessful.
   static FilePath GetCurrentDir();
 
-  // Given directory = "dir", base_name = "vocaloid_test", number = 0,
-  // extension = "xml", returns "dir/vocaloid_test.xml". If number is greater
+  // Given directory = "dir", base_name = "test", number = 0,
+  // extension = "xml", returns "dir/test.xml". If number is greater
   // than zero (e.g., 12), returns "dir/test_12.xml".
   // On Windows platform, uses \ as the separator rather than /.
   static FilePath MakeFileName(const FilePath& directory,
@@ -89,8 +92,8 @@ class GTEST_API_ FilePath {
                                int number,
                                const char* extension);
 
-  // Given directory = "dir", relative_path = "vocaloid_test.xml",
-  // returns "dir/vocaloid_test.xml".
+  // Given directory = "dir", relative_path = "test.xml",
+  // returns "dir/test.xml".
   // On Windows, uses \ as the separator rather than /.
   static FilePath ConcatPaths(const FilePath& directory,
                               const FilePath& relative_path);
@@ -202,5 +205,7 @@ class GTEST_API_ FilePath {
 
 }  // namespace internal
 }  // namespace testing
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
 #endif  // GTEST_INCLUDE_GTEST_INTERNAL_GTEST_FILEPATH_H_

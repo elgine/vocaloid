@@ -38,10 +38,13 @@
 
 #include "gtest/gtest.h"
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
+/* class A needs to have dll-interface to be used by clients of class B */)
+
 namespace testing {
 
 // This helper class can be used to mock out Google Test failure reporting
-// so that we can vocaloid_test Google Test or code that builds on Google Test.
+// so that we can test Google Test or code that builds on Google Test.
 //
 // An object of this class appends a TestPartResult object to the
 // TestPartResultArray object given in the constructor whenever a Google Test
@@ -58,7 +61,7 @@ class GTEST_API_ ScopedFakeTestPartResultReporter
     INTERCEPT_ALL_THREADS           // Intercepts all failures.
   };
 
-  // The c'tor sets this object as the vocaloid_test part result reporter used
+  // The c'tor sets this object as the test part result reporter used
   // by Google Test.  The 'result' parameter specifies where to report the
   // results. This reporter will only catch failures generated in the current
   // thread. DEPRECATED
@@ -68,7 +71,7 @@ class GTEST_API_ ScopedFakeTestPartResultReporter
   ScopedFakeTestPartResultReporter(InterceptMode intercept_mode,
                                    TestPartResultArray* result);
 
-  // The d'tor restores the previous vocaloid_test part result reporter.
+  // The d'tor restores the previous test part result reporter.
   virtual ~ScopedFakeTestPartResultReporter();
 
   // Appends the TestPartResult object to the TestPartResultArray
@@ -112,6 +115,8 @@ class GTEST_API_ SingleFailureChecker {
 
 }  // namespace testing
 
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
+
 // A set of macros for testing Google Test assertions or code that's expected
 // to generate Google Test fatal failures.  It verifies that the given
 // statement will cause exactly one fatal Google Test failure with 'substr'
@@ -133,7 +138,7 @@ class GTEST_API_ SingleFailureChecker {
 // Note that even though the implementations of the following two
 // macros are much alike, we cannot refactor them to use a common
 // helper macro, due to some peculiarity in how the preprocessor
-// works.  The AcceptsMacroThatExpandsToUnprotectedComma vocaloid_test in
+// works.  The AcceptsMacroThatExpandsToUnprotectedComma test in
 // gtest_unittest.cc will fail to compile if we do that.
 #define EXPECT_FATAL_FAILURE(statement, substr) \
   do { \
@@ -193,7 +198,7 @@ class GTEST_API_ SingleFailureChecker {
 // works.  If we do that, the code won't compile when the user gives
 // EXPECT_NONFATAL_FAILURE() a statement that contains a macro that
 // expands to code containing an unprotected comma.  The
-// AcceptsMacroThatExpandsToUnprotectedComma vocaloid_test in gtest_unittest.cc
+// AcceptsMacroThatExpandsToUnprotectedComma test in gtest_unittest.cc
 // catches that.
 //
 // For the same reason, we have to write

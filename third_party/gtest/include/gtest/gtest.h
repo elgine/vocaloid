@@ -31,7 +31,7 @@
 // The Google C++ Testing and Mocking Framework (Google Test)
 //
 // This header file defines the public API for Google Test.  It should be
-// included by any vocaloid_test program that uses Google Test.
+// included by any test program that uses Google Test.
 //
 // IMPORTANT NOTE: Due to limitation of the C++ language, we have to
 // leave some internal implementation details in this header file.
@@ -43,7 +43,7 @@
 // to CHANGE WITHOUT NOTICE.  Therefore DO NOT DEPEND ON IT in a user
 // program!
 //
-// Acknowledgment: Google Test borrowed the idea of automatic vocaloid_test
+// Acknowledgment: Google Test borrowed the idea of automatic test
 // registration from Barthelemy Dagenais' (barthelemy@prologique.com)
 // easyUnit framework.
 
@@ -65,6 +65,9 @@
 #include "gtest/gtest_prod.h"
 #include "gtest/gtest-test-part.h"
 #include "gtest/gtest-typed-test.h"
+
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
+/* class A needs to have dll-interface to be used by clients of class B */)
 
 // Depending on the platform, different string classes are available.
 // On Linux, in addition to ::std::string, Google also makes use of
@@ -100,7 +103,7 @@ GTEST_DECLARE_bool_(also_run_disabled_tests);
 // This flag brings the debugger on an assertion failure.
 GTEST_DECLARE_bool_(break_on_failure);
 
-// This flag controls whether Google Test catches all vocaloid_test-thrown exceptions
+// This flag controls whether Google Test catches all test-thrown exceptions
 // and logs them as failures.
 GTEST_DECLARE_bool_(catch_exceptions);
 
@@ -113,6 +116,10 @@ GTEST_DECLARE_string_(color);
 // the tests to run. If the filter is not given all tests are executed.
 GTEST_DECLARE_string_(filter);
 
+// This flag controls whether Google Test installs a signal handler that dumps
+// debugging information when fatal signals are raised.
+GTEST_DECLARE_bool_(install_failure_signal_handler);
+
 // This flag causes the Google Test to list tests. None of the tests listed
 // are actually run if the flag is provided.
 GTEST_DECLARE_bool_(list_tests);
@@ -122,7 +129,7 @@ GTEST_DECLARE_bool_(list_tests);
 GTEST_DECLARE_string_(output);
 
 // This flags control whether Google Test prints the elapsed time for each
-// vocaloid_test.
+// test.
 GTEST_DECLARE_bool_(print_time);
 
 // This flags control whether Google Test prints UTF8 characters as text.
@@ -148,13 +155,17 @@ GTEST_DECLARE_int32_(stack_trace_depth);
 
 // When this flag is specified, a failed assertion will throw an
 // exception if exceptions are enabled, or exit the program with a
-// non-zero code otherwise. For use with an external vocaloid_test framework.
+// non-zero code otherwise. For use with an external test framework.
 GTEST_DECLARE_bool_(throw_on_failure);
 
 // When this flag is set with a "host:port" string, on supported
-// platforms vocaloid_test results are streamed to the specified port on
+// platforms test results are streamed to the specified port on
 // the specified host machine.
 GTEST_DECLARE_string_(stream_result_to);
+
+#if GTEST_USE_OWN_FLAGFILE_FLAG_
+GTEST_DECLARE_string_(flagfile);
+#endif  // GTEST_USE_OWN_FLAGFILE_FLAG_
 
 // The upper limit for valid stack trace depths.
 const int kMaxStackTraceDepth = 100;
@@ -196,7 +207,7 @@ class UnitTest;
 // (AssertionSuccess() and AssertionFailure()).
 //
 // This class is useful for two purposes:
-//   1. Defining predicate functions to be used with Boolean vocaloid_test assertions
+//   1. Defining predicate functions to be used with Boolean test assertions
 //      EXPECT_TRUE/EXPECT_FALSE and their ASSERT_ counterparts
 //   2. Defining predicate-format functions to be
 //      used with predicate assertions (ASSERT_PRED_FORMAT*, etc).
@@ -349,7 +360,7 @@ class GTEST_API_ AssertionResult {
   // Stores the message describing the condition in case the expectation
   // construct is not satisfied with the predicate's outcome.
   // Referenced via a pointer to avoid taking too much stack frame space
-  // with vocaloid_test assertions.
+  // with test assertions.
   internal::scoped_ptr< ::std::string> message_;
 };
 
@@ -374,14 +385,14 @@ namespace testing {
 
 // The abstract class that all tests inherit from.
 //
-// In Google Test, a unit vocaloid_test program contains one or many TestCases, and
+// In Google Test, a unit test program contains one or many TestCases, and
 // each TestCase contains one or many Tests.
 //
-// When you define a vocaloid_test using the TEST macro, you don't need to
+// When you define a test using the TEST macro, you don't need to
 // explicitly derive from Test - the TEST macro automatically does
 // this for you.
 //
-// The only time you derive from Test is when defining a vocaloid_test fixture
+// The only time you derive from Test is when defining a test fixture
 // to be used in a TEST_F.  For example:
 //
 //   class FooTest : public testing::Test {
@@ -400,45 +411,45 @@ class GTEST_API_ Test {
   friend class TestInfo;
 
   // Defines types for pointers to functions that set up and tear down
-  // a vocaloid_test case.
+  // a test case.
   typedef internal::SetUpTestCaseFunc SetUpTestCaseFunc;
   typedef internal::TearDownTestCaseFunc TearDownTestCaseFunc;
 
   // The d'tor is virtual as we intend to inherit from Test.
   virtual ~Test();
 
-  // Sets up the stuff shared by all tests in this vocaloid_test case.
+  // Sets up the stuff shared by all tests in this test case.
   //
   // Google Test will call Foo::SetUpTestCase() before running the first
-  // vocaloid_test in vocaloid_test case Foo.  Hence a sub-class can define its own
+  // test in test case Foo.  Hence a sub-class can define its own
   // SetUpTestCase() method to shadow the one defined in the super
   // class.
   static void SetUpTestCase() {}
 
-  // Tears down the stuff shared by all tests in this vocaloid_test case.
+  // Tears down the stuff shared by all tests in this test case.
   //
   // Google Test will call Foo::TearDownTestCase() after running the last
-  // vocaloid_test in vocaloid_test case Foo.  Hence a sub-class can define its own
+  // test in test case Foo.  Hence a sub-class can define its own
   // TearDownTestCase() method to shadow the one defined in the super
   // class.
   static void TearDownTestCase() {}
 
-  // Returns true iff the current vocaloid_test has a fatal failure.
+  // Returns true iff the current test has a fatal failure.
   static bool HasFatalFailure();
 
-  // Returns true iff the current vocaloid_test has a non-fatal failure.
+  // Returns true iff the current test has a non-fatal failure.
   static bool HasNonfatalFailure();
 
-  // Returns true iff the current vocaloid_test has a (either fatal or
+  // Returns true iff the current test has a (either fatal or
   // non-fatal) failure.
   static bool HasFailure() { return HasFatalFailure() || HasNonfatalFailure(); }
 
-  // Logs a property for the current vocaloid_test, vocaloid_test case, or for the entire
-  // invocation of the vocaloid_test program when used outside of the context of a
-  // vocaloid_test case.  Only the last value for a given key is remembered.  These
+  // Logs a property for the current test, test case, or for the entire
+  // invocation of the test program when used outside of the context of a
+  // test case.  Only the last value for a given key is remembered.  These
   // are public static so they can be called from utility functions that are
-  // not members of the vocaloid_test fixture.  Calls to RecordProperty made during
-  // lifespan of the vocaloid_test (from the moment its constructor starts to the
+  // not members of the test fixture.  Calls to RecordProperty made during
+  // lifespan of the test (from the moment its constructor starts to the
   // moment its destructor finishes) will be output in XML as attributes of
   // the <testcase> element.  Properties recorded from fixture's
   // SetUpTestCase or TearDownTestCase are logged as attributes of the
@@ -453,26 +464,26 @@ class GTEST_API_ Test {
   // Creates a Test object.
   Test();
 
-  // Sets up the vocaloid_test fixture.
+  // Sets up the test fixture.
   virtual void SetUp();
 
-  // Tears down the vocaloid_test fixture.
+  // Tears down the test fixture.
   virtual void TearDown();
 
  private:
-  // Returns true iff the current vocaloid_test has the same fixture class as
-  // the first vocaloid_test in the current vocaloid_test case.
+  // Returns true iff the current test has the same fixture class as
+  // the first test in the current test case.
   static bool HasSameFixtureClass();
 
-  // Runs the vocaloid_test after the vocaloid_test fixture has been set up.
+  // Runs the test after the test fixture has been set up.
   //
-  // A sub-class must implement this to define the vocaloid_test logic.
+  // A sub-class must implement this to define the test logic.
   //
   // DO NOT OVERRIDE THIS FUNCTION DIRECTLY IN A USER PROGRAM.
   // Instead, use the TEST or TEST_F macro.
   virtual void TestBody() = 0;
 
-  // Sets up, executes, and tears down the vocaloid_test.
+  // Sets up, executes, and tears down the test.
   void Run();
 
   // Deletes self.  We deliberately pick an unusual name for this
@@ -488,10 +499,10 @@ class GTEST_API_ Test {
   //
   //   - The return type is deliberately chosen to be not void, so it
   //   will be a conflict if void Setup() is declared in the user's
-  //   vocaloid_test fixture.
+  //   test fixture.
   //
   //   - This method is private, so it will be another compiler error
-  //   if the method is called from the user's vocaloid_test fixture.
+  //   if the method is called from the user's test fixture.
   //
   // DO NOT OVERRIDE THIS FUNCTION.
   //
@@ -506,7 +517,7 @@ class GTEST_API_ Test {
 
 typedef internal::TimeInMillis TimeInMillis;
 
-// A copyable object representing a user specified vocaloid_test property which can be
+// A copyable object representing a user specified test property which can be
 // output as a key/value string pair.
 //
 // Don't inherit from TestProperty as its destructor is not virtual.
@@ -555,33 +566,33 @@ class GTEST_API_ TestResult {
   // D'tor.  Do not inherit from TestResult.
   ~TestResult();
 
-  // Gets the number of all vocaloid_test parts.  This is the sum of the number
-  // of successful vocaloid_test parts and the number of failed vocaloid_test parts.
+  // Gets the number of all test parts.  This is the sum of the number
+  // of successful test parts and the number of failed test parts.
   int total_part_count() const;
 
-  // Returns the number of the vocaloid_test properties.
+  // Returns the number of the test properties.
   int test_property_count() const;
 
-  // Returns true iff the vocaloid_test passed (i.e. no vocaloid_test part failed).
+  // Returns true iff the test passed (i.e. no test part failed).
   bool Passed() const { return !Failed(); }
 
-  // Returns true iff the vocaloid_test failed.
+  // Returns true iff the test failed.
   bool Failed() const;
 
-  // Returns true iff the vocaloid_test fatally failed.
+  // Returns true iff the test fatally failed.
   bool HasFatalFailure() const;
 
-  // Returns true iff the vocaloid_test has a non-fatal failure.
+  // Returns true iff the test has a non-fatal failure.
   bool HasNonfatalFailure() const;
 
   // Returns the elapsed time, in milliseconds.
   TimeInMillis elapsed_time() const { return elapsed_time_; }
 
-  // Returns the i-th vocaloid_test part result among all the results. i can range from 0
+  // Returns the i-th test part result among all the results. i can range from 0
   // to total_part_count() - 1. If i is not in that range, aborts the program.
   const TestPartResult& GetTestPartResult(int i) const;
 
-  // Returns the i-th vocaloid_test property. i can range from 0 to
+  // Returns the i-th test property. i can range from 0 to
   // test_property_count() - 1. If i is not in that range, aborts the
   // program.
   const TestProperty& GetTestProperty(int i) const;
@@ -610,7 +621,7 @@ class GTEST_API_ TestResult {
   // Sets the elapsed time.
   void set_elapsed_time(TimeInMillis elapsed) { elapsed_time_ = elapsed; }
 
-  // Adds a vocaloid_test property to the list. The property is validated and may add
+  // Adds a test property to the list. The property is validated and may add
   // a non-fatal failure if invalid (e.g., if it conflicts with reserved
   // key names). If a property is already recorded for the same key, the
   // value will be updated, rather than storing multiple values for the same
@@ -625,16 +636,16 @@ class GTEST_API_ TestResult {
   static bool ValidateTestProperty(const std::string& xml_element,
                                    const TestProperty& test_property);
 
-  // Adds a vocaloid_test part result to the list.
+  // Adds a test part result to the list.
   void AddTestPartResult(const TestPartResult& test_part_result);
 
-  // Returns the death vocaloid_test count.
+  // Returns the death test count.
   int death_test_count() const { return death_test_count_; }
 
-  // Increments the death vocaloid_test count, returning the new count.
+  // Increments the death test count, returning the new count.
   int increment_death_test_count() { return ++death_test_count_; }
 
-  // Clears the vocaloid_test part results.
+  // Clears the test part results.
   void ClearTestPartResults();
 
   // Clears the object.
@@ -657,12 +668,12 @@ class GTEST_API_ TestResult {
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestResult);
 };  // class TestResult
 
-// A TestInfo object stores the following information about a vocaloid_test:
+// A TestInfo object stores the following information about a test:
 //
 //   Test case name
 //   Test name
-//   Whether the vocaloid_test should be run
-//   A function pointer that creates the vocaloid_test object when invoked
+//   Whether the test should be run
+//   A function pointer that creates the test object when invoked
 //   Test result
 //
 // The constructor of TestInfo registers itself with the UnitTest
@@ -674,14 +685,14 @@ class GTEST_API_ TestInfo {
   // don't inherit from TestInfo.
   ~TestInfo();
 
-  // Returns the vocaloid_test case name.
+  // Returns the test case name.
   const char* test_case_name() const { return test_case_name_.c_str(); }
 
-  // Returns the vocaloid_test name.
+  // Returns the test name.
   const char* name() const { return name_.c_str(); }
 
   // Returns the name of the parameter type, or NULL if this is not a typed
-  // or a type-parameterized vocaloid_test.
+  // or a type-parameterized test.
   const char* type_param() const {
     if (type_param_.get() != NULL)
       return type_param_->c_str();
@@ -689,33 +700,33 @@ class GTEST_API_ TestInfo {
   }
 
   // Returns the text representation of the value parameter, or NULL if this
-  // is not a value-parameterized vocaloid_test.
+  // is not a value-parameterized test.
   const char* value_param() const {
     if (value_param_.get() != NULL)
       return value_param_->c_str();
     return NULL;
   }
 
-  // Returns the file name where this vocaloid_test is defined.
+  // Returns the file name where this test is defined.
   const char* file() const { return location_.file.c_str(); }
 
-  // Returns the line where this vocaloid_test is defined.
+  // Returns the line where this test is defined.
   int line() const { return location_.line; }
 
-  // Return true if this vocaloid_test should not be run because it's in another shard.
+  // Return true if this test should not be run because it's in another shard.
   bool is_in_another_shard() const { return is_in_another_shard_; }
 
-  // Returns true if this vocaloid_test should run, that is if the vocaloid_test is not
+  // Returns true if this test should run, that is if the test is not
   // disabled (or it is disabled but the also_run_disabled_tests flag has
   // been specified) and its full name matches the user-specified filter.
   //
   // Google Test allows the user to filter the tests by their full names.
-  // The full name of a vocaloid_test Bar in vocaloid_test case Foo is defined as
+  // The full name of a test Bar in test case Foo is defined as
   // "Foo.Bar".  Only the tests that match the filter will run.
   //
   // A filter is a colon-separated list of glob (not regex) patterns,
   // optionally followed by a '-' and a colon-separated list of
-  // negative patterns (tests to exclude).  A vocaloid_test is run if it
+  // negative patterns (tests to exclude).  A test is run if it
   // matches one of the positive patterns and does not match any of
   // the negative patterns.
   //
@@ -723,14 +734,14 @@ class GTEST_API_ TestInfo {
   // contains the character 'A' or starts with "Foo.".
   bool should_run() const { return should_run_; }
 
-  // Returns true iff this vocaloid_test will appear in the XML report.
+  // Returns true iff this test will appear in the XML report.
   bool is_reportable() const {
     // The XML report includes tests matching the filter, excluding those
     // run in other shards.
     return matches_filter_ && !is_in_another_shard_;
   }
 
-  // Returns the result of the vocaloid_test.
+  // Returns the result of the test.
   const TestResult* result() const { return &result_; }
 
  private:
@@ -756,19 +767,19 @@ class GTEST_API_ TestInfo {
   // ownership of the factory object.
   TestInfo(const std::string& test_case_name,
            const std::string& name,
-           const char* a_type_param,   // NULL if not a type-parameterized vocaloid_test
-           const char* a_value_param,  // NULL if not a value-parameterized vocaloid_test
+           const char* a_type_param,   // NULL if not a type-parameterized test
+           const char* a_value_param,  // NULL if not a value-parameterized test
            internal::CodeLocation a_code_location,
            internal::TypeId fixture_class_id,
            internal::TestFactoryBase* factory);
 
-  // Increments the number of death tests encountered in this vocaloid_test so
+  // Increments the number of death tests encountered in this test so
   // far.
   int increment_death_test_count() {
     return result_.increment_death_test_count();
   }
 
-  // Creates the vocaloid_test object, runs it, records its result, and then
+  // Creates the test object, runs it, records its result, and then
   // deletes it.
   void Run();
 
@@ -776,33 +787,33 @@ class GTEST_API_ TestInfo {
     test_info->result_.Clear();
   }
 
-  // These fields are immutable properties of the vocaloid_test.
+  // These fields are immutable properties of the test.
   const std::string test_case_name_;     // Test case name
   const std::string name_;               // Test name
   // Name of the parameter type, or NULL if this is not a typed or a
-  // type-parameterized vocaloid_test.
+  // type-parameterized test.
   const internal::scoped_ptr<const ::std::string> type_param_;
   // Text representation of the value parameter, or NULL if this is not a
-  // value-parameterized vocaloid_test.
+  // value-parameterized test.
   const internal::scoped_ptr<const ::std::string> value_param_;
   internal::CodeLocation location_;
-  const internal::TypeId fixture_class_id_;   // ID of the vocaloid_test fixture class
-  bool should_run_;                 // True iff this vocaloid_test should run
-  bool is_disabled_;                // True iff this vocaloid_test is disabled
-  bool matches_filter_;             // True if this vocaloid_test matches the
+  const internal::TypeId fixture_class_id_;   // ID of the test fixture class
+  bool should_run_;                 // True iff this test should run
+  bool is_disabled_;                // True iff this test is disabled
+  bool matches_filter_;             // True if this test matches the
                                     // user-specified filter.
   bool is_in_another_shard_;        // Will be run in another shard.
   internal::TestFactoryBase* const factory_;  // The factory that creates
-                                              // the vocaloid_test object
+                                              // the test object
 
   // This field is mutable and needs to be reset before running the
-  // vocaloid_test for the second time.
+  // test for the second time.
   TestResult result_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestInfo);
 };
 
-// A vocaloid_test case, which consists of a vector of TestInfos.
+// A test case, which consists of a vector of TestInfos.
 //
 // TestCase is not copyable.
 class GTEST_API_ TestCase {
@@ -814,11 +825,11 @@ class GTEST_API_ TestCase {
   //
   // Arguments:
   //
-  //   name:         name of the vocaloid_test case
-  //   a_type_param: the name of the vocaloid_test's type parameter, or NULL if
-  //                 this is not a type-parameterized vocaloid_test.
-  //   set_up_tc:    pointer to the function that sets up the vocaloid_test case
-  //   tear_down_tc: pointer to the function that tears down the vocaloid_test case
+  //   name:         name of the test case
+  //   a_type_param: the name of the test's type parameter, or NULL if
+  //                 this is not a type-parameterized test.
+  //   set_up_tc:    pointer to the function that sets up the test case
+  //   tear_down_tc: pointer to the function that tears down the test case
   TestCase(const char* name, const char* a_type_param,
            Test::SetUpTestCaseFunc set_up_tc,
            Test::TearDownTestCaseFunc tear_down_tc);
@@ -830,51 +841,51 @@ class GTEST_API_ TestCase {
   const char* name() const { return name_.c_str(); }
 
   // Returns the name of the parameter type, or NULL if this is not a
-  // type-parameterized vocaloid_test case.
+  // type-parameterized test case.
   const char* type_param() const {
     if (type_param_.get() != NULL)
       return type_param_->c_str();
     return NULL;
   }
 
-  // Returns true if any vocaloid_test in this vocaloid_test case should run.
+  // Returns true if any test in this test case should run.
   bool should_run() const { return should_run_; }
 
-  // Gets the number of successful tests in this vocaloid_test case.
+  // Gets the number of successful tests in this test case.
   int successful_test_count() const;
 
-  // Gets the number of failed tests in this vocaloid_test case.
+  // Gets the number of failed tests in this test case.
   int failed_test_count() const;
 
   // Gets the number of disabled tests that will be reported in the XML report.
   int reportable_disabled_test_count() const;
 
-  // Gets the number of disabled tests in this vocaloid_test case.
+  // Gets the number of disabled tests in this test case.
   int disabled_test_count() const;
 
   // Gets the number of tests to be printed in the XML report.
   int reportable_test_count() const;
 
-  // Get the number of tests in this vocaloid_test case that should run.
+  // Get the number of tests in this test case that should run.
   int test_to_run_count() const;
 
-  // Gets the number of all tests in this vocaloid_test case.
+  // Gets the number of all tests in this test case.
   int total_test_count() const;
 
-  // Returns true iff the vocaloid_test case passed.
+  // Returns true iff the test case passed.
   bool Passed() const { return !Failed(); }
 
-  // Returns true iff the vocaloid_test case failed.
+  // Returns true iff the test case failed.
   bool Failed() const { return failed_test_count() > 0; }
 
   // Returns the elapsed time, in milliseconds.
   TimeInMillis elapsed_time() const { return elapsed_time_; }
 
-  // Returns the i-th vocaloid_test among all the tests. i can range from 0 to
+  // Returns the i-th test among all the tests. i can range from 0 to
   // total_test_count() - 1. If i is not in that range, returns NULL.
   const TestInfo* GetTestInfo(int i) const;
 
-  // Returns the TestResult that holds vocaloid_test properties recorded during
+  // Returns the TestResult that holds test properties recorded during
   // execution of SetUpTestCase and TearDownTestCase.
   const TestResult& ad_hoc_test_result() const { return ad_hoc_test_result_; }
 
@@ -890,26 +901,26 @@ class GTEST_API_ TestCase {
     return test_info_list_;
   }
 
-  // Returns the i-th vocaloid_test among all the tests. i can range from 0 to
+  // Returns the i-th test among all the tests. i can range from 0 to
   // total_test_count() - 1. If i is not in that range, returns NULL.
   TestInfo* GetMutableTestInfo(int i);
 
   // Sets the should_run member.
   void set_should_run(bool should) { should_run_ = should; }
 
-  // Adds a TestInfo to this vocaloid_test case.  Will delete the TestInfo upon
+  // Adds a TestInfo to this test case.  Will delete the TestInfo upon
   // destruction of the TestCase object.
   void AddTestInfo(TestInfo * test_info);
 
-  // Clears the results of all tests in this vocaloid_test case.
+  // Clears the results of all tests in this test case.
   void ClearResult();
 
-  // Clears the results of all tests in the given vocaloid_test case.
+  // Clears the results of all tests in the given test case.
   static void ClearTestCaseResult(TestCase* test_case) {
     test_case->ClearResult();
   }
 
-  // Runs every vocaloid_test in this TestCase.
+  // Runs every test in this TestCase.
   void Run();
 
   // Runs SetUpTestCase() for this TestCase.  This wrapper is needed
@@ -920,64 +931,64 @@ class GTEST_API_ TestCase {
   // needed for catching exceptions thrown from TearDownTestCase().
   void RunTearDownTestCase() { (*tear_down_tc_)(); }
 
-  // Returns true iff vocaloid_test passed.
+  // Returns true iff test passed.
   static bool TestPassed(const TestInfo* test_info) {
     return test_info->should_run() && test_info->result()->Passed();
   }
 
-  // Returns true iff vocaloid_test failed.
+  // Returns true iff test failed.
   static bool TestFailed(const TestInfo* test_info) {
     return test_info->should_run() && test_info->result()->Failed();
   }
 
-  // Returns true iff the vocaloid_test is disabled and will be reported in the XML
+  // Returns true iff the test is disabled and will be reported in the XML
   // report.
   static bool TestReportableDisabled(const TestInfo* test_info) {
     return test_info->is_reportable() && test_info->is_disabled_;
   }
 
-  // Returns true iff vocaloid_test is disabled.
+  // Returns true iff test is disabled.
   static bool TestDisabled(const TestInfo* test_info) {
     return test_info->is_disabled_;
   }
 
-  // Returns true iff this vocaloid_test will appear in the XML report.
+  // Returns true iff this test will appear in the XML report.
   static bool TestReportable(const TestInfo* test_info) {
     return test_info->is_reportable();
   }
 
-  // Returns true if the given vocaloid_test should run.
+  // Returns true if the given test should run.
   static bool ShouldRunTest(const TestInfo* test_info) {
     return test_info->should_run();
   }
 
-  // Shuffles the tests in this vocaloid_test case.
+  // Shuffles the tests in this test case.
   void ShuffleTests(internal::Random* random);
 
-  // Restores the vocaloid_test order to before the first shuffle.
+  // Restores the test order to before the first shuffle.
   void UnshuffleTests();
 
-  // Name of the vocaloid_test case.
+  // Name of the test case.
   std::string name_;
   // Name of the parameter type, or NULL if this is not a typed or a
-  // type-parameterized vocaloid_test.
+  // type-parameterized test.
   const internal::scoped_ptr<const ::std::string> type_param_;
   // The vector of TestInfos in their original order.  It owns the
   // elements in the vector.
   std::vector<TestInfo*> test_info_list_;
-  // Provides a level of indirection for the vocaloid_test list to allow easy
-  // shuffling and restoring the vocaloid_test order.  The i-th element in this
-  // vector is the index of the i-th vocaloid_test in the shuffled vocaloid_test list.
+  // Provides a level of indirection for the test list to allow easy
+  // shuffling and restoring the test order.  The i-th element in this
+  // vector is the index of the i-th test in the shuffled test list.
   std::vector<int> test_indices_;
-  // Pointer to the function that sets up the vocaloid_test case.
+  // Pointer to the function that sets up the test case.
   Test::SetUpTestCaseFunc set_up_tc_;
-  // Pointer to the function that tears down the vocaloid_test case.
+  // Pointer to the function that tears down the test case.
   Test::TearDownTestCaseFunc tear_down_tc_;
-  // True iff any vocaloid_test in this vocaloid_test case should run.
+  // True iff any test in this test case should run.
   bool should_run_;
   // Elapsed time, in milliseconds.
   TimeInMillis elapsed_time_;
-  // Holds vocaloid_test properties recorded during execution of SetUpTestCase and
+  // Holds test properties recorded during execution of SetUpTestCase and
   // TearDownTestCase.
   TestResult ad_hoc_test_result_;
 
@@ -1034,7 +1045,7 @@ class TestEventListener {
  public:
   virtual ~TestEventListener() {}
 
-  // Fired before any vocaloid_test activity starts.
+  // Fired before any test activity starts.
   virtual void OnTestProgramStart(const UnitTest& unit_test) = 0;
 
   // Fired before each iteration of tests starts.  There may be more than
@@ -1049,10 +1060,10 @@ class TestEventListener {
   // Fired after environment set-up for each iteration of tests ends.
   virtual void OnEnvironmentsSetUpEnd(const UnitTest& unit_test) = 0;
 
-  // Fired before the vocaloid_test case starts.
+  // Fired before the test case starts.
   virtual void OnTestCaseStart(const TestCase& test_case) = 0;
 
-  // Fired before the vocaloid_test starts.
+  // Fired before the test starts.
   virtual void OnTestStart(const TestInfo& test_info) = 0;
 
   // Fired after a failed assertion or a SUCCEED() invocation.
@@ -1060,10 +1071,10 @@ class TestEventListener {
   // TEST, it must be AssertionException defined above, or inherited from it.
   virtual void OnTestPartResult(const TestPartResult& test_part_result) = 0;
 
-  // Fired after the vocaloid_test ends.
+  // Fired after the test ends.
   virtual void OnTestEnd(const TestInfo& test_info) = 0;
 
-  // Fired after the vocaloid_test case ends.
+  // Fired after the test case ends.
   virtual void OnTestCaseEnd(const TestCase& test_case) = 0;
 
   // Fired before environment tear-down for each iteration of tests starts.
@@ -1076,7 +1087,7 @@ class TestEventListener {
   virtual void OnTestIterationEnd(const UnitTest& unit_test,
                                   int iteration) = 0;
 
-  // Fired after all vocaloid_test activities have ended.
+  // Fired after all test activities have ended.
   virtual void OnTestProgramEnd(const UnitTest& unit_test) = 0;
 };
 
@@ -1087,21 +1098,21 @@ class TestEventListener {
 // above.
 class EmptyTestEventListener : public TestEventListener {
  public:
-  virtual void OnTestProgramStart(const UnitTest& /*vocaloid_test*/) {}
-  virtual void OnTestIterationStart(const UnitTest& /*vocaloid_test*/,
+  virtual void OnTestProgramStart(const UnitTest& /*unit_test*/) {}
+  virtual void OnTestIterationStart(const UnitTest& /*unit_test*/,
                                     int /*iteration*/) {}
-  virtual void OnEnvironmentsSetUpStart(const UnitTest& /*vocaloid_test*/) {}
-  virtual void OnEnvironmentsSetUpEnd(const UnitTest& /*vocaloid_test*/) {}
+  virtual void OnEnvironmentsSetUpStart(const UnitTest& /*unit_test*/) {}
+  virtual void OnEnvironmentsSetUpEnd(const UnitTest& /*unit_test*/) {}
   virtual void OnTestCaseStart(const TestCase& /*test_case*/) {}
   virtual void OnTestStart(const TestInfo& /*test_info*/) {}
   virtual void OnTestPartResult(const TestPartResult& /*test_part_result*/) {}
   virtual void OnTestEnd(const TestInfo& /*test_info*/) {}
   virtual void OnTestCaseEnd(const TestCase& /*test_case*/) {}
-  virtual void OnEnvironmentsTearDownStart(const UnitTest& /*vocaloid_test*/) {}
-  virtual void OnEnvironmentsTearDownEnd(const UnitTest& /*vocaloid_test*/) {}
-  virtual void OnTestIterationEnd(const UnitTest& /*vocaloid_test*/,
+  virtual void OnEnvironmentsTearDownStart(const UnitTest& /*unit_test*/) {}
+  virtual void OnEnvironmentsTearDownEnd(const UnitTest& /*unit_test*/) {}
+  virtual void OnTestIterationEnd(const UnitTest& /*unit_test*/,
                                   int /*iteration*/) {}
-  virtual void OnTestProgramEnd(const UnitTest& /*vocaloid_test*/) {}
+  virtual void OnTestProgramEnd(const UnitTest& /*unit_test*/) {}
 };
 
 // TestEventListeners lets users add listeners to track events in Google Test.
@@ -1112,7 +1123,7 @@ class GTEST_API_ TestEventListeners {
 
   // Appends an event listener to the end of the list. Google Test assumes
   // the ownership of the listener (i.e. it will delete the listener when
-  // the vocaloid_test program finishes).
+  // the test program finishes).
   void Append(TestEventListener* listener);
 
   // Removes the given event listener from the list and returns it.  It then
@@ -1211,17 +1222,17 @@ class GTEST_API_ UnitTest {
   // was executed.  The UnitTest object owns the string.
   const char* original_working_dir() const;
 
-  // Returns the TestCase object for the vocaloid_test that's currently running,
-  // or NULL if no vocaloid_test is running.
+  // Returns the TestCase object for the test that's currently running,
+  // or NULL if no test is running.
   const TestCase* current_test_case() const
       GTEST_LOCK_EXCLUDED_(mutex_);
 
-  // Returns the TestInfo object for the vocaloid_test that's currently running,
-  // or NULL if no vocaloid_test is running.
+  // Returns the TestInfo object for the test that's currently running,
+  // or NULL if no test is running.
   const TestInfo* current_test_info() const
       GTEST_LOCK_EXCLUDED_(mutex_);
 
-  // Returns the random seed used at the start of the current vocaloid_test run.
+  // Returns the random seed used at the start of the current test run.
   int random_seed() const;
 
   // Returns the ParameterizedTestCaseRegistry object used to keep track of
@@ -1231,16 +1242,16 @@ class GTEST_API_ UnitTest {
   internal::ParameterizedTestCaseRegistry& parameterized_test_registry()
       GTEST_LOCK_EXCLUDED_(mutex_);
 
-  // Gets the number of successful vocaloid_test cases.
+  // Gets the number of successful test cases.
   int successful_test_case_count() const;
 
-  // Gets the number of failed vocaloid_test cases.
+  // Gets the number of failed test cases.
   int failed_test_case_count() const;
 
-  // Gets the number of all vocaloid_test cases.
+  // Gets the number of all test cases.
   int total_test_case_count() const;
 
-  // Gets the number of all vocaloid_test cases that contain at least one vocaloid_test
+  // Gets the number of all test cases that contain at least one test
   // that should run.
   int test_case_to_run_count() const;
 
@@ -1265,26 +1276,26 @@ class GTEST_API_ UnitTest {
   // Gets the number of tests that should run.
   int test_to_run_count() const;
 
-  // Gets the time of the vocaloid_test program start, in ms from the start of the
+  // Gets the time of the test program start, in ms from the start of the
   // UNIX epoch.
   TimeInMillis start_timestamp() const;
 
   // Gets the elapsed time, in milliseconds.
   TimeInMillis elapsed_time() const;
 
-  // Returns true iff the unit vocaloid_test passed (i.e. all vocaloid_test cases passed).
+  // Returns true iff the unit test passed (i.e. all test cases passed).
   bool Passed() const;
 
-  // Returns true iff the unit vocaloid_test failed (i.e. some vocaloid_test case failed
+  // Returns true iff the unit test failed (i.e. some test case failed
   // or something outside of all tests failed).
   bool Failed() const;
 
-  // Gets the i-th vocaloid_test case among all the vocaloid_test cases. i can range from 0 to
+  // Gets the i-th test case among all the test cases. i can range from 0 to
   // total_test_case_count() - 1. If i is not in that range, returns NULL.
   const TestCase* GetTestCase(int i) const;
 
-  // Returns the TestResult containing information on vocaloid_test failures and
-  // properties logged outside of individual vocaloid_test cases.
+  // Returns the TestResult containing information on test failures and
+  // properties logged outside of individual test cases.
   const TestResult& ad_hoc_test_result() const;
 
   // Returns the list of event listeners that can be used to track events
@@ -1292,10 +1303,10 @@ class GTEST_API_ UnitTest {
   TestEventListeners& listeners();
 
  private:
-  // Registers and returns a global vocaloid_test environment.  When a vocaloid_test
-  // program is run, all global vocaloid_test environments will be set-up in
+  // Registers and returns a global test environment.  When a test
+  // program is run, all global test environments will be set-up in
   // the order they were registered.  After all tests in the program
-  // have finished, all global vocaloid_test environments will be torn-down in
+  // have finished, all global test environments will be torn-down in
   // the *reverse* order they were registered.
   //
   // The UnitTest object takes ownership of the given environment.
@@ -1315,13 +1326,13 @@ class GTEST_API_ UnitTest {
       GTEST_LOCK_EXCLUDED_(mutex_);
 
   // Adds a TestProperty to the current TestResult object when invoked from
-  // inside a vocaloid_test, to current TestCase's ad_hoc_test_result_ when invoked
+  // inside a test, to current TestCase's ad_hoc_test_result_ when invoked
   // from SetUpTestCase or TearDownTestCase, or to the global property set
   // when invoked elsewhere.  If the result already contains a property with
   // the same key, the value will be updated.
   void RecordProperty(const std::string& key, const std::string& value);
 
-  // Gets the i-th vocaloid_test case among all the vocaloid_test cases. i can range from 0 to
+  // Gets the i-th test case among all the test cases. i can range from 0 to
   // total_test_case_count() - 1. If i is not in that range, returns NULL.
   TestCase* GetMutableTestCase(int i);
 
@@ -1371,7 +1382,7 @@ class GTEST_API_ UnitTest {
   GTEST_DISALLOW_COPY_AND_ASSIGN_(UnitTest);
 };
 
-// A convenient wrapper for adding an environment for the vocaloid_test
+// A convenient wrapper for adding an environment for the test
 // program.
 //
 // You should call this before RUN_ALL_TESTS() is called, probably in
@@ -1749,10 +1760,10 @@ class GTEST_API_ AssertHelper {
 // The pure interface class that all value-parameterized tests inherit from.
 // A value-parameterized class must inherit from both ::testing::Test and
 // ::testing::WithParamInterface. In most cases that just means inheriting
-// from ::testing::TestWithParam, but more complicated vocaloid_test hierarchies
+// from ::testing::TestWithParam, but more complicated test hierarchies
 // may need to inherit from Test and WithParamInterface at different levels.
 //
-// This interface has support for accessing the vocaloid_test parameter value via
+// This interface has support for accessing the test parameter value via
 // the GetParam() method.
 //
 // Use it with one of the parameter generator defining functions, like Range(),
@@ -1786,26 +1797,26 @@ class WithParamInterface {
   typedef T ParamType;
   virtual ~WithParamInterface() {}
 
-  // The current parameter value. Is also available in the vocaloid_test fixture's
+  // The current parameter value. Is also available in the test fixture's
   // constructor. This member function is non-static, even though it only
   // references static data, to reduce the opportunity for incorrect uses
-  // like writing 'WithParamInterface<bool>::GetParam()' for a vocaloid_test that
+  // like writing 'WithParamInterface<bool>::GetParam()' for a test that
   // uses a fixture whose parameter type is int.
   const ParamType& GetParam() const {
     GTEST_CHECK_(parameter_ != NULL)
-        << "GetParam() can only be called inside a value-parameterized vocaloid_test "
+        << "GetParam() can only be called inside a value-parameterized test "
         << "-- did you intend to write TEST_P instead of TEST_F?";
     return *parameter_;
   }
 
  private:
   // Sets parameter value. The caller is responsible for making sure the value
-  // remains alive and unchanged throughout the current vocaloid_test.
+  // remains alive and unchanged throughout the current test.
   static void SetParam(const ParamType* parameter) {
     parameter_ = parameter;
   }
 
-  // Static value used for accessing parameter during a vocaloid_test lifetime.
+  // Static value used for accessing parameter during a test lifetime.
   static const ParamType* parameter_;
 
   // TestClass must be a subclass of WithParamInterface<T> and Test.
@@ -1822,11 +1833,11 @@ template <typename T>
 class TestWithParam : public Test, public WithParamInterface<T> {
 };
 
-// Macros for indicating success/failure in vocaloid_test code.
+// Macros for indicating success/failure in test code.
 
-// ADD_FAILURE unconditionally adds a failure to the current vocaloid_test.
+// ADD_FAILURE unconditionally adds a failure to the current test.
 // SUCCEED generates a success - it doesn't automatically make the
-// current vocaloid_test successful, as a vocaloid_test is only successful when it has
+// current test successful, as a test is only successful when it has
 // no failure.
 //
 // EXPECT_* verifies that a certain condition is satisfied.  If not,
@@ -2096,7 +2107,7 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
 
 #if GTEST_OS_WINDOWS
 
-// Macros that vocaloid_test for HRESULT failure and success, these are only useful
+// Macros that test for HRESULT failure and success, these are only useful
 // on Windows, and rely on Windows SDK macros and APIs to compile.
 //
 //    * {ASSERT|EXPECT}_HRESULT_{SUCCEEDED|FAILED}(expr)
@@ -2135,7 +2146,7 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
     GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
 
 // Causes a trace (including the given source file path and line number,
-// and the given message) to be included in every vocaloid_test failure message generated
+// and the given message) to be included in every test failure message generated
 // by code in the scope of the lifetime of an instance of this class. The effect
 // is undone with the destruction of the instance.
 //
@@ -2186,7 +2197,7 @@ class GTEST_API_ ScopedTrace {
                             // need to be used otherwise.
 
 // Causes a trace (including the source file path, the current line
-// number, and the given message) to be included in every vocaloid_test failure
+// number, and the given message) to be included in every test failure
 // message generated by code in the current scope.  The effect is
 // undone when the control leaves the current scope.
 //
@@ -2241,13 +2252,13 @@ bool StaticAssertTypeEq() {
   return true;
 }
 
-// Defines a vocaloid_test.
+// Defines a test.
 //
-// The first parameter is the name of the vocaloid_test case, and the second
-// parameter is the name of the vocaloid_test within the vocaloid_test case.
+// The first parameter is the name of the test case, and the second
+// parameter is the name of the test within the test case.
 //
-// The convention is to end the vocaloid_test case name with "Test".  For
-// example, a vocaloid_test case for the Foo class can be named FooTest.
+// The convention is to end the test case name with "Test".  For
+// example, a test case for the Foo class can be named FooTest.
 //
 // Test code should appear between braces after an invocation of
 // this macro.  Example:
@@ -2262,7 +2273,7 @@ bool StaticAssertTypeEq() {
 // is to work around a suspected linker bug when using Google Test as
 // a framework on Mac OS X.  The bug causes GetTypeId<
 // ::testing::Test>() to return different values depending on whether
-// the call is from the Google Test framework itself or from user vocaloid_test
+// the call is from the Google Test framework itself or from user test
 // code.  GetTestTypeId() is guaranteed to always return the same
 // value, as it always calls GetTypeId<>() from the Google Test
 // framework.
@@ -2276,14 +2287,14 @@ bool StaticAssertTypeEq() {
 # define TEST(test_case_name, test_name) GTEST_TEST(test_case_name, test_name)
 #endif
 
-// Defines a vocaloid_test that uses a vocaloid_test fixture.
+// Defines a test that uses a test fixture.
 //
-// The first parameter is the name of the vocaloid_test fixture class, which
-// also doubles as the vocaloid_test case name.  The second parameter is the
-// name of the vocaloid_test within the vocaloid_test case.
+// The first parameter is the name of the test fixture class, which
+// also doubles as the test case name.  The second parameter is the
+// name of the test within the test case.
 //
-// A vocaloid_test fixture class must be declared earlier.  The user should put
-// the vocaloid_test code between braces after using this macro.  Example:
+// A test fixture class must be declared earlier.  The user should put
+// the test code between braces after using this macro.  Example:
 //
 //   class FooTest : public testing::Test {
 //    protected:
@@ -2329,5 +2340,7 @@ int RUN_ALL_TESTS() GTEST_MUST_USE_RESULT_;
 inline int RUN_ALL_TESTS() {
   return ::testing::UnitTest::GetInstance()->Run();
 }
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
 #endif  // GTEST_INCLUDE_GTEST_GTEST_H_

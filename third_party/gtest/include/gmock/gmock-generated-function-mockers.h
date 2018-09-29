@@ -1099,7 +1099,7 @@ using internal::FunctionMocker;
     GMOCK_METHOD10_(typename, const, ct, m, __VA_ARGS__)
 
 // A MockFunction<F> class has one mock method whose type is F.  It is
-// useful when you just want your vocaloid_test code to emit some messages and
+// useful when you just want your test code to emit some messages and
 // have Google Mock verify the right messages are sent (and perhaps at
 // the right times).  For example, if you are exercising code:
 //

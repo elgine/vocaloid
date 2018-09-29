@@ -1,51 +1,27 @@
-#define THREAD 32
-#define QUEUE  256
+#include <thread>
+#include <mutex>
+#include <set>
+#include <random>
+#include <functional>
+using namespace std;
 
-#include <stdio.h>
-#include <pthread.h>
-#include <afxres.h>
-#include <assert.h>
-
-#include "thread_pool.hpp"
-
-int tasks = 0, done = 0;
-pthread_mutex_t lock;
-
-void dummy_task(void *arg) {
-    sleep(1000);
-    pthread_mutex_lock(&lock);
-    /* 记录成功完成的任务数 */
-    done++;
-    pthread_mutex_unlock(&lock);
-}
-
-int main(int argc, char **argv)
-{
-    threadpool_t *pool;
-
-    /* 初始化互斥锁 */
-    pthread_mutex_init(&lock, nullptr);
-
-    /* 断言线程池创建成功 */
-    assert((pool = threadpool_create(THREAD, QUEUE, 0)) != nullptr);
-    fprintf(stderr, "Pool started with %d threads and "
-                    "queue size of %d\n", THREAD, QUEUE);
-
-    /* 只要任务队列还没满，就一直添加 */
-    while(threadpool_add(pool, &dummy_task, nullptr, 0) == 0) {
-        pthread_mutex_lock(&lock);
-        tasks++;
-        pthread_mutex_unlock(&lock);
-    }
-
-    fprintf(stderr, "Added %d tasks\n", tasks);
-
-    while((tasks / 2) > done) {
-        sleep(1000);
-    }
-    /* 这时候销毁线程池,0 代表 immediate_shutdown */
-    assert(threadpool_destroy(pool, 0) == 0);
-    fprintf(stderr, "Did %d tasks\n", done);
-
+int main(){
+    set<int> int_set;
+    mutex mt;
+    auto f = [&int_set, &mt](){
+        try{
+            random_device rd;
+            mt19937 gen(rd());
+            uniform_int_distribution<> dis(1, 1000);
+            for(size_t i = 0;i != 100000;++i){
+                unique_lock<mutex> lck(mt, defer_lock);
+                int_set.insert(dis(gen));
+                throw "..";
+            }
+        }catch(...){}
+    };
+    thread td1(f), td2(f);
+    td1.join();
+    td2.join();
     return 0;
 }

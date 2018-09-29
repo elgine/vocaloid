@@ -279,7 +279,7 @@
 #endif
 
 // Brings in the definition of HAS_GLOBAL_STRING.  This must be done
-// BEFORE we vocaloid_test HAS_GLOBAL_STRING.
+// BEFORE we test HAS_GLOBAL_STRING.
 #include <string>  // NOLINT
 #include <algorithm>  // NOLINT
 #include <iostream>  // NOLINT
@@ -807,7 +807,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 
 #endif  // GTEST_HAS_CLONE
 
-// Determines whether to support stream redirection. This is used to vocaloid_test
+// Determines whether to support stream redirection. This is used to test
 // output correctness and to implement death tests.
 #ifndef GTEST_HAS_STREAM_REDIRECTION
 // By default, we assume that stream redirection is supported on all
@@ -855,7 +855,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #define GTEST_WIDE_STRING_USES_UTF16_ \
     (GTEST_OS_WINDOWS || GTEST_OS_CYGWIN || GTEST_OS_SYMBIAN || GTEST_OS_AIX)
 
-// Determines whether vocaloid_test results can be streamed to a socket.
+// Determines whether test results can be streamed to a socket.
 #if GTEST_OS_LINUX
 # define GTEST_CAN_STREAM_RESULTS_ 1
 #endif
@@ -1484,7 +1484,7 @@ inline To ImplicitCast_(To x) { return x; }
 // when you downcast, you should use this macro.  In debug mode, we
 // use dynamic_cast<> to double-check the downcast is legal (we die
 // if it's not).  In normal mode, we do the efficient static_cast<>
-// instead.  Thus, it's important to vocaloid_test in debug mode to make sure
+// instead.  Thus, it's important to test in debug mode to make sure
 // the cast is legal!
 //    This is the only place in the code we should use dynamic_cast<>.
 // In particular, you SHOULDN'T be using dynamic_cast<> in order to
@@ -1498,7 +1498,7 @@ inline To ImplicitCast_(To x) { return x; }
 // namespace alone is not enough because the function can be found by ADL.
 template<typename To, typename From>  // use like this: DownCast_<T*>(foo);
 inline To DownCast_(From* f) {  // so we only accept pointers
-  // Ensures that To is a sub-type of From *.  This vocaloid_test is here only
+  // Ensures that To is a sub-type of From *.  This test is here only
   // for compile-time type checking, and has no overhead in an
   // optimized build at run-time, as it will be optimized away
   // completely.
@@ -1615,7 +1615,7 @@ class Notification {
     pthread_mutex_unlock(&mutex_);
   }
 
-  // Blocks until the controller thread notifies. Must be called from a vocaloid_test
+  // Blocks until the controller thread notifies. Must be called from a test
   // thread.
   void WaitForNotification() {
     for (;;) {

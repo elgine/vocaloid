@@ -88,10 +88,10 @@ namespace testing {
 
 class AssertionResult;                 // Result of an assertion.
 class Message;                         // Represents a failure message.
-class Test;                            // Represents a vocaloid_test.
-class TestInfo;                        // Information about a vocaloid_test.
-class TestPartResult;                  // Result of a vocaloid_test part.
-class UnitTest;                        // A collection of vocaloid_test cases.
+class Test;                            // Represents a test.
+class TestInfo;                        // Information about a test.
+class TestPartResult;                  // Result of a test part.
+class UnitTest;                        // A collection of test cases.
 
 template <typename T>
 ::std::string PrintToString(const T& value);
@@ -109,7 +109,7 @@ GTEST_API_ extern const char kStackTraceMarker[];
 // Two overloaded helpers for checking at compile time whether an
 // expression is a null pointer literal (i.e. NULL or any 0-valued
 // compile-time integral constant).  Their return values have
-// different sizes, so we can use sizeof() to vocaloid_test which version is
+// different sizes, so we can use sizeof() to test which version is
 // picked by the compiler.  These helpers have no implementations, as
 // we only need their signatures.
 //
@@ -141,6 +141,9 @@ GTEST_API_ std::string AppendUserMessage(
 
 #if GTEST_HAS_EXCEPTIONS
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4275 \
+/* an exported class was derived from a class that was not exported */)
+
 // This exception is thrown by (and only by) a failed Google Test
 // assertion when GTEST_FLAG(throw_on_failure) is true (if exceptions
 // are enabled).  We derive it from std::runtime_error, which is for
@@ -151,6 +154,8 @@ class GTEST_API_ GoogleTestFailureException : public ::std::runtime_error {
  public:
   explicit GoogleTestFailureException(const TestPartResult& failure);
 };
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4275
 
 #endif  // GTEST_HAS_EXCEPTIONS
 
@@ -296,7 +301,7 @@ class FloatingPoint {
 
   // Reinterprets a bit pattern as a floating-point number.
   //
-  // This function is needed to vocaloid_test the AlmostEquals() method.
+  // This function is needed to test the AlmostEquals() method.
   static RawType ReinterpretBits(const Bits bits) {
     FloatingPoint fp(0);
     fp.u_.bits_ = bits;
@@ -404,7 +409,7 @@ typedef FloatingPoint<float> Float;
 typedef FloatingPoint<double> Double;
 
 // In order to catch the mistake of putting tests that use different
-// vocaloid_test fixture classes in the same vocaloid_test case, we need to assign
+// test fixture classes in the same test case, we need to assign
 // unique IDs to fixture classes and compare them.  The TypeId type is
 // used to hold such IDs.  The user should treat TypeId as an opaque
 // type: the only operation allowed on TypeId values is to compare
@@ -448,7 +453,7 @@ class TestFactoryBase {
  public:
   virtual ~TestFactoryBase() {}
 
-  // Creates a vocaloid_test instance to run. The instance is both created and destroyed
+  // Creates a test instance to run. The instance is both created and destroyed
   // within TestInfoImpl::Run()
   virtual Test* CreateTest() = 0;
 
@@ -497,17 +502,17 @@ struct CodeLocation {
 //
 // Arguments:
 //
-//   test_case_name:   name of the vocaloid_test case
-//   name:             name of the vocaloid_test
-//   type_param        the name of the vocaloid_test's type parameter, or NULL if
-//                     this is not a typed or a type-parameterized vocaloid_test.
-//   value_param       text representation of the vocaloid_test's value parameter,
-//                     or NULL if this is not a type-parameterized vocaloid_test.
-//   code_location:    code location where the vocaloid_test is defined
-//   fixture_class_id: ID of the vocaloid_test fixture class
-//   set_up_tc:        pointer to the function that sets up the vocaloid_test case
-//   tear_down_tc:     pointer to the function that tears down the vocaloid_test case
-//   factory:          pointer to the factory that creates a vocaloid_test object.
+//   test_case_name:   name of the test case
+//   name:             name of the test
+//   type_param        the name of the test's type parameter, or NULL if
+//                     this is not a typed or a type-parameterized test.
+//   value_param       text representation of the test's value parameter,
+//                     or NULL if this is not a type-parameterized test.
+//   code_location:    code location where the test is defined
+//   fixture_class_id: ID of the test fixture class
+//   set_up_tc:        pointer to the function that sets up the test case
+//   tear_down_tc:     pointer to the function that tears down the test case
+//   factory:          pointer to the factory that creates a test object.
 //                     The newly created TestInfo instance will assume
 //                     ownership of the factory object.
 GTEST_API_ TestInfo* MakeAndRegisterTestInfo(
@@ -528,13 +533,16 @@ GTEST_API_ bool SkipPrefix(const char* prefix, const char** pstr);
 
 #if GTEST_HAS_TYPED_TEST || GTEST_HAS_TYPED_TEST_P
 
-// State of the definition of a type-parameterized vocaloid_test case.
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
+/* class A needs to have dll-interface to be used by clients of class B */)
+
+// State of the definition of a type-parameterized test case.
 class GTEST_API_ TypedTestCasePState {
  public:
   TypedTestCasePState() : registered_(false) {}
 
-  // Adds the given vocaloid_test name to defined_test_names_ and return true
-  // if the vocaloid_test case hasn't been registered; otherwise aborts the
+  // Adds the given test name to defined_test_names_ and return true
+  // if the test case hasn't been registered; otherwise aborts the
   // program.
   bool AddTestName(const char* file, int line, const char* case_name,
                    const char* test_name) {
@@ -560,7 +568,7 @@ class GTEST_API_ TypedTestCasePState {
     return it->second;
   }
 
-  // Verifies that registered_tests match the vocaloid_test names in
+  // Verifies that registered_tests match the test names in
   // defined_test_names_; returns registered_tests if successful, or
   // aborts the program otherwise.
   const char* VerifyRegisteredTestNames(
@@ -572,6 +580,8 @@ class GTEST_API_ TypedTestCasePState {
   bool registered_;
   RegisteredTestsMap registered_tests_;
 };
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
 // Skips to the first non-space char after the first comma in 'str';
 // returns NULL if no comma is found in 'str'.
@@ -596,6 +606,37 @@ inline std::string GetPrefixUntilComma(const char* str) {
 void SplitString(const ::std::string& str, char delimiter,
                  ::std::vector< ::std::string>* dest);
 
+// The default argument to the template below for the case when the user does
+// not provide a name generator.
+struct DefaultNameGenerator {
+  template <typename T>
+  static std::string GetName(int i) {
+    return StreamableToString(i);
+  }
+};
+
+template <typename Provided = DefaultNameGenerator>
+struct NameGeneratorSelector {
+  typedef Provided type;
+};
+
+template <typename NameGenerator>
+void GenerateNamesRecursively(Types0, std::vector<std::string>*, int) {}
+
+template <typename NameGenerator, typename Types>
+void GenerateNamesRecursively(Types, std::vector<std::string>* result, int i) {
+  result->push_back(NameGenerator::template GetName<typename Types::Head>(i));
+  GenerateNamesRecursively<NameGenerator>(typename Types::Tail(), result,
+                                          i + 1);
+}
+
+template <typename NameGenerator, typename Types>
+std::vector<std::string> GenerateNames() {
+  std::vector<std::string> result;
+  GenerateNamesRecursively<NameGenerator>(Types(), &result, 0);
+  return result;
+}
+
 // TypeParameterizedTest<Fixture, TestSel, Types>::Register()
 // registers a list of type-parameterized tests with Google Test.  The
 // return value is insignificant - we just need to return something
@@ -606,35 +647,38 @@ void SplitString(const ::std::string& str, char delimiter,
 template <GTEST_TEMPLATE_ Fixture, class TestSel, typename Types>
 class TypeParameterizedTest {
  public:
-  // 'index' is the index of the vocaloid_test in the type list 'Types'
+  // 'index' is the index of the test in the type list 'Types'
   // specified in INSTANTIATE_TYPED_TEST_CASE_P(Prefix, TestCase,
   // Types).  Valid values for 'index' are [0, N - 1] where N is the
   // length of Types.
-  static bool Register(const char* prefix,
-                       const CodeLocation& code_location,
-                       const char* case_name, const char* test_names,
-                       int index) {
+  static bool Register(const char* prefix, const CodeLocation& code_location,
+                       const char* case_name, const char* test_names, int index,
+                       const std::vector<std::string>& type_names =
+                           GenerateNames<DefaultNameGenerator, Types>()) {
     typedef typename Types::Head Type;
     typedef Fixture<Type> FixtureClass;
     typedef typename GTEST_BIND_(TestSel, Type) TestClass;
 
-    // First, registers the first type-parameterized vocaloid_test in the type
+    // First, registers the first type-parameterized test in the type
     // list.
     MakeAndRegisterTestInfo(
-        (std::string(prefix) + (prefix[0] == '\0' ? "" : "/") + case_name + "/"
-         + StreamableToString(index)).c_str(),
+        (std::string(prefix) + (prefix[0] == '\0' ? "" : "/") + case_name +
+         "/" + type_names[index])
+            .c_str(),
         StripTrailingSpaces(GetPrefixUntilComma(test_names)).c_str(),
         GetTypeName<Type>().c_str(),
         NULL,  // No value parameter.
-        code_location,
-        GetTypeId<FixtureClass>(),
-        TestClass::SetUpTestCase,
-        TestClass::TearDownTestCase,
-        new TestFactoryImpl<TestClass>);
+        code_location, GetTypeId<FixtureClass>(), TestClass::SetUpTestCase,
+        TestClass::TearDownTestCase, new TestFactoryImpl<TestClass>);
 
     // Next, recurses (at compile time) with the tail of the type list.
-    return TypeParameterizedTest<Fixture, TestSel, typename Types::Tail>
-        ::Register(prefix, code_location, case_name, test_names, index + 1);
+    return TypeParameterizedTest<Fixture, TestSel,
+                                 typename Types::Tail>::Register(prefix,
+                                                                 code_location,
+                                                                 case_name,
+                                                                 test_names,
+                                                                 index + 1,
+                                                                 type_names);
   }
 };
 
@@ -644,7 +688,9 @@ class TypeParameterizedTest<Fixture, TestSel, Types0> {
  public:
   static bool Register(const char* /*prefix*/, const CodeLocation&,
                        const char* /*case_name*/, const char* /*test_names*/,
-                       int /*index*/) {
+                       int /*index*/,
+                       const std::vector<std::string>& =
+                           std::vector<std::string>() /*type_names*/) {
     return true;
   }
 };
@@ -657,12 +703,14 @@ template <GTEST_TEMPLATE_ Fixture, typename Tests, typename Types>
 class TypeParameterizedTestCase {
  public:
   static bool Register(const char* prefix, CodeLocation code_location,
-                       const TypedTestCasePState* state,
-                       const char* case_name, const char* test_names) {
+                       const TypedTestCasePState* state, const char* case_name,
+                       const char* test_names,
+                       const std::vector<std::string>& type_names =
+                           GenerateNames<DefaultNameGenerator, Types>()) {
     std::string test_name = StripTrailingSpaces(
         GetPrefixUntilComma(test_names));
     if (!state->TestExists(test_name)) {
-      fprintf(stderr, "Failed to get code location for vocaloid_test %s.%s at %s.",
+      fprintf(stderr, "Failed to get code location for test %s.%s at %s.",
               case_name, test_name.c_str(),
               FormatFileLocation(code_location.file.c_str(),
                                  code_location.line).c_str());
@@ -673,14 +721,16 @@ class TypeParameterizedTestCase {
 
     typedef typename Tests::Head Head;
 
-    // First, register the first vocaloid_test in 'Test' for each type in 'Types'.
+    // First, register the first test in 'Test' for each type in 'Types'.
     TypeParameterizedTest<Fixture, Head, Types>::Register(
-        prefix, test_location, case_name, test_names, 0);
+        prefix, test_location, case_name, test_names, 0, type_names);
 
-    // Next, recurses (at compile time) with the tail of the vocaloid_test list.
-    return TypeParameterizedTestCase<Fixture, typename Tests::Tail, Types>
-        ::Register(prefix, code_location, state,
-                   case_name, SkipComma(test_names));
+    // Next, recurses (at compile time) with the tail of the test list.
+    return TypeParameterizedTestCase<Fixture, typename Tests::Tail,
+                                     Types>::Register(prefix, code_location,
+                                                      state, case_name,
+                                                      SkipComma(test_names),
+                                                      type_names);
   }
 };
 
@@ -690,7 +740,9 @@ class TypeParameterizedTestCase<Fixture, Templates0, Types> {
  public:
   static bool Register(const char* /*prefix*/, const CodeLocation&,
                        const TypedTestCasePState* /*state*/,
-                       const char* /*case_name*/, const char* /*test_names*/) {
+                       const char* /*case_name*/, const char* /*test_names*/,
+                       const std::vector<std::string>& =
+                           std::vector<std::string>() /*type_names*/) {
     return true;
   }
 };
@@ -1221,7 +1273,7 @@ class NativeArray {
            "  Actual: it doesn't.")
 
 
-// Implements Boolean vocaloid_test assertions such as EXPECT_TRUE. expression can be
+// Implements Boolean test assertions such as EXPECT_TRUE. expression can be
 // either a boolean expression or an AssertionResult. text is a textual
 // represenation of expression as it was passed into the EXPECT_TRUE.
 #define GTEST_TEST_BOOLEAN_(expression, text, actual, expected, fail) \
@@ -1247,7 +1299,7 @@ class NativeArray {
            "failures in the current thread.\n" \
            "  Actual: it does.")
 
-// Expands to the name of the class that implements the given vocaloid_test.
+// Expands to the name of the class that implements the given test.
 #define GTEST_TEST_CLASS_NAME_(test_case_name, test_name) \
   test_case_name##_##test_name##_Test
 

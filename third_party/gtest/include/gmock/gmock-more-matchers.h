@@ -33,7 +33,7 @@
 // This file implements some matchers that depend on gmock-generated-matchers.h.
 //
 // Note that tests are implemented in gmock-matchers_test.cc rather than
-// gmock-more-matchers-vocaloid_test.cc.
+// gmock-more-matchers-test.cc.
 
 // GOOGLETEST_CM0002 DO NOT DELETE
 
