@@ -1,27 +1,33 @@
-#include <thread>
-#include <mutex>
-#include <set>
-#include <random>
-#include <functional>
+#include <iostream>
+#include <string>
+#include <thread_pool.hpp>
 using namespace std;
 
+void Print(const string& s){
+    cout<<s<<endl;
+}
+
+class A{
+private:
+    string name;
+public:
+    A(){
+        name = "elgine";
+    }
+    void Print(const string str){
+        cout << name << ": " + str << endl;
+    }
+};
+
 int main(){
-    set<int> int_set;
-    mutex mt;
-    auto f = [&int_set, &mt](){
-        try{
-            random_device rd;
-            mt19937 gen(rd());
-            uniform_int_distribution<> dis(1, 1000);
-            for(size_t i = 0;i != 100000;++i){
-                unique_lock<mutex> lck(mt, defer_lock);
-                int_set.insert(dis(gen));
-                throw "..";
-            }
-        }catch(...){}
-    };
-    thread td1(f), td2(f);
-    td1.join();
-    td2.join();
+    A *a = new A();
+    ThreadPool pool(5);
+    pool.Run();
+    pool.AddTask([]{cout<<"hello world"<<endl;});
+    pool.AddTask([]{cout<<"hello world1"<<endl;});
+    pool.AddTask([]{cout<<"hello world2"<<endl;});
+    pool.AddTask(Print, string("hello world3"));
+    pool.AddTask(&A::Print, a, "hello world");
+    pool.Stop();
     return 0;
 }

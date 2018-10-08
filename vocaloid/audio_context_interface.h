@@ -4,6 +4,7 @@
 #include "audio_context_state.h"
 namespace vocaloid{
     class AudioNode;
+    class Ticker;
     class IAudioContext: public IDisposable{
     friend class AudioNode;
     protected:
@@ -16,6 +17,7 @@ namespace vocaloid{
         virtual void Run() = 0;
         virtual void Stop() = 0;
         virtual void Flush() = 0;
+        virtual Ticker* GetTicker() = 0;
         virtual AudioContextState GetState() = 0;
         virtual uint32_t GetSampleRate() = 0;
     };

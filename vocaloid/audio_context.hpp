@@ -101,6 +101,10 @@ namespace vocaloid{
 
         }
 
+        Ticker* GetTicker() override {
+            return ticker_;
+        }
+
         AudioContextState GetState() override {
             return state_;
         }
