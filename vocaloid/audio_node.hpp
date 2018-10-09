@@ -20,7 +20,12 @@ namespace vocaloid{
             ctx_->RemoveNode(this);
         }
 
-        void Process(Buffer*...){}
+        int16_t Prepare(){
+            return 0;
+        }
+
+        template<typename... Args>
+        void Process(Args... args){}
 
         void Connect(AudioNode *node){
             ctx_->Connect(this, node);

@@ -92,7 +92,7 @@ namespace vocaloid{
         }
 
         void Process(Buffer *in, Buffer *out) override {
-            size_t time = ctx_->GetTicker()->GetCurTimestamp();
+            auto time = ctx_->GetTicker()->GetCurTimestamp();
             float value = gain_->GetValueAtTime(time);
             for(int i = 0;i < in->GetChannels();i++){
                 auto in_channel_data = in->GetChannelAt(i);

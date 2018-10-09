@@ -50,10 +50,10 @@ namespace vocaloid{
             }
         }
 
-        void FromByteArray(const char *byte_array, uint32_t byte_length){
+        void FromByteArray(const char *byte_array, uint64_t byte_length){
             uint16_t depth = bits_ / 8;
             uint16_t step = depth * channels_;
-            uint32_t new_buffer_size = byte_length / step;
+            uint64_t new_buffer_size = byte_length / step;
             float max = powf(2.0f, bits_ - 1);
             if(buffer_size_ < new_buffer_size){
                 for(int i = 0;i < channels_;i++){

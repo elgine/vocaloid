@@ -7,13 +7,14 @@
 #include "audio_node.hpp"
 #include "audio_source_node.hpp"
 #include "audio_destination_node.hpp"
-#include "audio_chain.hpp"
+#include "thread_pool.hpp"
 #include "ticker.hpp"
 using namespace std;
 namespace vocaloid{
 
     class AudioContext: public Emitter, public IAudioContext{
     protected:
+        ThreadPool *thread_pool_;
         Ticker *ticker_;
         AudioContextState state_;
         uint32_t sample_rate_;
@@ -80,25 +81,35 @@ namespace vocaloid{
         }
 
     public:
+
+        uint32_t max_thread_count_;
+
         explicit AudioContext(uint32_t sample_rate = 44100):sample_rate_(sample_rate){
             state_ = AudioContextState::FREE;
+            thread_pool_ = nullptr;
             ticker_ = new Ticker();
+            max_thread_count_ = 5;
         }
 
         void Setup() override {
-
+            // Initialize thread pool
+            thread_pool_ = new ThreadPool(max_thread_count_);
+            thread_pool_->Run();
+            // Initialize all source nodes
+            for(auto source_node : source_nodes_){
+                source_node->Prepare();
+            }
+            // TODO: Generate workers...
+            state_ = AudioContextState::PREPARE;
         }
 
         void Run() override {
-
+            state_ = AudioContextState::RUN;
         }
 
         void Stop() override {
-
-        }
-
-        void Flush() override {
-
+            state_ = AudioContextState::STOP;
+            thread_pool_->Stop();
         }
 
         Ticker* GetTicker() override {
