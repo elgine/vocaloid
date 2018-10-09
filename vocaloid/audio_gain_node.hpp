@@ -91,16 +91,18 @@ namespace vocaloid{
             gain_ = new Gain(value);
         }
 
-        void Process(Buffer *in, Buffer *out) override {
+        int16_t Process(Buffer *in, Buffer *out) {
             auto time = ctx_->GetTicker()->GetCurTimestamp();
             float value = gain_->GetValueAtTime(time);
+            int16_t size = in->GetBufferSize();
             for(int i = 0;i < in->GetChannels();i++){
                 auto in_channel_data = in->GetChannelAt(i);
                 auto out_channel_data = out->GetChannelAt(i);
-                for(int j = 0;j < in->GetBufferSize();j++){
+                for(int j = 0;j < size;j++){
                     out_channel_data[j] = in_channel_data[j] * value;
                 }
             }
+            return size;
         }
     };
 }

@@ -26,10 +26,11 @@ namespace vocaloid{
             player_->Open(sample_rate_, bits_, channels_);
         }
 
-        void Process(Buffer *in) {
+        int16_t Process(Buffer *in) {
             uint64_t buf_len = in->GetBufferSize() * in->GetChannels() * in->GetBits() / 8;
             std::unique_ptr<char*> buf = std::make_unique<char*>(new char[buf_len]);
             player_->Push(*buf, buf_len);
+            return buf_len;
         }
     };
 }

@@ -25,7 +25,7 @@ namespace vocaloid{
         }
 
         template<typename... Args>
-        void Process(Args... args){}
+        int16_t Process(Args... args){}
 
         void Connect(AudioNode *node){
             ctx_->Connect(this, node);

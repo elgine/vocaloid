@@ -5,6 +5,6 @@ namespace vocaloid {
     class AudioDestinationNode : public AudioNode {
     public:
         explicit AudioDestinationNode(IAudioContext *ctx):AudioNode(ctx){}
-        void Process(Buffer *in) {}
+        int16_t Process(Buffer *in) {return 0;}
     };
 }

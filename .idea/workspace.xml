@@ -13,21 +13,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f2c1540-eaed-4347-951e-72d149d8f910" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/vocaloid/audio_player_node.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vocaloid/wav_audio_file_node.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vocaloid_test/test_process.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/audio_chain.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_process_chain.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/audio_context.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_context.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/audio_context_interface.h" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_context_interface.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vocaloid/audio_destination_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_destination_node.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vocaloid/audio_file_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_file_node.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vocaloid/audio_gain_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_gain_node.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vocaloid/audio_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_node.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/audio_player_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_player_node.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/audio_process_chain.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_process_chain.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocaloid/audio_process_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_process_node.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vocaloid/audio_source_node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/audio_source_node.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid/buffer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid/buffer.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocaloid_test/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vocaloid_test/CMakeLists.txt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -120,7 +113,7 @@
           <entry key="gitignore" value="3" />
           <entry key="gitkeep" value="1" />
           <entry key="h" value="87" />
-          <entry key="hpp" value="238" />
+          <entry key="hpp" value="244" />
           <entry key="md" value="3" />
           <entry key="tcc" value="6" />
           <entry key="thread" value="14" />
@@ -133,16 +126,16 @@
           <entry key="CMakeLists.txt" value="48" />
           <entry key="Disassembly" value="18" />
           <entry key="Markdown" value="3" />
-          <entry key="ObjectiveC" value="402" />
+          <entry key="ObjectiveC" value="408" />
           <entry key="PLAIN_TEXT" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="10578" />
+          <entry key="cpp" value="10607" />
           <entry key="gitignore" value="42" />
           <entry key="h" value="797" />
-          <entry key="hpp" value="58101" />
+          <entry key="hpp" value="58224" />
           <entry key="mm" value="611" />
           <entry key="txt" value="532" />
         </counts>
@@ -151,7 +144,7 @@
         <counts>
           <entry key="CMakeLists.txt" value="532" />
           <entry key="Doxygen file" value="1" />
-          <entry key="ObjectiveC" value="70086" />
+          <entry key="ObjectiveC" value="70238" />
           <entry key="PLAIN_TEXT" value="42" />
         </counts>
       </usages-collector>
@@ -162,10 +155,31 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vocaloid/audio_context.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="12" selection-start-column="12" selection-end-column="12" />
+            <state relative-caret-position="3286">
+              <caret line="106" column="44" selection-start-line="106" selection-start-column="44" selection-end-line="106" selection-end-column="44" />
               <folding>
                 <element signature="e#13#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vocaloid/audio_node.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="259">
+              <caret line="27" column="15" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vocaloid/audio_process_chain.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="217">
+              <caret line="80" column="45" lean-forward="true" selection-start-line="80" selection-start-column="45" selection-end-line="80" selection-end-column="45" />
+              <folding>
+                <element signature="e#13#30#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -176,15 +190,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="217">
               <caret line="9" column="24" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/vocaloid/pitch_shfiter.hpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="899">
-              <caret line="67" selection-start-line="67" selection-end-line="67" />
             </state>
           </provider>
         </entry>
@@ -201,11 +206,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vocaloid_test/test_process.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="279">
-              <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+              <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
               </folding>
@@ -216,8 +221,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vocaloid/audio_player_node.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="31" column="27" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+            <state relative-caret-position="466">
+              <caret line="32" column="27" selection-start-line="32" selection-start-column="27" selection-end-line="32" selection-end-column="27" />
               <folding>
                 <element signature="e#13#30#0" expanded="true" />
               </folding>
@@ -225,23 +230,32 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/vocaloid/audio_file_node.hpp">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/vocaloid/audio_destination_node.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-177">
-              <caret line="9" column="10" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="10" />
+            <state relative-caret-position="217">
+              <caret line="7" column="46" selection-start-line="7" selection-start-column="46" selection-end-line="7" selection-end-column="46" />
               <folding>
-                <element signature="e#13#30#0" expanded="true" />
+                <element signature="e#13#49#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/vocaloid/audio_gain_node.hpp">
+        <entry file="file://$PROJECT_DIR$/vocaloid/audio_process_node.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="463">
-              <caret line="95" column="54" lean-forward="true" selection-start-line="95" selection-start-column="54" selection-end-line="95" selection-end-column="54" />
+            <state relative-caret-position="186">
+              <caret line="6" column="58" selection-start-line="6" selection-start-column="58" selection-end-line="6" selection-end-column="58" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vocaloid/audio_source_node.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="217">
+              <caret line="7" column="21" selection-start-line="7" selection-start-column="21" selection-end-line="7" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -269,6 +283,7 @@
       <find>NULL</find>
       <find>end...</find>
       <find>Prepare</find>
+      <find>Process</find>
     </findStrings>
     <replaceStrings>
       <replace>fft_size</replace>
@@ -297,7 +312,6 @@
         <option value="$PROJECT_DIR$/vocaloid_test/test_pitch_shifter.cpp" />
         <option value="$PROJECT_DIR$/vocaloid/interpolator.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/interpolator.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_process_node.hpp" />
         <option value="$PROJECT_DIR$/vocaloid_test/test_path.hpp" />
         <option value="$PROJECT_DIR$/vocaloid_test/test_path.cpp" />
         <option value="$PROJECT_DIR$/vocaloid_test/unit_test.cpp" />
@@ -318,21 +332,22 @@
         <option value="$PROJECT_DIR$/vocaloid/audio_chain.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/audio_process_link.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/process.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_process_chain.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/vocaloid_test/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/vocaloid_test/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_source_node.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/buffer.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_file_node.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_node.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_gain_node.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/audio_context_interface.h" />
         <option value="$PROJECT_DIR$/vocaloid/audio_context.hpp" />
         <option value="$PROJECT_DIR$/vocaloid/wav_audio_file_node.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_destination_node.hpp" />
-        <option value="$PROJECT_DIR$/vocaloid/audio_player_node.hpp" />
         <option value="$PROJECT_DIR$/vocaloid_test/test_process.cpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_node.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_process_chain.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_file_node.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_gain_node.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_player_node.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_source_node.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_process_node.hpp" />
+        <option value="$PROJECT_DIR$/vocaloid/audio_destination_node.hpp" />
       </list>
     </option>
   </component>
@@ -358,11 +373,6 @@
             <path>
               <item name="vocaloid_pro" type="b2602c69:ProjectViewProjectNode" />
               <item name="vocaloid_pro" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="vocaloid_pro" type="b2602c69:ProjectViewProjectNode" />
-              <item name="vocaloid_pro" type="462c0819:PsiDirectoryNode" />
-              <item name="pcm_player" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="vocaloid_pro" type="b2602c69:ProjectViewProjectNode" />
@@ -453,12 +463,12 @@
       <workItem from="1538270749680" duration="10597000" />
       <workItem from="1538960285742" duration="26662000" />
       <workItem from="1539045761868" duration="604000" />
-      <workItem from="1539046388779" duration="4357000" />
+      <workItem from="1539046388779" duration="4726000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="259445000" />
+    <option name="totallyTimeSpent" value="259814000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1456" height="876" extended-state="6" />
@@ -476,7 +486,7 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Messages" order="8" weight="0.32793522" />
-      <window_info anchor="bottom" id="Terminal" order="9" visible="true" weight="0.14035088" />
+      <window_info anchor="bottom" id="Terminal" order="9" visible="true" weight="0.08097166" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" />
       <window_info anchor="bottom" id="CMake" order="12" weight="0.317139" />
@@ -711,13 +721,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_process_node.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="93">
-          <caret line="3" column="47" lean-forward="true" selection-start-line="3" selection-start-column="47" selection-end-line="3" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vocaloid/reader.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="279">
@@ -784,16 +787,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_process_chain.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="79" column="46" lean-forward="true" selection-start-line="79" selection-start-column="46" selection-end-line="79" selection-end-column="46" />
-          <folding>
-            <element signature="e#13#30#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vocaloid_test/test_pitch_shifter.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="186">
@@ -846,30 +839,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_source_node.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="7" column="22" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_node.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
-          <folding>
-            <element signature="e#608#626#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_gain_node.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="463">
-          <caret line="95" column="54" lean-forward="true" selection-start-line="95" selection-start-column="54" selection-end-line="95" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vocaloid/ticker.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="217">
@@ -887,26 +856,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_context.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="12" selection-start-column="12" selection-end-column="12" />
-          <folding>
-            <element signature="e#13#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_file_node.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-177">
-          <caret line="9" column="10" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="10" />
-          <folding>
-            <element signature="e#13#30#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vocaloid/wav_audio_file_node.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="310">
@@ -917,29 +866,90 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_destination_node.hpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid_test/test_process.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="31">
-          <caret line="1" column="36" selection-start-line="1" selection-start-column="36" selection-end-line="1" selection-end-column="36" />
+        <state relative-caret-position="279">
+          <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid/audio_player_node.hpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_context.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="31" column="27" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+        <state relative-caret-position="3286">
+          <caret line="106" column="44" selection-start-line="106" selection-start-column="44" selection-end-line="106" selection-end-column="44" />
+          <folding>
+            <element signature="e#13#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_node.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="27" column="15" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_file_node.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="474">
+          <caret line="48" column="23" selection-start-line="48" selection-start-column="23" selection-end-line="48" selection-end-column="23" />
           <folding>
             <element signature="e#13#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vocaloid_test/test_process.cpp">
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_gain_node.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+        <state relative-caret-position="507">
+          <caret line="103" column="13" lean-forward="true" selection-start-line="103" selection-start-column="13" selection-end-line="103" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_source_node.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="7" column="21" selection-start-line="7" selection-start-column="21" selection-end-line="7" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_process_node.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="6" column="58" selection-start-line="6" selection-start-column="58" selection-end-line="6" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_process_chain.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="80" column="45" lean-forward="true" selection-start-line="80" selection-start-column="45" selection-end-line="80" selection-end-column="45" />
           <folding>
-            <element signature="e#0#34#0" expanded="true" />
+            <element signature="e#13#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_player_node.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="466">
+          <caret line="32" column="27" selection-start-line="32" selection-start-column="27" selection-end-line="32" selection-end-column="27" />
+          <folding>
+            <element signature="e#13#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocaloid/audio_destination_node.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="7" column="46" selection-start-line="7" selection-start-column="46" selection-end-line="7" selection-end-column="46" />
+          <folding>
+            <element signature="e#13#49#0" expanded="true" />
           </folding>
         </state>
       </provider>

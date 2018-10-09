@@ -72,7 +72,7 @@ namespace vocaloid{
             b->Push(input);
         }
 
-        void Process(Buffer *output){
+        int16_t Process(Buffer *output){
             unique_lock<mutex> lock(buffer_mutex_);
             auto *process_in = new Buffer(frame_size_), *process_out = new Buffer(frame_size_);
             MixBufferGroupIfNeed(process_in);
@@ -83,6 +83,7 @@ namespace vocaloid{
                     process_in->Copy(process_out);
                 }
             }
+            return 0;
         }
     };
 }

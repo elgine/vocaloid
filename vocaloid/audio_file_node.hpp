@@ -40,12 +40,13 @@ namespace vocaloid{
             return reader_->Open(source_.c_str());
         }
 
-        void Process(Buffer *out) {
+        int16_t Process(Buffer *out) {
             if(reader_->IsEnd())return;
             uint64_t len = out->GetBufferSize() * out->GetChannels() * out->GetBits() / 8;
             std::unique_ptr<char*> source_data = std::make_unique<char*>(new char[len]);
             reader_->ReadData(*source_data, len);
             out->FromByteArray(*source_data, len);
+            return len;
         }
 
         void Dispose() override {
