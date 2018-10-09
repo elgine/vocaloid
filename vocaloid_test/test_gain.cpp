@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <random>
-#include <audio_context.hpp>
-#include <audio_gain_node.hpp>
+#include "../processor/audio_context.hpp"
+#include "../processor/audio_gain_node.hpp"
 #include <gtest/gtest.h>
 using namespace vocaloid;
 

@@ -42,7 +42,7 @@ namespace vocaloid{
             }
 
         public:
-            Writer(uint32_t sample_rate, uint16_t bits, uint16_t channels){
+            explicit WAVWriter(uint32_t sample_rate, uint16_t bits, uint16_t channels){
                 uint16_t block_align = bits / 8 * channels;
                 uint32_t bytes_per_sec = block_align * sample_rate;
                 header_ = {
@@ -179,6 +179,7 @@ namespace vocaloid{
                     pos_ = pos;
                     in_.seekg(pos_ + GetHeaderLength());
                 }
+                return pos_;
             }
 
             uint64_t ReadData(char *bytes, uint64_t byte_length) override {

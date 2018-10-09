@@ -87,11 +87,11 @@ namespace vocaloid{
 
         Gain *gain_;
 
-        explicit AudioGainNode(IAudioContext *ctx, float value = 1.0f):AudioProcessNode(ctx){
+        explicit AudioGainNode(AudioContext *ctx, float value = 1.0f):AudioProcessNode(ctx){
             gain_ = new Gain(value);
         }
 
-        int16_t Process(Buffer *in, Buffer *out) {
+        int Process(Buffer *in, Buffer *out) {
             auto time = ctx_->GetTicker()->GetCurTimestamp();
             float value = gain_->GetValueAtTime(time);
             int16_t size = in->GetBufferSize();

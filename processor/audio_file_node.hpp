@@ -24,7 +24,7 @@ namespace vocaloid{
 
     public:
 
-        explicit AudioFileNode(IAudioContext *ctx, const char* source = nullptr):AudioSourceNode(ctx){
+        explicit AudioFileNode(AudioContext *ctx, const char* source = nullptr):AudioSourceNode(ctx){
             reader_ = nullptr;
             SetSource(source);
         }
@@ -36,12 +36,12 @@ namespace vocaloid{
             }
         }
 
-        int16_t Prepare(){
+        int Prepare(){
             return reader_->Open(source_.c_str());
         }
 
-        int16_t Process(Buffer *out) {
-            if(reader_->IsEnd())return;
+        int Process(Buffer *out) {
+            if(reader_->IsEnd())return 0;
             uint64_t len = out->GetBufferSize() * out->GetChannels() * out->GetBits() / 8;
             std::unique_ptr<char*> source_data = std::make_unique<char*>(new char[len]);
             reader_->ReadData(*source_data, len);

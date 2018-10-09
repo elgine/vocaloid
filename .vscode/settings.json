@@ -1,0 +1,19 @@
+{
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "C_Cpp.configurationWarnings": "Disabled",
+    "files.associations": {
+        "vector": "cpp",
+        "set": "cpp",
+        "deque": "cpp",
+        "functional": "cpp",
+        "iosfwd": "cpp",
+        "list": "cpp",
+        "system_error": "cpp",
+        "xstring": "cpp",
+        "initializer_list": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp",
+        "queue": "cpp",
+        "iterator": "cpp"
+    }
+}
