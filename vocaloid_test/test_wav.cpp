@@ -6,7 +6,7 @@
 #include <vector>
 #include <resample.hpp>
 #include <waveform.hpp>
-#include <interpolator.hpp>
+#include <interpolate.hpp>
 #include <wav.hpp>
 using namespace std;
 using namespace vocaloid;

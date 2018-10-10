@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <ticker.hpp>
+#include "../util/ticker.hpp"
 #include <afxres.h>
 
 int main(int argc, char** argv) {

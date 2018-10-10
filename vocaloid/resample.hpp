@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <stdint.h>
-#include "interpolator.hpp"
+#include "interpolate.hpp"
 using namespace std;
 
 namespace vocaloid {

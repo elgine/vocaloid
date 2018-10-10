@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <math.h>
-#include "interpolator.hpp"
+#include "interpolate.hpp"
 #include "audio_process_node.hpp"
 namespace vocaloid{
 
@@ -15,7 +15,6 @@ namespace vocaloid{
     class Gain{
     private:
         vector<GainValue> value_list;
-
         int FindIndex(uint64_t timestamp, bool &accurate){
             int start = 0, last = value_list.size() - 1, middle = 0;
             int64_t delta = 0;
@@ -42,7 +41,7 @@ namespace vocaloid{
     public:
         float value;
 
-        Gain(float v = 1.0f){
+        explicit Gain(float v = 1.0f){
             value = v;
         }
 

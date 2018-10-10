@@ -8,7 +8,7 @@ namespace vocaloid{
     public:
         explicit WAVFileNode(AudioContext *ctx, const char* source = nullptr):AudioFileNode(ctx, source){
             filter_exts_ = {".wav"};
-            reader_ = new wav::WAVReader();
+            reader_ = new WAVReader();
         }
     };
 }

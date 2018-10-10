@@ -15,6 +15,10 @@ namespace vocaloid{
         vector<AudioDestinationNode*> dest_nodes_;
         map<AudioNode*, vector<AudioNode*>> connections_;
     public:
+        const vector<AudioNode*> GetEdges(AudioNode* n){
+            return connections_[n];
+        }
+
         void AddNode(AudioNode* node) {
             auto iter = find(nodes_.begin(), nodes_.end(), node);
             if(iter == nodes_.end()){
@@ -59,8 +63,8 @@ namespace vocaloid{
             }
             auto iter =  find(connections_[from].begin(), connections_[from].end(), to);
             if(iter == nodes_.end()){
-                from->outputs_++;
-                to->inputs_++;
+                from->output_channel_count_++;
+                to->input_channel_count_++;
                 connections_[from].push_back(to);
             }
         }
@@ -69,8 +73,8 @@ namespace vocaloid{
             if(connections_.find(from) != connections_.end()){
                 auto iter =  find(connections_[from].begin(), connections_[from].end(), to);
                 if(iter != nodes_.end()){
-                    from->outputs_--;
-                    to->inputs_--;
+                    from->output_channel_count_--;
+                    to->input_channel_count_--;
                     connections_[from].erase(iter);
                 }
             }

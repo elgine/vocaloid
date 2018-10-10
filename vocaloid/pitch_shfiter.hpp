@@ -1,6 +1,6 @@
 #pragma once
 #include "stft.hpp"
-#include "interpolator.hpp"
+#include "interpolate.hpp"
 #include "resample.hpp"
 namespace vocaloid{
 

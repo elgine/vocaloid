@@ -3,13 +3,13 @@
 #include <list>
 #include "audio_source_node.hpp"
 #include "buffer_queue.hpp"
-#include "reader.h"
+#include "file.h"
 using namespace std;
 namespace vocaloid{
 
     class AudioFileNode: public AudioSourceNode{
     protected:
-        IReader *reader_;
+        IFileReader *reader_;
         string source_;
         list<string> filter_exts_;
 
