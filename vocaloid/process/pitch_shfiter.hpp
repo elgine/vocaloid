@@ -1,7 +1,8 @@
 #pragma once
-#include "stft.hpp"
-#include "interpolate.hpp"
-#include "resample.hpp"
+#include "vocaloid/utils/stft.hpp"
+#include "vocaloid/utils/interpolate.hpp"
+#include "vocaloid/utils/resample.hpp"
+#include "process_unit.h"
 namespace vocaloid{
 
     class PitchShifter: public STFT{
