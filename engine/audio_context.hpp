@@ -5,22 +5,22 @@
 #include "ticker.hpp"
 #include "audio_context_state.h"
 #include "emitter.hpp"
-#include "audio_graph.hpp"
 using namespace std;
 namespace vocaloid{
     class AudioContext: public Emitter{
     protected:
         Ticker *ticker_;
         AudioContextState state_;
-        AudioGraph *graph_;
+        // All nodes' sample-rate is the same
+        // as it's audio-context
+        uint32_t sample_rate_;
     public:
 
         int max_thread_count_ = 4;
 
-        explicit AudioContext() = default{
+        explicit AudioContext(uint32_t sample_rate):sample_rate_(sample_rate){
             state_ = AudioContextState::FREE;
             ticker_ = new Ticker();
-            graph_ = new AudioGraph();
         }
 
         void Setup() {
@@ -33,6 +33,10 @@ namespace vocaloid{
 
         void Stop() {
             state_ = AudioContextState::STOP;
+        }
+
+        uint32_t GetSampleRate(){
+            return sample_rate_;
         }
 
         AudioGraph* GetGraph() {
