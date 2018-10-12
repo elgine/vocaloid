@@ -2,10 +2,10 @@
 // Created by Elgine on 2018/9/27.
 //
 #include <vector>
-#include <wav.hpp>
+#include <vocaloid/common/wav.hpp>
 #include <buffer.hpp>
 #include <buffer_queue.hpp>
-#include <pitch_shfiter.hpp>
+#include "pitch_shfiter.hpp"
 #include <pcm_player.h>
 using namespace std;
 using namespace vocaloid;

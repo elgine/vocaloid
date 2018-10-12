@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "thread_pool.hpp"
+#include <vocaloid/common/thread_pool.hpp>
 using namespace std;
 
 void Print(const string& s){

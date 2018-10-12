@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <math.h>
 #include <vector>
-#include <resample.hpp>
-#include <waveform.hpp>
-#include <interpolate.hpp>
-#include <wav.hpp>
+#include <vocaloid/utils/resample.hpp>
+#include <vocaloid/utils/waveform.hpp>
+#include <vocaloid/utils/interpolate.hpp>
+#include <vocaloid/common/wav.hpp>
 using namespace std;
 using namespace vocaloid;
 // Write pcm data to wav file

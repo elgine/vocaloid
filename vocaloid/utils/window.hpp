@@ -2,8 +2,6 @@
 #include <math.h>
 #include <vector>
 using namespace std;
-
-
 namespace vocaloid {
 
 	enum WINDOW_TYPE {

@@ -43,21 +43,21 @@ namespace vocaloid{
             uint16_t block_align = bits / 8 * channels;
             uint32_t bytes_per_sec = block_align * sample_rate;
             header_ = {
-                {'R', 'I', 'F', 'F', '\0'},
-                36,
-                {'W', 'A', 'V', 'E', '\0'},
-                {'f', 'm', 't', ' ', '\0'},
-                16,
-                1,
-                channels,
-                sample_rate,
-                bytes_per_sec,
-                block_align,
-                bits,
-                0,
-                {},
-                {'d', 'a', 't', 'a', '\0'},
-                0
+                    {'R', 'I', 'F', 'F', '\0'},
+                    36,
+                    {'W', 'A', 'V', 'E', '\0'},
+                    {'f', 'm', 't', ' ', '\0'},
+                    16,
+                    1,
+                    channels,
+                    sample_rate,
+                    bytes_per_sec,
+                    block_align,
+                    bits,
+                    0,
+                    {},
+                    {'d', 'a', 't', 'a', '\0'},
+                    0
             };
             data_chunk_pos_ = 0;
         }
@@ -111,21 +111,21 @@ namespace vocaloid{
         int16_t Open(const char* source_path) override {
             has_extra_data_ = false;
             header_ = {
-                {' ', ' ', ' ', ' ', '\0'},
-                36,
-                {' ', ' ', ' ', ' ', '\0'},
-                {' ', ' ', ' ', ' ', '\0'},
-                16,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                {},
-                {' ', ' ', ' ', ' ', '\0'},
-                0
+                    {' ', ' ', ' ', ' ', '\0'},
+                    36,
+                    {' ', ' ', ' ', ' ', '\0'},
+                    {' ', ' ', ' ', ' ', '\0'},
+                    16,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    {},
+                    {' ', ' ', ' ', ' ', '\0'},
+                    0
             };
             in_.open(source_path, ios::in | ios::binary);
             in_.read((char*)&header_.riff, 4);

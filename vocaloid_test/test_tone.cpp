@@ -1,6 +1,6 @@
 #include <string>
 #include <gtest/gtest.h>
-#include <tone.hpp>
+#include <vocaloid/utils/tone.hpp>
 using namespace std;
 using namespace vocaloid;
 

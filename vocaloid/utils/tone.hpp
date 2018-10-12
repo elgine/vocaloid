@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <math.h>
-#include "../util/str_a_num.hpp"
+#include "../common/str_a_num.hpp"
 
 // Tone generation, conversation will follow "twelve-tone equal temperament".
 // Format of note string should be follow "${note}${level}". Middle level is 3.
