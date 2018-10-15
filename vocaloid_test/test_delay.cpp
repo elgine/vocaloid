@@ -2,6 +2,7 @@
 #include <vocaloid/process/gain.hpp>
 #include <vocaloid/process/robot.hpp>
 #include <vocaloid/process/convolution.hpp>
+#include <vocaloid/utils/window.hpp>
 #include <vocaloid/io/wav.hpp>
 #include <pcm_player/pcm_player.h>
 using namespace vocaloid;
@@ -59,7 +60,7 @@ void AddByteArray(Buffer<float> **b, uint16_t bits, uint16_t channels, char* byt
 
 Buffer<float>** LoadTele(){
     auto *reader = new WAVReader();
-    int16_t ret = reader->Open("telephone.wav");
+    int16_t ret = reader->Open("spring.wav");
     if(ret < 0)return nullptr;
     WAV_HEADER header = reader->GetHeader();
     uint64_t byte_length = 8192;
@@ -84,19 +85,12 @@ int PlayWavFile(){
     if(ret < 0)return -1;
     uint64_t byte_length = 8192;
     auto *bytes = new char[byte_length];
-    auto *output_bytes = new char[byte_length];
     auto header = reader->GetHeader();
     auto float_arr_len = byte_length/header.channels/(header.bits_per_sec/8);
     vector<Delay*> delays = {
         new Delay(5000, header.samples_per_sec, header.bits_per_sec),
         new Delay(5000, header.samples_per_sec, header.bits_per_sec)
     };
-    vector<Convolution*> convolutions = {
-        new Convolution(float_arr_len),
-        new Convolution(float_arr_len)
-    };
-    convolutions[0]->SetKernel(kernels[0]->Data(), kernels[0]->Size());
-    convolutions[1]->SetKernel(kernels[1]->Data(), kernels[1]->Size());
     vector<Robot*> robots = {
             new Robot(500, header.samples_per_sec),
             new Robot(500, header.samples_per_sec)
@@ -120,13 +114,22 @@ int PlayWavFile(){
 
     auto *inputs = new Buffer<float>*[header.channels];
     auto *outputs = new Buffer<float>*[header.channels];
-    auto convolution_len = convolutions[0]->OutputFrameSize();
+    auto *output_bytes = new char[float_arr_len * header.block_align];
+    vector<Convolution*> convolutions = {
+            new Convolution(float_arr_len),
+            new Convolution(float_arr_len)
+    };
     for(auto i = 0;i < header.channels;i++){
         inputs[i] = new Buffer<float>(float_arr_len);
-        outputs[i] = new Buffer<float>(convolution_len);
+        outputs[i] = new Buffer<float>(float_arr_len);
         inputs[i]->SetSize(float_arr_len);
-        outputs[i]->SetSize(convolution_len);
+        outputs[i]->SetSize(float_arr_len);
+
+        convolutions[i]->Initialize(header.samples_per_sec, kernels[i]->Data(), kernels[i]->Size());
     }
+
+    auto *writer = new WAVWriter(header.samples_per_sec, header.bits_per_sec, header.channels);
+    writer->Open("convolution.wav");
 
     auto *pcm_player = new PCMPlayer();
     pcm_player->Open(header.samples_per_sec, header.bits_per_sec, header.channels);
@@ -136,13 +139,15 @@ int PlayWavFile(){
         FromByteArray(bytes, data_size, header.bits_per_sec, header.channels, inputs);
         for(auto i = 0;i < header.channels;i++){
 //            delays[i]->Process(inputs[i], outputs[i]);
-//            gains[i]->Process(inputs[i], outputs[i]);
+//            gains[i]->Process(inputs[i], float_arr_len, outputs[i]);
 //            robots[i]->Process(inputs[i], outputs[i]);
-            convolutions[i]->Process(inputs[i], outputs[i]);
+            convolutions[i]->Process(inputs[i]->Data(), float_arr_len, outputs[i]->Data());
         }
         ToByteArray(outputs, header.bits_per_sec, header.channels, output_bytes, data_size);
         pcm_player->Push(output_bytes, data_size);
+        writer->WriteData(output_bytes, data_size);
     }
+    writer->Close();
     pcm_player->Flush();
     pcm_player->Close();
     reader->Close();

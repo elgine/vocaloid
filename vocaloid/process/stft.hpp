@@ -3,9 +3,11 @@
 #include <queue>
 #include <algorithm>
 #include <stdio.h>
-#include "../util/disposable.h"
-#include "fft.hpp"
-#include "window.hpp"
+#include <math.h>
+#include "vocaloid/common/disposable.h"
+#include "process_unit.h"
+#include "vocaloid/utils/fft.hpp"
+#include "vocaloid/utils/window.hpp"
 using namespace std;
 namespace vocaloid{
 
@@ -47,14 +49,6 @@ namespace vocaloid{
             }
         }
 
-        virtual void Processing() = 0;
-
-    public:
-
-        STFT(){
-            fft_ = new FFT();
-        }
-
         void SetOverlap(float o){
             if(overlap_ == o)return;
             uint32_t fft_size = fft_->GetBufferSize();
@@ -63,7 +57,15 @@ namespace vocaloid{
             hop_size_a_ = hop_size_ = fft_size - overlap_size_;
         }
 
-        void Initialize(uint32_t fft_size, float sample_rate, float overlap, WINDOW_TYPE win_type, float extra = 1.0f){
+        virtual void Processing() = 0;
+
+    public:
+
+        explicit STFT(){
+            fft_ = new FFT();
+        }
+
+        void Initialize(uint32_t fft_size, uint32_t sample_rate, float overlap, WINDOW_TYPE win_type = WINDOW_TYPE::HAMMING, float extra = 1.0f){
             fft_->Initialize(fft_size, sample_rate);
             SetOverlap(overlap);
             win_.resize(fft_size);
@@ -115,8 +117,8 @@ namespace vocaloid{
             return output_queue_.size() < length;
         }
 
-        uint32_t PopFrame(vector<float> &frame, uint32_t len){
-            uint32_t frame_len = len;
+        uint64_t PopFrame(vector<float> &frame, uint64_t len){
+            uint64_t frame_len = len;
             frame_len = min(output_queue_.size(), frame_len);
             float overlap_scaling = (float) fft_->GetBufferSize() / ((float) hop_size_a_ * 2.0f);
             for(int i = 0;i < frame_len;i++){

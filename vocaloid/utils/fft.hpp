@@ -15,7 +15,7 @@ namespace vocaloid {
 
 	protected:
         uint32_t buffer_size_;
-		float sample_rate_;
+		uint32_t sample_rate_;
 		float band_width_;
 	public:
 
@@ -51,7 +51,7 @@ namespace vocaloid {
             }
         }
 
-		void Initialize(uint32_t buffer_size, float sample_rate) {
+		void Initialize(uint32_t buffer_size, uint32_t sample_rate) {
 			buffer_size_ = buffer_size;
 			sample_rate_ = sample_rate;
 			real_ = vector<float>(buffer_size_, 0);
@@ -80,7 +80,7 @@ namespace vocaloid {
 			return buffer_size_;
 		}
 
-		float GetSampleRate() {
+		uint32_t GetSampleRate() {
 			return sample_rate_;
 		}
 

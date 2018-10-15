@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <math.h>
+#include <algorithm>
+#include "vocaloid/common/buffer.hpp"
 #include "vocaloid/common/clamp.hpp"
 #include "process_unit.h"
 using namespace std;
@@ -55,40 +57,23 @@ namespace vocaloid{
             ClearCached();
         }
 
-        uint64_t Process(Buffer<float> *in, Buffer<float> *out) override {
-            uint64_t size = in->Size();
-            cached_buffer_->Add(in, in->Size());
+        uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
+            cached_buffer_->Add(in, len);
             int64_t silence_size = delay_size_ - played_;
-            silence_size = Clamp<int64_t>(0, size, silence_size);
+            silence_size = Clamp<int64_t>(0, len, silence_size);
             if(silence_size > 0){
-                out->Fill(0, silence_size, 0);
+                fill(out.begin(), out.begin() + silence_size, 0);
             }
-            int64_t copy_size = played_ + size - delay_size_;
-            copy_size = Clamp<int64_t>(0, size, copy_size);
+            int64_t copy_size = played_ + len - delay_size_;
+            copy_size = Clamp<int64_t>(0, len, copy_size);
             if(copy_size > 0){
-                out->Set(cached_buffer_->Data(), copy_size, 0);
+                for(int i = 0;i < copy_size;i++){
+                    out[i] = cached_buffer_->Data()[i];
+                }
                 cached_buffer_->RemoveLeft(copy_size);
             }
-            played_ += size;
-            return size;
-        }
-
-        uint64_t Process(std::shared_ptr<Buffer<float>> in, std::shared_ptr<Buffer<float>> out){
-            uint64_t size = in->Size();
-            cached_buffer_->Add(in, in->Size());
-            int64_t silence_size = delay_size_ - played_;
-            silence_size = Clamp<int64_t>(0, size, silence_size);
-            if(silence_size > 0){
-                out->Fill(0, silence_size, 0);
-            }
-            int64_t copy_size = played_ + size - delay_size_;
-            copy_size = Clamp<int64_t>(0, size, copy_size);
-            if(copy_size > 0){
-                out->Set(cached_buffer_->Data(), copy_size, 0);
-                cached_buffer_->RemoveLeft(copy_size);
-            }
-            played_ += size;
-            return size;
+            played_ += len;
+            return len;
         }
     };
 }

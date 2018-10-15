@@ -1,66 +1,73 @@
 #pragma once
-#include <memory>
-#include "process_unit.h"
 #include "vocaloid/common/buffer.hpp"
-using namespace std;
+#include "vocaloid/utils/fft.hpp"
+#include "vocaloid/utils/window.hpp"
+#include "vocaloid/common/nextpow2.hpp"
+#include "process_unit.h"
+#include "stft.hpp"
 namespace vocaloid{
 
-    class Convolution: public ProcessUnit{
+    class Convolution: public STFT, ProcessUnit{
     private:
-        Buffer<float> *kernel_;
-        uint64_t frame_size_to_process_;
-        uint64_t output_frame_count_;
-        void UpdateBufferSize(){
-            output_frame_count_ = frame_size_to_process_ + kernel_->Size() - 1;
-        }
-    public:
-        explicit Convolution(uint64_t frame_size_to_process){
-            frame_size_to_process_ = frame_size_to_process;
-            kernel_ = new Buffer<float>(1024);
-        }
+        uint64_t kernel_size_;
+        uint64_t input_size_;
+        uint64_t fft_size_;
+        vector<float> input_;
+        FFT *kernel_;
 
-        void SetFrameSizeToProcess(uint64_t len){
-            if(frame_size_to_process_ == len)return;
-            frame_size_to_process_ = len;
-            UpdateBufferSize();
-        }
-
-        void SetKernel(float* v, uint64_t len){
-            kernel_->Set(v, len);
-            UpdateBufferSize();
-        }
-
-        void SetKernel(vector<float> v, uint64_t len){
-            kernel_->Set(v, len);
-            UpdateBufferSize();
-        }
-
-        static void DoConvolution(vector<float> a, uint64_t a_len,
-                                vector<float> b, uint64_t b_len,
-                                vector<float> &output){
-            auto output_len = a_len + b_len - 1;
-            for (int i = 0; i < output_len; i++) {
-                output[i] = 0;
-                auto j_min = (i >= b_len - 1) ? i - (b_len - 1) : 0;
-                auto j_max = (i < a_len - 1) ? i : a_len - 1;
-                for (auto j = j_min; j <= j_max; j++) {
-                    output[i] += a[j] * b[i - j];
-                }
+        void UpdateOutputSize(){
+            fft_size_ = kernel_size_ + input_size_ - 1;
+            if((fft_size_ & (fft_size_ - 1)) != 0){
+                fft_size_ = NextPow2(fft_size_);
             }
         }
 
-        uint64_t Process(Buffer<float> *in, Buffer<float> *out) override {
-            DoConvolution(in->Data(), in->Size(), kernel_->Data(), kernel_->Size(), out->Data());
-            return output_frame_count_;
+    protected:
+        void Processing() override {
+            for(int i = 0;i < fft_size_;i++){
+                fft_->real_[i] = fft_->real_[i] * kernel_->real_[i];
+                fft_->imag_[i] = fft_->imag_[i] * kernel_->imag_[i];
+            }
+        }
+    public:
+
+        explicit Convolution(uint64_t input_size):input_size_(input_size),kernel_size_(0),fft_size_(input_size){
+            kernel_ = new FFT();
         }
 
-        uint64_t Process(std::shared_ptr<Buffer<float>> in, std::shared_ptr<Buffer<float>> out) override {
-            DoConvolution(in->Data(), in->Size(), kernel_->Data(), kernel_->Size(), out->Data());
-            return output_frame_count_;
+        void Initialize(uint32_t sample_rate, vector<float> k, uint64_t kernel_len, WINDOW_TYPE win_type = WINDOW_TYPE::HAMMING, float extra = 1.0f){
+            kernel_size_ = kernel_len;
+            UpdateOutputSize();
+            auto overlap = 1.0f - (float)input_size_ / fft_size_;
+            STFT::Initialize(fft_size_, sample_rate, overlap, win_type, extra);
+            input_.reserve(fft_size_);
+            for(auto i = input_.size(); i < fft_size_;i++){
+                input_.emplace_back(0);
+            }
+            // Calculate kernel in frequency domain
+            vector<float> kernel(fft_size_);
+            for(int i = 0;i < kernel_len;i++){
+                kernel[i] = k[i];
+            }
+            kernel_->Dispose();
+            kernel_->Initialize(fft_size_, sample_rate);
+            kernel_->Forward(kernel, fft_size_);
         }
 
-        uint64_t OutputFrameSize(){
-            return output_frame_count_;
+        uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
+            for(int i = 0;i < len;i++){
+                input_[i] = in[i];
+            }
+            STFT::Process(input_, fft_size_);
+            return PopFrame(out, input_size_);
+        }
+
+        uint64_t FFTSize(){
+            return fft_size_;
+        }
+
+        uint64_t KernelSize(){
+            return kernel_size_;
         }
     };
 }

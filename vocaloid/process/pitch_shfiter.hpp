@@ -1,11 +1,11 @@
 #pragma once
-#include "vocaloid/utils/stft.hpp"
+#include "stft.hpp"
 #include "vocaloid/utils/interpolate.hpp"
 #include "vocaloid/utils/resample.hpp"
 #include "process_unit.h"
 namespace vocaloid{
 
-    class PitchShifter: public STFT{
+    class PitchShifter: public STFT, ProcessUnit{
     private:
         float stretch_ = 1.0f;
         int32_t hop_size_pitch_;
@@ -58,6 +58,11 @@ namespace vocaloid{
             prev_in_phase_.resize(fft_size);
             prev_out_phase_.resize(fft_size);
             hop_size_tempo_ = hop_size_pitch_ = hop_size_;
+        }
+
+        uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
+            STFT::Process(in, len);
+            return PopFrame(out, len);
         }
 
         uint64_t PopFrame(vector<float> &frame, uint32_t len){

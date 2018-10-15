@@ -3,6 +3,7 @@
 #include <algorithm>
 using namespace std;
 
+
 void DoConvolution(vector<float> a, int a_len,
                    vector<float> b, int b_len,
                    vector<float> &output){

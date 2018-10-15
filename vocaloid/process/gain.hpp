@@ -85,26 +85,14 @@ namespace vocaloid{
             return v;
         }
 
-        uint64_t Process(Buffer<float> *in, Buffer<float> *out) override {
-            uint64_t size = in->Size();
+        uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
             auto time = (float)played_ * bits_/8.0f / sample_rate_ * 1000;
             auto gain_v = GetValueAtTime(time);
-            for(auto i = 0;i < size;i++){
-                out->Data()[i] = in->Data()[i] * gain_v;
+            for(auto i = 0;i < len;i++){
+                out[i] = in[i] * gain_v;
             }
-            played_ += size;
-            return size;
-        }
-
-        uint64_t Process(std::shared_ptr<Buffer<float>> in, std::shared_ptr<Buffer<float>> out) override {
-            uint64_t size = in->Size();
-            auto time = (float)played_ * bits_/8.0f / sample_rate_ * 1000;
-            auto gain_v = GetValueAtTime(time);
-            for(auto i = 0;i < size;i++){
-                out->Data()[i] = in->Data()[i] * gain_v;
-            }
-            played_ += size;
-            return size;
+            played_ += len;
+            return len;
         }
     };
 }
