@@ -93,7 +93,7 @@ int PCMPlayer::Flush() {
 	return 0;
 }
 
-int PCMPlayer::Play(const CHAR* buf, int size) {
+int PCMPlayer::Play(const char* buf, int size) {
 	WaitForSingleObject(hEventPlay, INFINITE);
 	wvHeader[iCurPlaying].dwBufferLength = size;
 	memcpy(wvHeader[iCurPlaying].lpData, buf, size);

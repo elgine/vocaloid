@@ -1,8 +1,9 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <vocaloid/process/convolution.hpp>
 using namespace std;
-
+using namespace vocaloid;
 
 void DoConvolution(vector<float> a, int a_len,
                    vector<float> b, int b_len,
@@ -26,7 +27,19 @@ int main(){
     DoConvolution(IS, 4, IR, 5, output);
     cout << output.size() << endl;
     for(auto o : output){
-        cout << o << endl;
+        cout << o << " ";
     }
+    cout<<endl;
+    auto conv = new Convolution(4);
+    conv->Initialize(IR, 5);
+    conv->Process(IS, 4, output);
+    for(int i = 0;i < 4;i++){
+        cout << output[i] << " ";
+    }
+    conv->Process({0, 0, 0, 0}, 4, output);
+    for(int i = 0;i < 4;i++){
+        cout << output[i] << " ";
+    }
+    cout<<endl;
     return 0;
 }

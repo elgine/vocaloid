@@ -8,15 +8,11 @@ namespace vocaloid {
 
 	// Fast Fourier Transformation
 	class FFT{
-	private:
+    protected:
         vector<int> reverse_table_;
         vector<float> sin_table_;
         vector<float> cos_table_;
-
-	protected:
-        uint32_t buffer_size_;
-		uint32_t sample_rate_;
-		float band_width_;
+		uint64_t buffer_size_;
 	public:
 
         vector<float> real_;
@@ -36,30 +32,13 @@ namespace vocaloid {
             return float(a - (int)(a/b) * b + M_PI);
         }
 
-        void CalculateSpectrum(vector<float> &spectrum, float &peak_band, float &peak) {
-            spectrum.resize(buffer_size_ / 2, 0);
-            float b_si = 2.0f / buffer_size_, rval, ival, mag;
-            for (int i = 0, N = buffer_size_ / 2; i < N; i++) {
-                rval = real_[i];
-                ival = imag_[i];
-                mag = b_si * sqrt(powf(rval, 2) + powf(ival, 2));
-                if (mag > peak) {
-                    peak_band = i;
-                    peak = mag;
-                }
-                spectrum[i] = mag;
-            }
-        }
-
-		void Initialize(uint32_t buffer_size, uint32_t sample_rate) {
+		void Initialize(uint64_t buffer_size) {
 			buffer_size_ = buffer_size;
-			sample_rate_ = sample_rate;
 			real_ = vector<float>(buffer_size_, 0);
 			imag_ = vector<float>(buffer_size_, 0);
-			band_width_ = 2.0f / buffer_size_ * sample_rate_ / 2.0f;
 			reverse_table_ = vector<int>(buffer_size_);
 			int limit = 1;
-			int bit = buffer_size_ >> 1;
+			int bit = int(buffer_size_ >> 1);
 			int i;
 			while (limit < buffer_size_) {
 				for (i = 0; i < limit; i++) {
@@ -76,20 +55,12 @@ namespace vocaloid {
 			}
 		}
 
-		uint32_t GetBufferSize() {
+		uint64_t GetBufferSize() {
 			return buffer_size_;
 		}
 
-		uint32_t GetSampleRate() {
-			return sample_rate_;
-		}
-
-		float GetBandWidth() {
-			return band_width_;
-		}
-
 		// Do FFT
-		void Forward(const vector<float> buffer, int buffer_len) {
+		void Forward(const vector<float> buffer, uint64_t buffer_len) {
 			float k = floorf(logf(buffer_size_) / 0.693f);
 			if (pow(2, k) != buffer_size_) {
 				throw "Invalid buffer size, must be a power of 2.";
@@ -145,7 +116,7 @@ namespace vocaloid {
 		}
 
 		// Do IFFT
-		void Inverse(vector<float> real, vector<float> imag, int len, vector<float> &output) {
+		void Inverse(vector<float> real, vector<float> imag, uint64_t len, vector<float> &output) {
 			int half_size = 1, off, i;
 			float phase_shift_step_real, phase_shift_step_imag,
 				cur_phase_shift_real, cur_phase_shift_imag,
@@ -200,7 +171,6 @@ namespace vocaloid {
 			reverse_table_.clear();
 			sin_table_.clear();
 			cos_table_.clear();
-			band_width_ = 0;
 		}
 	};
 }

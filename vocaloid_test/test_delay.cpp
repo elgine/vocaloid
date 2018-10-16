@@ -2,6 +2,7 @@
 #include <vocaloid/process/gain.hpp>
 #include <vocaloid/process/robot.hpp>
 #include <vocaloid/process/convolution.hpp>
+#include <vocaloid/process/pitch_shifter.hpp>
 #include <vocaloid/utils/window.hpp>
 #include <vocaloid/io/wav.hpp>
 #include <pcm_player/pcm_player.h>
@@ -33,7 +34,7 @@ void ToByteArray(Buffer<float> **buffers, uint16_t bits, uint16_t channels, char
         for (int j = 0; j < channels; j++) {
             float clipped = fmaxf(-1.0f, buffers[j]->Data()[i]);
             clipped = fminf(1.0f, clipped);
-            long value = long(clipped * max);
+            auto value = (long long)(clipped * max);
             for (int k = 0; k < depth; k++) {
                 byte_array[i * step + j * depth + k] = (char)((value >> 8 * k) & 0xFF);
             }
@@ -41,59 +42,57 @@ void ToByteArray(Buffer<float> **buffers, uint16_t bits, uint16_t channels, char
     }
 }
 
-void AddByteArray(Buffer<float> **b, uint16_t bits, uint16_t channels, char* bytes, uint64_t byte_length){
-    uint16_t depth = bits / 8;
-    uint16_t step = depth * channels;
-    float max = powf(2.0f, bits - 1);
-    for(int i = 0;i < byte_length;i += step){
-        for(int j = 0;j < channels;j++){
-            long offset = i + j * depth;
-            long value = bytes[offset] & 0xFF;
-            for(int k = 1;k < depth;k++){
-                value |= (long)(bytes[offset + k] << (k * 8));
-            }
-            b[j]->Data()[b[j]->Size()] = value/max;
-            b[j]->SetSize(b[j]->Size() + 1);
-        }
-    }
-}
-
-Buffer<float>** LoadTele(){
+Buffer<float>** LoadKernel(){
     auto *reader = new WAVReader();
-    int16_t ret = reader->Open("spring.wav");
+    int16_t ret = reader->Open("muffler.wav");
     if(ret < 0)return nullptr;
     WAV_HEADER header = reader->GetHeader();
     uint64_t byte_length = 8192;
-    uint64_t float_length = (header.size2 - 4)/(header.bits_per_sec/8/header.channels);
+    uint64_t float_length = header.size2/header.block_align;
     auto *bytes = new char[byte_length];
     auto bufs = new Buffer<float>*[header.channels]{
         new Buffer<float>(float_length),
         new Buffer<float>(float_length)
     };
+    bufs[0]->SetSize(float_length);
+    bufs[1]->SetSize(float_length);
+    float max = powf(2.0f, header.bits_per_sec - 1);
+    uint16_t depth = header.bits_per_sec/8;
+    uint64_t buf_offset = 0;
     while(!reader->IsEnd()){
         uint64_t data_size = reader->ReadData(bytes, byte_length);
-        AddByteArray(bufs, header.bits_per_sec, header.channels, bytes, data_size);
+        for(int i = 0;i < data_size;i += header.block_align){
+            for(int j = 0;j < header.channels;j++){
+                long offset = i + j * depth;
+                long value = bytes[offset] & 0xFF;
+                for(int k = 1;k < depth;k++){
+                    value |= (long)(bytes[offset + k] << (k * 8));
+                }
+                bufs[j]->Data()[i / header.block_align + buf_offset] = value/max;
+            }
+        }
+        buf_offset += data_size / header.block_align;
     }
     reader->Close();
     return bufs;
 }
 
 int PlayWavFile(){
-    auto kernels = LoadTele();
+    auto kernels = LoadKernel();
     auto *reader = new WAVReader();
     int16_t ret = reader->Open("speech.wav");
     if(ret < 0)return -1;
-    uint64_t byte_length = 8192;
+    uint64_t byte_length = kernels[0]->Size() * 4;
     auto *bytes = new char[byte_length];
     auto header = reader->GetHeader();
-    auto float_arr_len = byte_length/header.channels/(header.bits_per_sec/8);
+    auto float_arr_len = byte_length/header.block_align;
     vector<Delay*> delays = {
         new Delay(5000, header.samples_per_sec, header.bits_per_sec),
         new Delay(5000, header.samples_per_sec, header.bits_per_sec)
     };
     vector<Robot*> robots = {
-            new Robot(500, header.samples_per_sec),
-            new Robot(500, header.samples_per_sec)
+        new Robot(500, header.samples_per_sec),
+        new Robot(500, header.samples_per_sec)
     };
     vector<Gain*> gains = {
         new Gain(0.1, header.samples_per_sec, header.bits_per_sec),
@@ -119,13 +118,19 @@ int PlayWavFile(){
             new Convolution(float_arr_len),
             new Convolution(float_arr_len)
     };
+//    vector<PitchShifter*> pitch_shifters = {
+//            new PitchShifter(),
+//            new PitchShifter()
+//    };
     for(auto i = 0;i < header.channels;i++){
         inputs[i] = new Buffer<float>(float_arr_len);
         outputs[i] = new Buffer<float>(float_arr_len);
         inputs[i]->SetSize(float_arr_len);
         outputs[i]->SetSize(float_arr_len);
-
-        convolutions[i]->Initialize(header.samples_per_sec, kernels[i]->Data(), kernels[i]->Size());
+//        pitch_shifters[i]->Initialize(float_arr_len, header.samples_per_sec, 0.5f);
+//        pitch_shifters[i]->SetPitch(1.2f);
+//        pitch_shifters[i]->SetTempo(1.25f);
+        convolutions[i]->Initialize(kernels[i]->Data(), kernels[i]->Size());
     }
 
     auto *writer = new WAVWriter(header.samples_per_sec, header.bits_per_sec, header.channels);
@@ -145,9 +150,9 @@ int PlayWavFile(){
         }
         ToByteArray(outputs, header.bits_per_sec, header.channels, output_bytes, data_size);
         pcm_player->Push(output_bytes, data_size);
-        writer->WriteData(output_bytes, data_size);
+//        writer->WriteData(output_bytes, data_size);
     }
-    writer->Close();
+//    writer->Close();
     pcm_player->Flush();
     pcm_player->Close();
     reader->Close();

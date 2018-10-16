@@ -62,8 +62,8 @@ public:
 	* Close
 	*/
 	void Close();
-	int Push(const CHAR* buf, size_t size);
+	int Push(const char* buf, size_t size);
 	int Flush();
 private:
-	int Play(const CHAR* buf, int size);
+	int Play(const char* buf, int size);
 };
