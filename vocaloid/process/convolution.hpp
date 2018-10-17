@@ -1,9 +1,9 @@
 #pragma once
 #include <algorithm>
-#include "vocaloid/common/buffer.hpp"
-#include "vocaloid/utils/fft.hpp"
-#include "vocaloid/utils/window.hpp"
-#include "vocaloid/common/nextpow2.hpp"
+#include "vocaloid/base/buffer.hpp"
+#include "vocaloid/maths/fft.hpp"
+#include "vocaloid/maths/window.hpp"
+#include "vocaloid/maths/base.hpp"
 #include "process_unit.h"
 #include "pitch_shifter.hpp"
 using namespace std;
@@ -14,12 +14,10 @@ namespace vocaloid{
         uint64_t kernel_size_;
         uint64_t input_size_;
         uint64_t fft_size_;
-        uint64_t n_;
         vector<float> input_;
         vector<float> buffer_;
         FFT *kernel_;
         FFT *main_;
-
     protected:
         void Processing(){
             for(int i = 0;i < fft_size_;i++){
@@ -33,14 +31,14 @@ namespace vocaloid{
         }
     public:
 
-        explicit Convolution(uint64_t input_size):input_size_(input_size),kernel_size_(0),fft_size_(input_size),n_(input_size){
+        explicit Convolution(uint64_t input_size):input_size_(input_size),kernel_size_(0),fft_size_(input_size){
             kernel_ = new FFT();
             main_ = new FFT();
         }
 
         void Initialize(vector<float> k, uint64_t kernel_len){
             kernel_size_ = kernel_len;
-            fft_size_ = n_ = kernel_size_ + input_size_ - 1;
+            fft_size_ = kernel_size_ + input_size_ - 1;
             if((fft_size_ & (fft_size_ - 1)) != 0){
                 fft_size_ = NextPow2(fft_size_);
             }
@@ -66,6 +64,7 @@ namespace vocaloid{
         }
 
         uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
+            // Zero padding right
             for(int i = 0;i < fft_size_;i++){
                if(i >= input_size_){
                     input_[i] = 0;
@@ -78,11 +77,11 @@ namespace vocaloid{
             Processing();
             // Do inverse fft
             main_->Inverse(input_);
-
+            // Do overlap add method
             for (int i = 0; i < fft_size_; i++) {
-                buffer_[i] += input_[i];
+                buffer_[i] += in[i];
                 if (i < input_size_) {
-                    out[i] = buffer_[i];
+                    out[i] = in[i];
                 }
             }
             // Move items left

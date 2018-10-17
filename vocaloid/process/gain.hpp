@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include "process_unit.h"
-#include "vocaloid/utils/interpolate.hpp"
+#include "vocaloid/maths/interpolate.hpp"
 namespace vocaloid{
 
     struct GainValue{
@@ -17,7 +17,7 @@ namespace vocaloid{
         uint16_t bits_;
         vector<GainValue> value_list;
         int FindIndex(uint64_t timestamp, bool &accurate){
-            int start = 0, last = value_list.size() - 1, middle = 0;
+            long long start = 0, last = value_list.size() - 1, middle = 0;
             int64_t delta = 0;
             accurate = false;
             if(last < 0)return 0;

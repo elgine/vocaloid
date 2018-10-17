@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/vocaloid.iml" filepath="$PROJECT_DIR$/.idea/vocaloid.iml" />
       <module fileurl="file://$PROJECT_DIR$/../vocaloid_pro/.idea/vocaloid.iml" filepath="$PROJECT_DIR$/../vocaloid_pro/.idea/vocaloid.iml" />
     </modules>
   </component>

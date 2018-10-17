@@ -2,8 +2,8 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
-#include "vocaloid/common/buffer.hpp"
-#include "vocaloid/common/clamp.hpp"
+#include "vocaloid/base/buffer.hpp"
+#include "vocaloid/maths/base.hpp"
 #include "process_unit.h"
 using namespace std;
 namespace vocaloid{

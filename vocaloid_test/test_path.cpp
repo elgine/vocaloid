@@ -1,6 +1,6 @@
 #pragma once
 #include <gtest/gtest.h>
-#include <vocaloid/common/path.hpp>
+#include <vocaloid/utils/path.hpp>
 
 TEST(TestPathUtil, Normal){
     string path = "\\Desktop\\output.wav";

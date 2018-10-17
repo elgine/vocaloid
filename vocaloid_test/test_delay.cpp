@@ -3,7 +3,7 @@
 #include <vocaloid/process/robot.hpp>
 #include <vocaloid/process/convolution.hpp>
 #include <vocaloid/process/pitch_shifter.hpp>
-#include <vocaloid/utils/window.hpp>
+#include <vocaloid/maths/window.hpp>
 #include <vocaloid/io/wav.hpp>
 #include <pcm_player/pcm_player.h>
 using namespace vocaloid;
@@ -45,7 +45,7 @@ void ToByteArray(Buffer<float> **buffers, uint16_t bits, uint16_t channels, char
 
 Buffer<float>** LoadKernel(){
     auto *reader = new WAVReader();
-    int16_t ret = reader->Open("muffler.wav");
+    int16_t ret = reader->Open("G:\\projects\\cpp\\vocaloid\\samples\\radio.wav");
     if(ret < 0)return nullptr;
     WAV_HEADER header = reader->GetHeader();
     uint64_t byte_length = 8192;
@@ -81,7 +81,7 @@ Buffer<float>** LoadKernel(){
 int PlayWavFile(){
     auto kernels = LoadKernel();
     auto *reader = new WAVReader();
-    int16_t ret = reader->Open("speech.wav");
+    int16_t ret = reader->Open("G:\\projects\\cpp\\vocaloid\\samples\\speech.wav");
     if(ret < 0)return -1;
     uint64_t byte_length = kernels[0]->Size() * 4;
     auto *bytes = new char[byte_length];
@@ -116,19 +116,19 @@ int PlayWavFile(){
     auto *outputs = new Buffer<float>*[header.channels];
     auto *output_bytes = new char[float_arr_len * header.block_align];
     vector<Convolution*> convolutions = {
-            new Convolution(float_arr_len),
-            new Convolution(float_arr_len)
+        new Convolution(float_arr_len),
+        new Convolution(float_arr_len)
     };
-//    vector<PitchShifter*> pitch_shifters = {
-//            new PitchShifter(),
-//            new PitchShifter()
-//    };
+    vector<PitchShifter*> pitch_shifters = {
+            new PitchShifter(),
+            new PitchShifter()
+    };
     for(auto i = 0;i < header.channels;i++){
         inputs[i] = new Buffer<float>(float_arr_len);
         outputs[i] = new Buffer<float>(float_arr_len);
         inputs[i]->SetSize(float_arr_len);
         outputs[i]->SetSize(float_arr_len);
-//        pitch_shifters[i]->Initialize(float_arr_len, header.samples_per_sec, 0.5f);
+//        pitch_shifters[i]->Initialize(float_arr_len, 0.5f);
 //        pitch_shifters[i]->SetPitch(1.2f);
 //        pitch_shifters[i]->SetTempo(1.25f);
         convolutions[i]->Initialize(kernels[i]->Data(), kernels[i]->Size());
@@ -147,6 +147,7 @@ int PlayWavFile(){
 //            delays[i]->Process(inputs[i], outputs[i]);
 //            gains[i]->Process(inputs[i], float_arr_len, outputs[i]);
 //            robots[i]->Process(inputs[i], outputs[i]);
+//            pitch_shifters[i]->Process(inputs[i]->Data(), float_arr_len, outputs[i]->Data());
             convolutions[i]->Process(inputs[i]->Data(), float_arr_len, outputs[i]->Data());
         }
         ToByteArray(outputs, header.bits_per_sec, header.channels, output_bytes, data_size);
@@ -164,3 +165,33 @@ int main(){
     PlayWavFile();
     return 0;
 }
+//#include <vocaloid/process/delay.hpp>
+//#include <vector>
+//#include "example.hpp"
+//using namespace std;
+//using namespace vocaloid;
+//
+//class DelayExample: public Example{
+//private:
+//    vector<Delay*> delay_nodes;
+//public:
+//    void Initialize(WAV_HEADER header) override {
+//        delay_nodes.reserve(header.channels);
+//        for(int i = 0;i < header.channels;i++){
+//            delay_nodes.emplace_back(new Delay(4000, header.samples_per_sec, header.bits_per_sec));
+//        }
+//    }
+//
+//    uint64_t Process(vector<float>* inputs, uint16_t channel_size, uint64_t data_size_per_channel, vector<float>* outputs) override {
+//        for(int i = 0;i < channel_size;i++){
+//            delay_nodes[i]->Process(inputs[i], data_size_per_channel, outputs[i]);
+//        }
+//        return data_size_per_channel;
+//    }
+//};
+//
+//int main(){
+//    auto example = new DelayExample();
+//    example->Run("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav");
+//    return 0;
+//}

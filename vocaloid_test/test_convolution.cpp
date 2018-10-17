@@ -2,44 +2,58 @@
 #include <iostream>
 #include <algorithm>
 #include <vocaloid/process/convolution.hpp>
+#include <vocaloid/base/data_format.hpp>
+#include "example.hpp"
 using namespace std;
 using namespace vocaloid;
 
-void DoConvolution(vector<float> a, int a_len,
-                   vector<float> b, int b_len,
-                   vector<float> &output){
-    auto output_len = a_len + b_len - 1;
-    for (int i = 0; i < output_len; i++) {
-        output[i] = 0;
-        int j_min = (i >= b_len - 1) ? i - (b_len - 1) : 0;
-        int j_max = (i < a_len - 1) ? i : a_len - 1;
-        for (int j = j_min; j <= j_max; j++) {
-            output[i] += a[j] * b[i - j];
+class ConvolutionExample: public Example{
+private:
+    vector<Convolution*> convolutions_;
+    vector<float> *kernel_;
+public:
+
+    string kernel_file_path_;
+
+    uint64_t LoadKernel(const char* kernel_path){
+        auto *reader = new WAVReader();
+        int16_t ret = reader->Open(kernel_path);
+        if(ret < 0)return 0;
+        auto header = reader->GetHeader();
+        uint64_t float_length = header.size2/header.block_align;
+        auto bytes = new char[header.size2];
+        kernel_ = new vector<float>[header.channels];
+        for(int i = 0;i < header.channels;i++){
+            kernel_[i].resize(float_length);
+        }
+        uint64_t data_size = reader->ReadData(bytes, header.size2);
+        ByteArrayToFloatVector(bytes, data_size, header.bits_per_sec, header.channels, kernel_);
+        reader->Close();
+        return data_size / header.block_align;
+    }
+
+    void Initialize(WAV_HEADER header) override {
+        uint64_t frame_size = LoadKernel(kernel_file_path_.c_str());
+        frame_size_ = frame_size;
+        convolutions_.resize(header.channels);
+        for(int i = 0;i < header.channels;i++){
+            convolutions_[i] = new Convolution(frame_size_);
+            convolutions_[i]->Initialize(kernel_[i], frame_size_);
         }
     }
-}
+
+    uint64_t Process(vector<float>* inputs, uint16_t channel_size,
+                    uint64_t data_size_per_channel, vector<float>* outputs) override {
+        for(int i = 0;i < channel_size;i++){
+            convolutions_[i]->Process(inputs[i], data_size_per_channel, outputs[i]);
+        }
+        return data_size_per_channel;
+    }
+};
 
 int main(){
-    vector<float> IS = {2, 4, 3, 6};
-    vector<float> IR = {1, 5, 2, 3, 4};
-    vector<float> output(8);
-    fill(output.begin(), output.end(), 0);
-    DoConvolution(IS, 4, IR, 5, output);
-    cout << output.size() << endl;
-    for(auto o : output){
-        cout << o << " ";
-    }
-    cout<<endl;
-    auto conv = new Convolution(4);
-    conv->Initialize(IR, 5);
-    conv->Process(IS, 4, output);
-    for(int i = 0;i < 4;i++){
-        cout << output[i] << " ";
-    }
-    conv->Process({0, 0, 0, 0}, 4, output);
-    for(int i = 0;i < 4;i++){
-        cout << output[i] << " ";
-    }
-    cout<<endl;
+    auto convolutionExample = new ConvolutionExample();
+    convolutionExample->kernel_file_path_ = "G:\\Projects\\cpp\\vocaloid\\samples\\radio.wav";
+    convolutionExample->Run("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav");
     return 0;
 }
