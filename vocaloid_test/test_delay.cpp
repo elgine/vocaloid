@@ -32,9 +32,10 @@ void ToByteArray(Buffer<float> **buffers, uint16_t bits, uint16_t channels, char
     float max = powf(2.0f, bits - 1);
     for(int i = 0;i < buffer_size;i++) {
         for (int j = 0; j < channels; j++) {
-            float clipped = fmaxf(-1.0f, buffers[j]->Data()[i]);
-            clipped = fminf(1.0f, clipped);
-            auto value = (long long)(clipped * max);
+            float clipped = buffers[j]->Data()[i];
+            if(clipped > 0.999f)clipped = 0.999f;
+            else if(clipped < -0.999f)clipped = -0.999f;
+            auto value = (long)(clipped * max);
             for (int k = 0; k < depth; k++) {
                 byte_array[i * step + j * depth + k] = (char)((value >> 8 * k) & 0xFF);
             }

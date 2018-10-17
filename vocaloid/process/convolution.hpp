@@ -22,7 +22,7 @@ namespace vocaloid{
 
     protected:
         void Processing(){
-            for(int i = 0;i < n_;i++){
+            for(int i = 0;i < fft_size_;i++){
                 float a = main_->real_[i];
                 float b = main_->imag_[i];
                 float c = kernel_->real_[i];
