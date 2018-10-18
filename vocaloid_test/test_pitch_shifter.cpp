@@ -2,7 +2,7 @@
 // Created by Elgine on 2018/10/17.
 //
 #include <vector>
-#include <vocaloid/process/pitch_shifter.hpp>
+#include <vocaloid/synthesis/pitch_shifter.hpp>
 #include "example.hpp"
 using namespace std;
 using namespace vocaloid;

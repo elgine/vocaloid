@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 namespace vocaloid{
-    class ProcessUnit{
+    class Synthesizer{
         virtual uint64_t Process(std::vector<float> in, uint64_t len, std::vector<float> &out) = 0;
     };
 }

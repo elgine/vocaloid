@@ -4,12 +4,12 @@
 #include "vocaloid/maths/fft.hpp"
 #include "vocaloid/maths/window.hpp"
 #include "vocaloid/maths/base.hpp"
-#include "process_unit.h"
+#include "synthesizer.h"
 #include "pitch_shifter.hpp"
 using namespace std;
 namespace vocaloid{
 
-    class Convolution: public ProcessUnit{
+    class Convolution: public Synthesizer{
     private:
         uint64_t kernel_size_;
         uint64_t input_size_;
@@ -66,7 +66,7 @@ namespace vocaloid{
         uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
             // Zero padding right
             for(int i = 0;i < fft_size_;i++){
-               if(i >= input_size_){
+               if(i >= len){
                     input_[i] = 0;
                }else
                    input_[i] = in[i];
@@ -79,9 +79,9 @@ namespace vocaloid{
             main_->Inverse(input_);
             // Do overlap add method
             for (int i = 0; i < fft_size_; i++) {
-                buffer_[i] += in[i];
+                buffer_[i] += input_[i];
                 if (i < input_size_) {
-                    out[i] = in[i];
+                    out[i] = input_[i];
                 }
             }
             // Move items left

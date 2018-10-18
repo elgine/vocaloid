@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "process_unit.h"
+#include "synthesizer.h"
 #include "vocaloid/maths/interpolate.hpp"
 namespace vocaloid{
 
@@ -10,7 +10,7 @@ namespace vocaloid{
         INTERPOLATOR_TYPE interpolator;
     };
 
-    class Gain: public ProcessUnit{
+    class Gain: public Synthesizer{
     private:
         uint64_t played_;
         uint32_t sample_rate_;

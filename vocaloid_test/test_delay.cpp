@@ -1,8 +1,8 @@
-#include <vocaloid/process/delay.hpp>
-#include <vocaloid/process/gain.hpp>
-#include <vocaloid/process/robot.hpp>
-#include <vocaloid/process/convolution.hpp>
-#include <vocaloid/process/pitch_shifter.hpp>
+#include <vocaloid/synthesis/delay.hpp>
+#include <vocaloid/synthesis/gain.hpp>
+#include <vocaloid/synthesis/robot.hpp>
+#include <vocaloid/synthesis/convolution.hpp>
+#include <vocaloid/synthesis/pitch_shifter.hpp>
 #include <vocaloid/maths/window.hpp>
 #include <vocaloid/io/wav.hpp>
 #include <pcm_player/pcm_player.h>

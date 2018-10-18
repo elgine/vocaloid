@@ -1,11 +1,11 @@
 #pragma once
 #include <math.h>
 #include <vector>
-#include "process_unit.h"
+#include "synthesizer.h"
 using namespace std;
 namespace vocaloid{
 
-    class Robot: public ProcessUnit{
+    class Robot: public Synthesizer{
     private:
         uint32_t sample_rate_;
         uint32_t sample_rate_diff_;

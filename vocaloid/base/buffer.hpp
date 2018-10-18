@@ -11,6 +11,11 @@ namespace vocaloid{
         uint64_t max_size_;
         uint64_t size_;
     public:
+        explicit Buffer(){
+            max_size_ = 0;
+            size_ = 0;
+        }
+
         explicit Buffer(uint64_t max_size){
             max_size_ = 0;
             size_ = 0;
@@ -45,12 +50,16 @@ namespace vocaloid{
             }
         }
 
-        void RemoveLeft(uint64_t step){
-            step = step % size_;
-            for(auto i = 0;i < size_ - step;i++){
-                data_[i] = data_[i + step];
+        void RemoveLeft(uint64_t len, uint64_t offset = 0){
+            auto last = min(offset + len, size_);
+            for(auto i = offset;i < last;i++){
+                if(i + len < size_){
+                    data_[i] = data_[i + len];
+                }else{
+                    data_[i] = 0.0f;
+                }
             }
-            size_ -= step;
+            size_ -= len;
         }
 
         void Add(const vector<T> data, uint64_t len, uint64_t offset = 0){
@@ -76,27 +85,17 @@ namespace vocaloid{
         }
 
         void Add(Buffer<T> *data, uint64_t len, uint64_t offset = 0){
-            uint64_t data_offset = size_;
-            if(max_size_ < size_ + len){
-                Alloc(size_ + len);
-            }
-            auto source_data = data->Data();
-            for(auto i = 0; i < len;i++){
-                data_[i + data_offset] = source_data[i + offset];
-            }
-            size_ += len;
+            Add(data->Data(), len, offset);
         }
 
-        void Add(shared_ptr<Buffer<T>> data, uint64_t len, uint64_t offset = 0){
-            uint64_t data_offset = size_;
-            if(max_size_ < size_ + len){
-                Alloc(size_ + len);
-            }
-            auto source_data = data->Data();
-            for(auto i = 0; i < len;i++){
-                data_[i + data_offset] = source_data[i + offset];
-            }
-            size_ += len;
+        void Pop(vector<T> &out, uint64_t len, uint64_t offset = 0){
+            auto last = min(offset + len, size_);
+            out.assign(data_.begin() + offset, data_.begin() + last);
+            RemoveLeft(len, offset);
+        }
+
+        void Pop(Buffer<T> *buf, uint64_t len, uint64_t offset = 0){
+            Pop(buf->Data(), len, offset);
         }
 
         void Set(vector<T> data, uint64_t len, uint64_t offset = 0){

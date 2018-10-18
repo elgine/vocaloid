@@ -1,5 +1,7 @@
 #pragma once
+#include <stdint.h>
 #include <math.h>
+#include "synthesizer.h"
 namespace vocaloid {
 
 	//            b0 + b1'*z^-1 + b2'*z^-2
@@ -29,7 +31,7 @@ namespace vocaloid {
 		NOTCH
 	};
 
-	class Biquad {
+	class Biquad: public Synthesizer {
 	private:
 		BIQUAD_TYPE type_;
 		float freq_;
@@ -247,8 +249,7 @@ namespace vocaloid {
 			UpdateParams();
 		}
 
-		template<typename T>
-		void Process(T input, int input_len, T &output) {
+		uint64_t Process(vector<float> input, uint64_t input_len, vector<float> &output) override {
 			for (int i = 0; i < input_len; i++) {
 				float x = input[i],
 					y = b0_ * x + b1_ * x1_ + b2_ * x2_ - a1_ * y1_ - a2_ * y2_;

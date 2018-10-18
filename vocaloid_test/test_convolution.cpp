@@ -1,7 +1,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-#include <vocaloid/process/convolution.hpp>
+#include <time.h>
+#include <vocaloid/synthesis/convolution.hpp>
 #include <vocaloid/base/data_format.hpp>
 #include "example.hpp"
 using namespace std;
@@ -44,9 +45,12 @@ public:
 
     uint64_t Process(vector<float>* inputs, uint16_t channel_size,
                     uint64_t data_size_per_channel, vector<float>* outputs) override {
+        auto start = clock();
         for(int i = 0;i < channel_size;i++){
             convolutions_[i]->Process(inputs[i], data_size_per_channel, outputs[i]);
         }
+        auto finish = clock();
+//        cout << (double)(finish - start)/CLOCKS_PER_SEC << endl;
         return data_size_per_channel;
     }
 };
@@ -54,6 +58,6 @@ public:
 int main(){
     auto convolutionExample = new ConvolutionExample();
     convolutionExample->kernel_file_path_ = "G:\\Projects\\cpp\\vocaloid\\samples\\radio.wav";
-    convolutionExample->Run("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav");
+    convolutionExample->Run("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav", "convolution.wav");
     return 0;
 }

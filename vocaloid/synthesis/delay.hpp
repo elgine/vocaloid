@@ -4,10 +4,10 @@
 #include <algorithm>
 #include "vocaloid/base/buffer.hpp"
 #include "vocaloid/maths/base.hpp"
-#include "process_unit.h"
+#include "synthesizer.h"
 using namespace std;
 namespace vocaloid{
-    class Delay: public ProcessUnit{
+    class Delay: public Synthesizer{
     private:
         uint32_t sample_rate_;
         uint16_t bits_;

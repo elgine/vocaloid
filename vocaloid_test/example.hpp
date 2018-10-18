@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
 #include <stdint.h>
-#include <vocaloid/process/delay.hpp>
-#include <vocaloid/process/gain.hpp>
-#include <vocaloid/process/robot.hpp>
-#include <vocaloid/process/convolution.hpp>
-#include <vocaloid/process/pitch_shifter.hpp>
+#include <vocaloid/synthesis/delay.hpp>
+#include <vocaloid/synthesis/gain.hpp>
+#include <vocaloid/synthesis/robot.hpp>
+#include <vocaloid/synthesis/convolution.hpp>
+#include <vocaloid/synthesis/pitch_shifter.hpp>
 #include <vocaloid/maths/window.hpp>
 #include <vocaloid/base/data_format.hpp>
 #include <vocaloid/io/wav.hpp>
@@ -15,7 +15,7 @@ using namespace vocaloid;
 
 class Example{
 public:
-    uint64_t frame_size_ = 2048;
+    uint64_t frame_size_ = 8192;
 
     virtual uint64_t Process(vector<float>* inputs, uint16_t channel_size, uint64_t data_size_per_channel, vector<float>* outputs) = 0;
 
