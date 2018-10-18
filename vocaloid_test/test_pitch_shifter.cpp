@@ -17,19 +17,21 @@ public:
             pitch_shifters_.emplace_back(new PitchShifter());
             pitch_shifters_[i]->Initialize(frame_size_, 0.75f);
             pitch_shifters_[i]->SetPitch(1.2f);
+//            pitch_shifters_[i]->SetTempo(1.5f);
         }
     }
 
     uint64_t Process(vector<float>* inputs, uint16_t channel_size, uint64_t data_size_per_channel, vector<float>* outputs) override {
+        auto output = data_size_per_channel;
         for(int i = 0;i < channel_size;i++){
-            data_size_per_channel = pitch_shifters_[i]->Process(inputs[i], data_size_per_channel, outputs[i]);
+            output = pitch_shifters_[i]->Process(inputs[i], data_size_per_channel, outputs[i]);
         }
-        return data_size_per_channel;
+        return output;
     }
 };
 
 int main(){
     auto pitch_shifter_example = new PitchShifterExample();
-    pitch_shifter_example->Run("G:\\Projects\\cpp\\vocaloid\\samples\\output1.wav");
+    pitch_shifter_example->Run("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav", "pitch_shifter.wav");
     return 0;
 }

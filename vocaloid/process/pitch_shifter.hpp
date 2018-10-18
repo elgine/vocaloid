@@ -14,15 +14,14 @@ namespace vocaloid{
         vector<float> input_queue_;
         vector<float> output_queue_;
         vector<float> buffer_;
-        uint64_t overlap_size_;
-        uint64_t hop_size_;
-        uint64_t hop_size_s_;
+        int64_t overlap_size_;
+        int64_t hop_size_;
+        int64_t hop_size_s_;
         float stretch_;
         float pitch_;
         float tempo_;
         vector<float> prev_in_phase_;
         vector<float> prev_out_phase_;
-        INTERPOLATOR_TYPE interpolator_;
 
         void Processing(){
             for (int i = 0; i < fft_->GetBufferSize(); i++) {
@@ -74,8 +73,7 @@ namespace vocaloid{
                                 overlap_size_(0),
                                 stretch_(1.0f),
                                 pitch_(1.0f),
-                                tempo_(1.0f),
-                                interpolator_(INTERPOLATOR_TYPE::LINEAR){
+                                tempo_(1.0f){
             fft_ = new FFT();
         }
 
@@ -86,7 +84,7 @@ namespace vocaloid{
             buffer_.resize(fft_size);
             prev_in_phase_.resize(fft_size);
             prev_out_phase_.resize(fft_size);
-            overlap_size_ = (uint64_t)(fft_size * overlap);
+            overlap_size_ = (int64_t)(fft_size * overlap);
             hop_size_s_ = hop_size_ = fft_size - overlap_size_;
             omega_.resize(fft_size);
             for(int i = 0;i < fft_size;i++){
@@ -140,9 +138,7 @@ namespace vocaloid{
             vector<float> temp;
             temp.assign(output_queue_.begin(), output_queue_.begin() + frame_len);
             output_queue_.erase(output_queue_.begin(), output_queue_.begin() + frame_len);
-            auto hop_size_after_tempo = (uint64_t)roundf(hop_size_ * tempo_);
-            float scale = hop_size_after_tempo / (float)hop_size_s_;
-            return Resample(temp, frame_len, interpolator_, scale, frame);
+            return Resample(temp, frame_len, INTERPOLATOR_TYPE::LINEAR, 1.0f / pitch_, frame);
         }
 
         void SetPitch(float v){
