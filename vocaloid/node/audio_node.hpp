@@ -1,15 +1,15 @@
 #pragma once
 namespace vocaloid{
-    class AudioGraph;
+    class AudioContext;
     class AudioNode{
     friend class AudioGraph;
     protected:
-        AudioGraph *graph_;
+        AudioContext *context_;
         uint16_t num_input_nodes_;
         uint16_t num_output_nodes_;
     public:
 
-        explicit AudioNode(AudioGraph *graph):graph_(graph),num_input_nodes_(0),num_output_nodes_(0){
+        explicit AudioNode(AudioContext *ctx):context_(ctx),num_input_nodes_(0),num_output_nodes_(0){
 
         }
 

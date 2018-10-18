@@ -1,22 +1,24 @@
 #pragma once
 #include <stdint.h>
 #include "audio_node.hpp"
+#include "audio_output_node.hpp"
 namespace vocaloid{
 
-    enum AudioGraphOutputMode{
+    enum AudioContextOutputMode{
         PLAYER,
         ENCODER
     };
 
-    class AudioGraph{
+    class AudioContext{
     private:
-        AudioGraphOutputMode output_mode_;
+        AudioContextOutputMode output_mode_;
+        AudioOutputNode output_;
 
         void DetectAudioDeviceInfo(){
 
         }
     public:
-        explicit AudioGraph(){
+        explicit AudioContext(){
             SetPlayerMode();
         }
 
@@ -29,16 +31,12 @@ namespace vocaloid{
             output_mode_ = AudioGraphOutputMode::ENCODER;
         }
 
-        void Connect(AudioNode *from, AudioNode *to){
-
-        }
-
-        void Disconnect(AudioNode *from, AudioNode *to){
-
-        }
-
         void Dispose(){
 
+        }
+
+        AudioOutputNode& OutputNode(){
+            return output_;
         }
     };
 }
