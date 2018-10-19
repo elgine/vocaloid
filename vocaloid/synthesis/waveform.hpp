@@ -55,15 +55,15 @@ namespace vocaloid {
 	}
 
 	// Generate waveform through predefined waveform-cofficient model.
-	void GenWaveform(float sample_rate, vector<float> real, vector<float> imag, int len, vector<float> &output) {
+	void GenWaveform(vector<float> real, vector<float> imag, uint64_t len, vector<float> &output) {
 		FFT *frame = new FFT();
-		frame->Initialize(len, sample_rate);
+		frame->Initialize(len);
 		frame->Inverse(real, imag, len, output);
 		frame->Dispose();
 	}
 
 	// Generate custom waveform through data provided by user.
-	void GenWaveform(WAVEFORM_TYPE wave_type, float sample_rate, unsigned int len, vector<float> &output) {
+	void GenWaveform(WAVEFORM_TYPE wave_type, uint64_t len, vector<float> &output) {
 		if ((int)wave_type < (int)WAVEFORM_TYPE::SINE || (int)wave_type >(int)WAVEFORM_TYPE::CUSTOM) {
 			throw "Should provide wave_type or real, imag array to generate waveform";
 		}
@@ -74,6 +74,6 @@ namespace vocaloid {
 		case WAVEFORM_TYPE::SAWTOOTH:GenSawtoothCofficients(real, imag, len); break;
 		default:GenSineCoefficients(real, imag, len); break;
 		}
-		GenWaveform(sample_rate, real, imag, len, output);
+		GenWaveform(real, imag, len, output);
 	}
 }
