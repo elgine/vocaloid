@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <time.h>
 #include <vocaloid/synthesis/convolution.hpp>
-#include <vocaloid/base/data_format.hpp>
+#include <vocaloid/base/conversion.hpp>
 #include "example.hpp"
 using namespace std;
 using namespace vocaloid;

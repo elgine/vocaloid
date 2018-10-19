@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 namespace vocaloid{
     class AudioContext;
     class AudioNode{
@@ -12,9 +13,6 @@ namespace vocaloid{
         explicit AudioNode(AudioContext *ctx):context_(ctx),num_input_nodes_(0),num_output_nodes_(0){
 
         }
-
-        template<typename... Args>
-        virtual uint64_t Process(Args... args) = 0;
 
         /**
          * Flush memory buffer left

@@ -86,12 +86,10 @@ namespace vocaloid{
         }
 
         uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
-            auto time = (float)played_ * bits_/8.0f / sample_rate_ * 1000;
-            auto gain_v = GetValueAtTime(time);
             for(auto i = 0;i < len;i++){
+                auto gain_v = GetValueAtTime((float)(played_++) * bits_/8.0f / sample_rate_ * 1000);
                 out[i] = in[i] * gain_v;
             }
-            played_ += len;
             return len;
         }
     };

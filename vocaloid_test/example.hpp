@@ -7,7 +7,7 @@
 #include <vocaloid/synthesis/convolution.hpp>
 #include <vocaloid/synthesis/pitch_shifter.hpp>
 #include <vocaloid/maths/window.hpp>
-#include <vocaloid/base/data_format.hpp>
+#include <vocaloid/base/conversion.hpp>
 #include <vocaloid/io/wav.hpp>
 #include <pcm_player/pcm_player.h>
 using namespace std;

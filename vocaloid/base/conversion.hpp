@@ -21,7 +21,7 @@ namespace vocaloid{
         LFE
     };
 
-    void ByteArrayToFloatVector(const char *byte_array, uint64_t byte_length, uint16_t bits, uint16_t channels, vector<float> *buffers){
+    void ByteArrayToFloatVector(const char* byte_array, uint64_t byte_length, uint16_t bits, uint16_t channels, vector<float> *buffers){
         uint16_t depth = bits / 8;
         uint16_t step = depth * channels;
         float max = powf(2.0f, bits - 1);

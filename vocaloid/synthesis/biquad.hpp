@@ -1,7 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <math.h>
+#include <vector>
 #include "synthesizer.h"
+using namespace std;
 namespace vocaloid {
 
 	//            b0 + b1'*z^-1 + b2'*z^-2
@@ -237,7 +239,7 @@ namespace vocaloid {
 			}
 		}
 	public:
-		Biquad(BIQUAD_TYPE type, float sample_rate, float frequency, float Q, float gain, float detune = 0) {
+		explicit Biquad(BIQUAD_TYPE type, float sample_rate, float frequency, float Q, float gain = 0, float detune = 0) {
 			type_ = type;
 			gain_ = gain;
 			Q_ = Q;
@@ -259,6 +261,7 @@ namespace vocaloid {
 				y2_ = y1_;
 				y1_ = y;
 			}
+			return input_len;
 		}
 	};
 }
