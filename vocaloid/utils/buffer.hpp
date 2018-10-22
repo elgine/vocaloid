@@ -34,6 +34,10 @@ namespace vocaloid{
             Set(data, len, offset);
         }
 
+        ~Buffer(){
+            Dispose();
+        }
+
         void Fill(T v){
             for(auto i = 0;i < size_;i++){
                 data_[i] = v;
@@ -128,6 +132,13 @@ namespace vocaloid{
             if(size_ == size)return;
             if(size_ < size)Alloc(size);
             size_ = size;
+        }
+
+        void Dispose(){
+            data_.clear();
+            // Free vector memory as <<Effective STL>> said
+            vector<float>(data_).swap(data_);
+            max_size_ = size_ = 0;
         }
 
         uint64_t Size(){

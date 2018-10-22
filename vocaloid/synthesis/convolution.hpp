@@ -1,6 +1,6 @@
 #pragma once
 #include <algorithm>
-#include "vocaloid/base/buffer.hpp"
+#include "vocaloid/utils/buffer.hpp"
 #include "vocaloid/maths/fft.hpp"
 #include "vocaloid/maths/window.hpp"
 #include "vocaloid/maths/base.hpp"

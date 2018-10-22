@@ -2,7 +2,7 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
-#include "vocaloid/base/buffer.hpp"
+#include "vocaloid/utils/buffer.hpp"
 #include "vocaloid/maths/base.hpp"
 #include "synthesizer.h"
 using namespace std;

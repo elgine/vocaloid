@@ -4,7 +4,7 @@
 #include <string.h>
 #include <fstream>
 #include <vector>
-#include "file.h"
+#include "audio_file.h"
 using namespace std;
 namespace vocaloid{
     struct WAV_HEADER{
@@ -25,7 +25,7 @@ namespace vocaloid{
         uint32_t size2;
     };
 
-    class WAVWriter: public IFileWriter{
+    class WAVWriter: public AudioFileWriter{
     private:
         WAV_HEADER header_;
         ofstream out_;
@@ -101,7 +101,7 @@ namespace vocaloid{
         }
     };
 
-    class WAVReader: public IFileReader{
+    class WAVReader: public AudioFileReader{
     private:
         WAV_HEADER header_;
         ifstream in_;

@@ -5,22 +5,6 @@
 using namespace std;
 namespace vocaloid{
 
-    enum ChannelLayout{
-        CHANNEL_MONO,
-        CHANNEL_STEREO,
-        CHANNEL_QUAD,
-        CHANNEL_5_1
-    };
-
-    enum Channel{
-        LEFT,
-        RIGHT,
-        SURROUND_LEFT,
-        SURROUND_RIGHT,
-        CENTER,
-        LFE
-    };
-
     void ByteArrayToFloatVector(const char* byte_array, uint64_t byte_length, uint16_t bits, uint16_t channels, vector<float> *buffers){
         uint16_t depth = bits / 8;
         uint16_t step = depth * channels;

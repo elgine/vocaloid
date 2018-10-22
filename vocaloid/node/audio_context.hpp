@@ -1,39 +1,58 @@
 #pragma once
 #include <stdint.h>
-#include "audio_node.hpp"
+#include <vector>
+#include <algorithm>
+#include <thread>
+#include <mutex>
+#include "audio_source_node.hpp"
 #include "audio_output_node.hpp"
-#include "audio_player.hpp"
+#include "vocaloid/utils/ticker.hpp"
+using namespace std;
 namespace vocaloid{
-
-    enum AudioContextOutputMode{
-        PLAYER,
-        ENCODER
-    };
 
     class AudioContext{
     private:
-        AudioContextOutputMode output_mode_;
+        Ticker *ticker_;
+
         AudioOutputNode *output_;
-
-        void DetectAudioDeviceInfo(){
-
-        }
+        vector<AudioSourceNode*> sources_;
     public:
 
-        void SetPlayerMode(uint32_t sample_rate, uint16_t bits, uint16_t channels){
-            output_mode_ = AudioContextOutputMode::PLAYER;
-            output_ = new AudioPlayer(this, sample_rate, bits, channels);
+        explicit AudioContext(){
+            ticker_ = new Ticker();
+            output_ = nullptr;
         }
 
-        void SetEncoderMode(uint32_t sample_rate, uint16_t bits, uint16_t channels){
-            output_mode_ = AudioContextOutputMode::ENCODER;
+        void AddSource(AudioSourceNode *s){
+            auto iter = find(sources_.begin(), sources_.end(), s);
+            if(iter == sources_.end()){
+                sources_.emplace_back(s);
+            }
+        }
+
+        void RemoveSource(AudioSourceNode *s){
+            auto iter = find(sources_.begin(), sources_.end(), s);
+            if(iter == sources_.end())return;
+            sources_.erase(iter);
         }
 
         void Dispose(){
 
         }
 
-        AudioOutputNode* OutputNode(){
+        void Start(uint64_t offset = 0){
+
+        }
+
+        void Stop(){
+
+        }
+
+        uint32_t SampleRate(){
+            return output_->SampleRate();
+        }
+
+        AudioOutputNode* Output(){
             return output_;
         }
     };

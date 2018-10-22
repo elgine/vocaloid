@@ -16,8 +16,8 @@ namespace vocaloid{
         uint32_t sample_rate_;
         uint16_t bits_;
         vector<GainValue> value_list;
-        int FindIndex(uint64_t timestamp, bool &accurate){
-            long long start = 0, last = value_list.size() - 1, middle = 0;
+        int64_t FindIndex(uint64_t timestamp, bool &accurate){
+            int64_t start = 0, last = value_list.size() - 1, middle = 0;
             int64_t delta = 0;
             accurate = false;
             if(last < 0)return 0;
@@ -37,6 +37,10 @@ namespace vocaloid{
                 middle++;
             }
             return middle;
+        }
+
+        uint64_t CalculatePlayedTime(uint64_t offset){
+            return uint64_t((float)(offset) * bits_/8.0f / float(sample_rate_) * 1000.0f);
         }
 
     public:
@@ -64,7 +68,7 @@ namespace vocaloid{
 
         float GetValueAtTime(uint64_t time){
             bool accurate = false;
-            int index = FindIndex(time, accurate);
+            int64_t index = FindIndex(time, accurate);
             if(index - 1 < 0)return value;
             if(index >= value_list.size()){
                 return value_list[value_list.size() - 1].value;
@@ -73,7 +77,7 @@ namespace vocaloid{
             if(accurate){
                 return value_list[index].value;
             }else{
-                int pre = index - 1;
+                int64_t pre = index - 1;
                 auto preV = value_list[pre].value;
                 auto curV = value_list[index].value;
                 auto duration = value_list[index].timestamp - value_list[pre].timestamp;
@@ -87,7 +91,7 @@ namespace vocaloid{
 
         uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
             for(auto i = 0;i < len;i++){
-                auto gain_v = GetValueAtTime((float)(played_++) * bits_/8.0f / sample_rate_ * 1000);
+                auto gain_v = GetValueAtTime(CalculatePlayedTime(played_));
                 out[i] = in[i] * gain_v;
             }
             return len;
