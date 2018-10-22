@@ -39,7 +39,7 @@ public:
         return delta_;
     }
 
-    void Start(){
+    void Start(uint64_t offset = 0){
         timestamp_ = last_timestamp_ = start_timestamp_ = clock();
         cur_timestamp_ = 0;
         paused_timestamp_ = 0;

@@ -37,9 +37,8 @@ namespace vocaloid{
                 outs.put( static_cast <char> (value & 0xFF) );
             return outs;
         }
-
     public:
-        explicit WAVWriter(uint32_t sample_rate, uint16_t bits, uint16_t channels){
+        int16_t Open(const char* output_path, uint32_t sample_rate, uint16_t bits, uint16_t channels) override {
             uint16_t block_align = bits / 8 * channels;
             uint32_t bytes_per_sec = block_align * sample_rate;
             header_ = {
@@ -60,9 +59,7 @@ namespace vocaloid{
                     0
             };
             data_chunk_pos_ = 0;
-        }
 
-        int16_t Open(const char* output_path) override {
             out_.open(output_path, ios::binary);
             out_.write((char*)&header_.riff, 4);
             out_.write((char*)&header_.size0, sizeof header_.size0);
