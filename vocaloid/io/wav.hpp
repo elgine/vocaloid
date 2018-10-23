@@ -198,5 +198,9 @@ namespace vocaloid{
         WAV_HEADER GetHeader(){
             return header_;
         }
+
+        AudioFormat Format() override {
+            return {header_.samples_per_sec, header_.bits_per_sec, header_.channels, header_.channels * header_.bits_per_sec / 8};
+        }
     };
 }

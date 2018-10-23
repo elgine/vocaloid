@@ -102,20 +102,18 @@ namespace vocaloid{
             Pop(buf->Data(), len, offset);
         }
 
-        void Set(vector<T> data, uint64_t len, uint64_t offset = 0){
+        void Set(vector<T> data, uint64_t len, uint64_t offset = 0, uint64_t dst = 0){
             Alloc(len);
             for(auto i = 0;i < len;i++){
-                data_[i] = data[i + offset];
+                data_[i + dst] = data[i + offset];
             }
-            size_ = len;
         }
 
-        void Set(const T* data, uint64_t len, uint64_t offset = 0){
+        void Set(const T* data, uint64_t len, uint64_t offset = 0, uint64_t dst = 0){
             Alloc(len);
             for(auto i = 0;i < len;i++){
-                data_[i] = data[i + offset];
+                data_[i + dst] = data[i + offset];
             }
-            size_ = len;
         }
 
         void Alloc(uint64_t size){

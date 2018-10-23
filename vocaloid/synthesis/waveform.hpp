@@ -15,7 +15,7 @@ namespace vocaloid {
 	};
 
 	template<typename T>
-	void GenSineCoefficients(vector<T> &real, vector<T> &imag, int len) {
+	void GenSineCoefficients(vector<T> &real, vector<T> &imag, uint64_t len) {
 		real[0] = 0;
 		imag[0] = 0;
 		for (int i = 1; i < len; i++) {
@@ -31,13 +31,13 @@ namespace vocaloid {
 
 	//http://mathworld.wolfram.com/FourierSeriesTriangleWave.html
 	template<typename T>
-	void GenTriangleCoefficients(vector<T> &real, vector<T> &imag, int len) {
+	void GenTriangleCoefficients(vector<T> &real, vector<T> &imag, uint64_t len) {
 		real[0] = 0;
 		imag[0] = 0;
 		for (int i = 1; i < len; i++) {
 			real[i] = 0;
 			if (i & 1) {
-				imag[i] = 8 / powf(i * M_PI, 2.0f) * ((((i - 1) >> 1) & 1) ? -1 : 1);
+				imag[i] = 8 / powf(i * (float)M_PI, 2.0f) * ((((i - 1) >> 1) & 1) ? -1 : 1);
 			}else {
 				imag[i] = 0;
 			}
@@ -45,7 +45,7 @@ namespace vocaloid {
 	}
 
 	template<typename T>
-	void GenSawtoothCofficients(vector<T> &real, vector<T> &imag, int len) {
+	void GenSawtoothCofficients(vector<T> &real, vector<T> &imag, uint64_t len) {
 		real[0] = 0;
 		imag[0] = 0;
 		for (int i = 1; i < len; i++) {
@@ -55,7 +55,7 @@ namespace vocaloid {
 	}
 
 	// Generate waveform through predefined waveform-cofficient model.
-	void GenWaveform(vector<float> real, vector<float> imag, uint64_t len, vector<float> &output) {
+	void GenWaveform(const vector<float> &real, const vector<float> &imag, uint64_t len, vector<float> &output) {
 		FFT *frame = new FFT();
 		frame->Initialize(len);
 		frame->Inverse(real, imag, len, output);

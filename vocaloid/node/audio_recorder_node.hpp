@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include "audio_context.hpp"
 #include "audio_destination_node.hpp"
 #include "vocaloid/io/audio_file.h"
 using namespace std;
@@ -14,8 +13,9 @@ namespace vocaloid{
             writer_ = nullptr;
         }
 
-        void Initialize() override {
-            writer_->Open(Path(), sample_rate_, AudioContext::BITS_PER_SEC, channels_);
+        void Initialize(uint64_t frame_size) override {
+            AudioNode::Initialize(frame_size);
+            writer_->Open(Path(), sample_rate_, BITS_PER_SEC, channels_);
         }
 
         void Close() override {
@@ -30,13 +30,15 @@ namespace vocaloid{
             return path_.c_str();
         }
 
-        void Push(AudioBuffer *in) override {
-            uint64_t byte_len = in->Channels() * AudioContext::BITS_PER_SEC / 8;
+        int64_t PushToDestination() override {
+            uint64_t size = summing_buffer_->Size();
+            uint64_t byte_len = size * summing_buffer_->Channels() * BITS_PER_SEC / 8;
             auto bytes = new char[byte_len];
-            in->ToByteArray(AudioContext::BITS_PER_SEC, bytes, byte_len);
+            summing_buffer_->ToByteArray(BITS_PER_SEC, bytes, byte_len);
             writer_->WriteData(bytes, byte_len);
             delete[] bytes;
             bytes = nullptr;
+            return size;
         }
     };
 }

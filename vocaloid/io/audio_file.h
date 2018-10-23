@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "vocaloid/data/format.h"
 namespace vocaloid{
     class AudioFileReader{
     public:
@@ -8,6 +9,7 @@ namespace vocaloid{
         virtual void Close() = 0;
         virtual bool IsEnd() = 0;
         virtual uint64_t Seek(uint64_t pos) = 0;
+        virtual AudioFormat Format() = 0;
     };
 
     class AudioFileWriter{

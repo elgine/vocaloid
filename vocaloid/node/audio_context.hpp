@@ -24,19 +24,23 @@ namespace vocaloid{
         atomic<AudioContextState> state_;
         unique_ptr<thread> audio_thread_;
         shared_ptr<mutex> mutex_;
-        shared_ptr<AudioDestinationNode> dest_node_;
+        AudioDestinationNode *dest_node_;
 
         atomic<uint64_t> current_time_;
         uint64_t offset_start_;
 
+        atomic<uint64_t> frame_size_;
+
         void Run(){
-            current_time_ = ticker_->GetCurTimestamp() + offset_start_;
+            while(state_ == AudioContextState::PLAYING){
+                current_time_ = ticker_->GetCurTimestamp() + offset_start_;
+                dest_node_->Pull();
+            }
         }
 
     public:
-        static const uint16_t BITS_PER_SEC = 16;
-
         explicit AudioContext(){
+            frame_size_ = 1024;
             current_time_ = offset_start_ = 0;
             state_ = AudioContextState::STOPPED;
             ticker_ = new Ticker();
@@ -49,7 +53,7 @@ namespace vocaloid{
          * @param channels
          */
         void SetRecorderMode(const char* path, uint32_t sample_rate, uint16_t channels){
-            dest_node_ = CreateNode(new AudioRecorderNode(this));
+            dest_node_ = new AudioRecorderNode(this);
             dest_node_->SetSampleRate(sample_rate);
             dest_node_->SetChannels(channels);
         }
@@ -61,28 +65,23 @@ namespace vocaloid{
          * @param channels
          */
         void SetPlayerMode(uint32_t sample_rate, uint16_t channels){
-            dest_node_ = CreateNode(new AudioPlayerNode(this));
+            dest_node_ = new AudioPlayerNode(this);
             dest_node_->SetSampleRate(sample_rate);
             dest_node_->SetChannels(channels);
-        }
-
-        /**
-         * Wrap audio node pointer
-         * @tparam T
-         * @param n
-         * @return
-         */
-        template<class T>
-        shared_ptr<T> CreateNode(T *n){
-            return make_shared<T>(n);
         }
 
         /**
          * Setup audio graph, initialize audio thread
          */
         void Setup(){
-            dest_node_->Initialize();
+            SetupRecursively(dest_node_);
+        }
 
+        void SetupRecursively(AudioNode *n){
+            n->Initialize(frame_size_);
+            for(auto input : n->Inputs()){
+                SetupRecursively(input);
+            }
         }
 
         /**
@@ -114,8 +113,12 @@ namespace vocaloid{
             current_time_ = offset_start_ = 0;
         }
 
-        shared_ptr<AudioDestinationNode> GetDestination(){
+        AudioDestinationNode* GetDestination(){
             return dest_node_;
+        }
+
+        uint32_t GetSampleRate(){
+            return dest_node_->SampleRate();
         }
 
         shared_ptr<mutex> GetMutex(){

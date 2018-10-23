@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 namespace vocaloid{
 
     #define CHANNEL_MONO 1
@@ -13,5 +14,12 @@ namespace vocaloid{
         SURROUND_RIGHT,
         CENTER,
         LFE
+    };
+
+    struct AudioFormat{
+        uint32_t sample_rate;
+        uint16_t bits;
+        uint16_t channels;
+        uint16_t block_align;
     };
 }

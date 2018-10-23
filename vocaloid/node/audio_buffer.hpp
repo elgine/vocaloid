@@ -2,29 +2,24 @@
 #include <stdint.h>
 #include <math.h>
 #include "vocaloid/utils/buffer.hpp"
-#include "vocaloid/data/channel.h"
+#include "vocaloid/data/format.h"
 namespace vocaloid{
 
     class AudioBuffer{
+    typedef Buffer<float>* PBuffer;
     private:
         uint16_t channels_;
-        Buffer<float> **data_;
+        PBuffer *data_;
     public:
 
-        explicit AudioBuffer(uint16_t channels = 2, uint64_t max_size = 1024):channels_(channels){
-            data_ = new Buffer<float>*[6];
-            for(auto i = 0;i < channels;i++){
-                data_[channels_++] = new Buffer<float>(max_size);
-            }
-        }
-
-        ~AudioBuffer(){
-            Dispose();
+        explicit AudioBuffer(uint16_t channels = 2, uint64_t max_size = 1024):channels_(0){
+            data_ = new PBuffer[8];
+            Alloc(channels, max_size);
+            SetSize(max_size);
         }
 
         void Copy(AudioBuffer *b){
-            if(channels_ != b->Channels())AllocChannels(b->Channels());
-            if(Size() != b->Size())Alloc(b->Size());
+            Alloc(b->Channels(), b->Size());
             for(auto i = 0;i < b->Channels();i++){
                 for(auto j = 0;j < b->Size();j++){
                     data_[i]->Data()[j] = b->Data()[i]->Data()[j];
@@ -35,9 +30,9 @@ namespace vocaloid{
         void FromByteArray(const char* byte_array, uint64_t byte_length, uint16_t bits, uint16_t channels){
             uint16_t depth = bits / 8;
             uint16_t step = depth * channels;
-            AllocChannels(channels);
             uint64_t len = byte_length / step;
-            Alloc(len);
+            Alloc(channels, len);
+            SetSize(len);
             float max = powf(2.0f, bits - 1);
             for(int i = 0;i < byte_length;i += step){
                 for(int j = 0;j < channels;j++){
@@ -81,6 +76,7 @@ namespace vocaloid{
         void Mix(AudioBuffer *in){
             uint16_t out_channels = channels_, in_channels = in->Channels();
             uint64_t size = in->Size();
+            Alloc(channels_, size);
             if(out_channels == in_channels){
                 for(auto i = 0;i < channels_;i++){
                     for(auto j = 0;j < size;j++){
@@ -93,7 +89,8 @@ namespace vocaloid{
             if(out_channels > in_channels){
                 if(out_channels == CHANNEL_STEREO){
                     for(auto j = 0;j < size;j++){
-                        data_[Channel::LEFT]->Data()[j] += data_[Channel::RIGHT]->Data()[j] = in->Data()[Channel::LEFT]->Data()[j];
+                        data_[Channel::RIGHT]->Data()[j] += in->Data()[Channel::LEFT]->Data()[j];
+                        data_[Channel::LEFT]->Data()[j] += in->Data()[Channel::LEFT]->Data()[j];
                     }
                 }else if(out_channels == CHANNEL_QUAD){
                     if(in_channels == CHANNEL_STEREO){
@@ -171,18 +168,21 @@ namespace vocaloid{
             }
         }
 
-        void AllocChannels(uint16_t channels){
+        void Alloc(uint16_t channels, uint64_t size){
             if(channels_ < channels){
                 for(auto i = channels_;i < channels;i++){
                     data_[i] = new Buffer<float>(Size());
                 }
             }
+            for(auto i = 0;i < max(channels_, channels);i++){
+                data_[i]->Alloc(size);
+            }
             channels_ = channels;
         }
 
-        void Alloc(uint64_t size){
+        void SetSize(uint64_t size){
             for(auto i = 0;i < channels_;i++){
-                data_[i]->Alloc(size);
+                data_[i]->SetSize(size);
             }
         }
 
@@ -190,7 +190,6 @@ namespace vocaloid{
             for(auto i = 0;i < channels_;i++){
                 data_[i]->Dispose();
             }
-            delete[] data_;
         }
 
         uint16_t Channels(){
@@ -203,11 +202,11 @@ namespace vocaloid{
             return 0;
         }
 
-        Buffer<float>* Channel(uint16_t index){
+        PBuffer Channel(uint16_t index){
             return data_[index];
         }
 
-        Buffer<float>** Data(){
+        PBuffer* Data(){
             return data_;
         }
     };

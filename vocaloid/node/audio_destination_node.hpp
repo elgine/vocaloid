@@ -12,19 +12,19 @@ namespace vocaloid{
 
         // Override and make those function final, destination
         // shouldn't have output nodes
-        void Connect(const AudioNodeRef &n) final {}
-        void Disconnect(const AudioNodeRef &n) final {}
-        AudioNodeRef operator>>(const AudioNodeRef &n) final {return n;}
+        void Connect(AudioNode *n) final {}
+        void Disconnect(AudioNode *n) final {}
 
-        virtual void Initialize(){}
+        virtual int64_t PushToDestination(){
+            return 0;
+        }
+
+        int64_t Pull(){
+            SummingInputs();
+            return PushToDestination();
+        }
 
         virtual void Close(){}
-
-        /**
-         * Push buffer to destination
-         * @param in
-         */
-        virtual void Push(AudioBuffer *in) = 0;
 
         virtual void SetSampleRate(uint32_t sample_rate){
             sample_rate_ = sample_rate;
