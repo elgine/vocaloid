@@ -7,7 +7,7 @@
 using namespace std;
 namespace vocaloid{
     class AudioContext;
-    class AudioNode: public enable_shared_from_this<AudioNode>{
+    class AudioNode{
     protected:
         AudioContext *context_;
         uint16_t num_input_nodes_;
