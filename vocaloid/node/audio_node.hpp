@@ -56,6 +56,7 @@ namespace vocaloid{
 
         virtual void Pull(AudioBuffer *in){
             SummingInputs();
+            in->Alloc(channels_, frame_size_);
             Process(in);
         }
 

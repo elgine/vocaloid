@@ -10,6 +10,7 @@ namespace vocaloid{
         void DisconnectInput(const AudioNode *n) final {}
 
         void Pull(AudioBuffer *in) final {
+            in->Alloc(channels_, frame_size_);
             Process(in);
         }
     };

@@ -12,7 +12,7 @@ namespace vocaloid{
 
     class Gain: public Synthesizer{
     private:
-        uint64_t played_;
+        uint64_t offset_;
         uint32_t sample_rate_;
         uint16_t bits_;
         vector<GainValue> value_list;
@@ -40,18 +40,23 @@ namespace vocaloid{
         }
 
         uint64_t CalculatePlayedTime(uint64_t offset){
-            return uint64_t((float)(offset) * bits_/8.0f / float(sample_rate_) * 1000.0f);
+            return uint64_t((float)(offset) / (bits_/8.0f) / float(sample_rate_) * 1000.0f);
         }
 
     public:
         float value;
 
-        explicit Gain(float v = 1.0f,
-                        uint32_t sample_rate = 44100,
-                        uint16_t bits = 16):sample_rate_(sample_rate),
-                                            bits_(bits){
+        explicit Gain(float v = 1.0f){
+            sample_rate_ = 44100;
+            bits_ = 16;
             value = v;
-            played_ = 0;
+            offset_ = 0;
+        }
+
+        void Initialize(uint32_t sample_rate = 44100,
+                        uint16_t bits = 16){
+            sample_rate_ = sample_rate;
+            bits_ = bits;
         }
 
         void SetValueAtTime(float v, uint64_t start_time){
@@ -84,17 +89,30 @@ namespace vocaloid{
                 auto interpolator = value_list[index].interpolator;
                 if(interpolator == INTERPOLATOR_TYPE::NONE)return preV;
                 else if(interpolator == INTERPOLATOR_TYPE::LINEAR)
-                    return preV + (curV - preV) * (time - value_list[pre].timestamp)/duration;
+                    v = preV + (curV - preV) * float(time - value_list[pre].timestamp)/duration;
             }
             return v;
         }
 
+        void SetOffset(uint64_t offset){
+            offset_ = offset;
+        }
+
+        void Offset(uint64_t len){
+            offset_ += len;
+        }
+
         uint64_t Process(vector<float> in, uint64_t len, vector<float> &out) override {
+            uint64_t o = offset_;
             for(auto i = 0;i < len;i++){
-                auto gain_v = GetValueAtTime(CalculatePlayedTime(played_));
+                auto gain_v = GetValueAtTime(CalculatePlayedTime(o++));
                 out[i] = in[i] * gain_v;
             }
             return len;
+        }
+
+        uint64_t GetOffset(){
+            return offset_;
         }
     };
 }

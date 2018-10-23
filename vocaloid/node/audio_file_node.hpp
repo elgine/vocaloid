@@ -40,7 +40,6 @@ namespace vocaloid{
         }
 
         int64_t Process(AudioBuffer *in) override {
-            in->Alloc(channels_, frame_size_);
             if(reader_->IsEnd() || !enable_){
                 in->Fill(0.0f);
                 return frame_size_;
