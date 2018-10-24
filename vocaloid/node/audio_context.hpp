@@ -53,9 +53,11 @@ namespace vocaloid{
          * @param channels
          */
         void SetRecorderMode(const char* path, uint32_t sample_rate, uint16_t channels){
-            dest_node_ = new AudioRecorderNode(this);
-            dest_node_->SetSampleRate(sample_rate);
-            dest_node_->SetChannels(channels);
+            auto recorder = new AudioRecorderNode(this);
+            recorder->SetPath(path);
+            recorder->SetSampleRate(sample_rate);
+            recorder->SetChannels(channels);
+            dest_node_ = recorder;
         }
 
         /**

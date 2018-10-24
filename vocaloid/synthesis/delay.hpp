@@ -10,39 +10,13 @@ namespace vocaloid{
     class Delay: public Synthesizer{
     private:
         uint32_t sample_rate_;
-        uint16_t bits_;
         uint64_t delay_duration_;
         uint64_t delay_size_;
         Buffer<float> *cached_buffer_;
         uint64_t played_;
-    public:
-
-        explicit Delay(uint64_t delay_duration = 0,
-                        uint32_t sample_rate = 44100,
-                        uint16_t bits = 16):delay_duration_(delay_duration),
-                                        sample_rate_(sample_rate),
-                                        bits_(bits){
-            played_ = 0;
-            delay_size_ = 0;
-            cached_buffer_ = new Buffer<float>(1024);
-            UpdateDelaySize();
-        }
-
-        void SetFormat(uint32_t sample_rate, uint16_t bits){
-            if(sample_rate_ == sample_rate && bits_ == bits)return;
-            sample_rate_ = sample_rate;
-            bits_ = bits;
-            UpdateDelaySize();
-        }
-
-        void SetDelayDuration(uint64_t dur){
-            if(delay_duration_ == dur)return;
-            delay_duration_ = dur;
-            UpdateDelaySize();
-        }
 
         void UpdateDelaySize(){
-            delay_size_ = uint64_t(delay_duration_ * 0.001 * sample_rate_ /(bits_ / 8.0f));
+            delay_size_ = uint64_t(delay_duration_ * 0.001 * sample_rate_);
             if(delay_size_ > cached_buffer_->MaxSize()){
                 cached_buffer_->Alloc(delay_size_);
             }
@@ -50,6 +24,28 @@ namespace vocaloid{
 
         void ClearCached(){
             cached_buffer_->Fill(0);
+        }
+    public:
+
+        explicit Delay(uint64_t delay_duration = 0,
+                        uint32_t sample_rate = 44100):delay_duration_(delay_duration),
+                                        sample_rate_(sample_rate){
+            played_ = 0;
+            delay_size_ = 0;
+            cached_buffer_ = new Buffer<float>(1024);
+            UpdateDelaySize();
+        }
+
+        void SetSampleRate(uint32_t sample_rate){
+            if(sample_rate_ == sample_rate)return;
+            sample_rate_ = sample_rate;
+            UpdateDelaySize();
+        }
+
+        void SetDelayDuration(uint64_t dur){
+            if(delay_duration_ == dur)return;
+            delay_duration_ = dur;
+            UpdateDelaySize();
         }
 
         void Clear(){

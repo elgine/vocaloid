@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <math.h>
 #include "vocaloid/utils/buffer.hpp"
-#include "vocaloid/data/format.h"
+#include "vocaloid/data/format.hpp"
 namespace vocaloid{
 
     class AudioBuffer{

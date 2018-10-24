@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "vocaloid/data/format.h"
+#include "vocaloid/data/format.hpp"
 namespace vocaloid{
     class AudioFileReader{
     public:

@@ -4,17 +4,22 @@
 #include "vocaloid/maths/interpolate.hpp"
 namespace vocaloid{
 
+    enum ParamInterpolator{
+        NONE,
+        LINEAR,
+        EXPONENTIAL
+    };
+
     struct GainValue{
         uint64_t timestamp;
         float value;
-        INTERPOLATOR_TYPE interpolator;
+        ParamInterpolator interpolator;
     };
 
     class Gain: public Synthesizer{
     private:
         uint64_t offset_;
         uint32_t sample_rate_;
-        uint16_t bits_;
         vector<GainValue> value_list;
         int64_t FindIndex(uint64_t timestamp, bool &accurate){
             int64_t start = 0, last = value_list.size() - 1, middle = 0;
@@ -40,7 +45,7 @@ namespace vocaloid{
         }
 
         uint64_t CalculatePlayedTime(uint64_t offset){
-            return uint64_t((float)(offset) / (bits_/8.0f) / float(sample_rate_) * 1000.0f);
+            return uint64_t((float)(offset) / float(sample_rate_) * 1000.0f);
         }
 
     public:
@@ -48,7 +53,6 @@ namespace vocaloid{
 
         explicit Gain(float v = 1.0f){
             sample_rate_ = 44100;
-            bits_ = 16;
             value = v;
             offset_ = 0;
         }
@@ -56,19 +60,24 @@ namespace vocaloid{
         void Initialize(uint32_t sample_rate = 44100,
                         uint16_t bits = 16){
             sample_rate_ = sample_rate;
-            bits_ = bits;
         }
 
         void SetValueAtTime(float v, uint64_t start_time){
             bool accurate = false;
             auto index = FindIndex(start_time, accurate);
-            value_list.insert(value_list.begin() + index, {start_time, v, INTERPOLATOR_TYPE::NONE});
+            value_list.insert(value_list.begin() + index, {start_time, v, ParamInterpolator::NONE});
+        }
+
+        void ExponentialRampToValueAtTime(float v, uint64_t end_time){
+            bool accurate = false;
+            auto index = FindIndex(end_time, accurate);
+            value_list.insert(value_list.begin() + index, {end_time, v, ParamInterpolator::EXPONENTIAL});
         }
 
         void LinearRampToValueAtTime(float v, uint64_t end_time){
             bool accurate = false;
             auto index = FindIndex(end_time, accurate);
-            value_list.insert(value_list.begin() + index, {end_time, v, INTERPOLATOR_TYPE::LINEAR});
+            value_list.insert(value_list.begin() + index, {end_time, v, ParamInterpolator::LINEAR});
         }
 
         float GetValueAtTime(uint64_t time){
@@ -87,9 +96,11 @@ namespace vocaloid{
                 auto curV = value_list[index].value;
                 auto duration = value_list[index].timestamp - value_list[pre].timestamp;
                 auto interpolator = value_list[index].interpolator;
-                if(interpolator == INTERPOLATOR_TYPE::NONE)return preV;
-                else if(interpolator == INTERPOLATOR_TYPE::LINEAR)
-                    v = preV + (curV - preV) * float(time - value_list[pre].timestamp)/duration;
+                if(interpolator == ParamInterpolator::NONE)return preV;
+                else if(interpolator == ParamInterpolator::LINEAR)
+                    v = LinearInterpolateStep(preV, curV, float(time - value_list[pre].timestamp)/duration);
+                else if(interpolator == ParamInterpolator::EXPONENTIAL)
+                    v = ExponentialInterpolateStep(preV, curV, float(time - value_list[pre].timestamp)/duration);
             }
             return v;
         }

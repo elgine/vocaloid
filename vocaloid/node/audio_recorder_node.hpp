@@ -2,6 +2,7 @@
 #include <string>
 #include "audio_destination_node.hpp"
 #include "vocaloid/io/audio_file.h"
+#include "vocaloid/io/wav.hpp"
 using namespace std;
 namespace vocaloid{
     class AudioRecorderNode: public AudioDestinationNode{
@@ -10,7 +11,7 @@ namespace vocaloid{
         string path_;
     public:
         explicit AudioRecorderNode(AudioContext *ctx):AudioDestinationNode(ctx){
-            writer_ = nullptr;
+            writer_ = new WAVWriter();
         }
 
         void Initialize(uint64_t frame_size) override {

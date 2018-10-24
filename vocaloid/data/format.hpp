@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <math.h>
 namespace vocaloid{
 
     #define CHANNEL_MONO 1
@@ -22,4 +23,15 @@ namespace vocaloid{
         uint16_t channels;
         uint16_t block_align;
     };
+
+    // Linear gain unit to decibel
+    float GainUnitToDecibel(float v){
+        if(v == 0)return -1000.f;
+        return 20.0f * log10f(v);
+    }
+
+    // Decibel to linear gain unit
+    float DecibelToGainUnit(float v){
+        return powf(10.f, v * 0.05f);
+    }
 }

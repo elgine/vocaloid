@@ -5,8 +5,13 @@
 #include <stdint.h>
 using namespace std;
 template<typename T>
-T Linear(T y, T y_n, float percent) {
+T LinearInterpolateStep(T y, T y_n, float percent) {
 	return (y_n - y) * percent + y;
+}
+
+template<typename T>
+T ExponentialInterpolateStep(T y, T y_n, float percent) {
+	return y * pow(double(y_n / y), percent);
 }
 
 template<typename T>
@@ -45,13 +50,14 @@ T Cubic(T yi, T yi1, T Di, T Di1, float percent) {
 enum INTERPOLATOR_TYPE {
 	NONE,
 	LINEAR,
+	EXPONENTIAL,
 	CUBIC
 };
 
 
 // Linear interpolator
 template<typename T>
-void LinearInterpolate(const vector<T> input, int input_len, vector<T> &output, int output_len) {
+void LinearInterpolate(const vector<T> input, uint64_t input_len, vector<T> &output, uint64_t output_len) {
 	float ratio = (float)output_len / (input_len - 1);
 	int next_offset = 0, offset = 0;
 	for (int i = 0; i < input_len - 1; i++) {
@@ -61,7 +67,23 @@ void LinearInterpolate(const vector<T> input, int input_len, vector<T> &output, 
 		int gutter = next_offset - offset;
 		for (int j = offset + 1; j < next_offset; j++) {
 			float percent = (float)(j - offset) / gutter;
-			output[j] = Linear(input[i], input[i + 1], percent);
+			output[j] = LinearInterpolateStep(input[i], input[i + 1], percent);
+		}
+	}
+}
+
+template<typename T>
+void ExponentialInterpolate(const vector<T> input, uint64_t input_len, vector<T> &output, uint64_t output_len) {
+	float ratio = (float)output_len / (input_len - 1);
+	int next_offset = 0, offset = 0;
+	for (int i = 0; i < input_len - 1; i++) {
+		offset = (int)round(ratio * i);
+		next_offset = (int)round(ratio * (i + 1));
+		output[offset] = input[i];
+		int gutter = next_offset - offset;
+		for (int j = offset + 1; j < next_offset; j++) {
+			float percent = (float)(j - offset) / gutter;
+			output[j] = ExponentialInterpolateStep(input[i], input[i + 1], percent);
 		}
 	}
 }
@@ -90,6 +112,9 @@ void Interpolate(INTERPOLATOR_TYPE type, const vector<T> input, uint64_t input_l
 	switch (type) {
 	case INTERPOLATOR_TYPE::CUBIC:
 		CubicInterpolate(input, input_len, output, output_len);
+		break;
+	case INTERPOLATOR_TYPE::Exponential:
+		ExponentialInterpolate(input, input_len, output, output_len);
 		break;
 	default:
 		LinearInterpolate(input, input_len, output, output_len);

@@ -5,8 +5,8 @@
 using namespace std;
 template<typename T>
 uint64_t Resample(vector<T> input,  uint64_t input_len, INTERPOLATOR_TYPE interpolator, float ratio, vector<T>& output) {
-	auto output_len = uint64_t(ratio * input_len);
-	if (ratio == 1)output.assign(input.begin(), input.end());
+	auto output_len = uint64_t(input_len * ratio);
+	if (ratio == 1.0f)output.assign(input.begin(), input.begin() + input_len);
 	else {
 		if (output.size() != output_len)
 			output.resize(output_len);

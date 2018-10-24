@@ -13,12 +13,13 @@ namespace vocaloid{
 
         Buffer<float> *waveform_buffer_;
         Buffer<float> *waveform_buffer_after_resampled_;
-
+        bool waveform_dirty_;
         uint64_t offset_ = 0;
     public:
         explicit OscillatorNode(AudioContext *ctx):AudioSourceNode(ctx){
             channels_ = 1;
             frequency_ = 440;
+            waveform_dirty_ = true;
             type_ = WAVEFORM_TYPE::SINE;
             waveform_buffer_ = new Buffer<float>();
             waveform_buffer_after_resampled_ = new Buffer<float>();
@@ -26,13 +27,15 @@ namespace vocaloid{
 
         int64_t Process(AudioBuffer *in) override {
             // Resample
-            if(waveform_buffer_after_resampled_->Size() != frame_size_){
-                if(waveform_buffer_->Size() >= 0){
-                    float ratio = (float)context_->GetSampleRate()/(frequency_ * waveform_buffer_->Size());
-                    waveform_buffer_after_resampled_->Alloc(frame_size_);
-                    waveform_buffer_after_resampled_->SetSize(uint64_t(ratio * waveform_buffer_->Size()));
-                    Resample(waveform_buffer_->Data(), waveform_buffer_->Size(),
-                             INTERPOLATOR_TYPE::CUBIC,
+            if(waveform_dirty_){
+                auto ori_size = waveform_buffer_->Size();
+                if(ori_size > 0){
+                    float ratio = (float)context_->GetSampleRate()/(frequency_ * ori_size);
+                    auto size = uint64_t(ori_size * ratio);
+                    waveform_buffer_after_resampled_->Alloc(size);
+                    waveform_buffer_after_resampled_->SetSize(size);
+                    Resample(waveform_buffer_->Data(), ori_size,
+                             INTERPOLATOR_TYPE::LINEAR,
                              ratio,
                              waveform_buffer_after_resampled_->Data());
                 }
@@ -57,6 +60,7 @@ namespace vocaloid{
             waveform_buffer_->Alloc(buffer_size);
             waveform_buffer_->SetSize(buffer_size);
             GenWaveform(wave_type, buffer_size, waveform_buffer_->Data());
+            waveform_dirty_ = true;
         }
 
         void GenWaveformData(float frequency, const vector<float> &real, const vector<float> &imag, uint64_t buffer_size) {
@@ -64,6 +68,7 @@ namespace vocaloid{
             waveform_buffer_->Alloc(buffer_size);
             waveform_buffer_->SetSize(buffer_size);
             GenWaveform(real, imag, buffer_size, waveform_buffer_->Data());
+            waveform_dirty_ = true;
         }
 
         WAVEFORM_TYPE WaveformType(){
