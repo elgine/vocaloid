@@ -11,6 +11,7 @@ T LinearInterpolateStep(T y, T y_n, float percent) {
 
 template<typename T>
 T ExponentialInterpolateStep(T y, T y_n, float percent) {
+	if(y == 0 || percent == 0)return 0;
 	return y * pow(double(y_n / y), percent);
 }
 
@@ -113,7 +114,7 @@ void Interpolate(INTERPOLATOR_TYPE type, const vector<T> input, uint64_t input_l
 	case INTERPOLATOR_TYPE::CUBIC:
 		CubicInterpolate(input, input_len, output, output_len);
 		break;
-	case INTERPOLATOR_TYPE::Exponential:
+	case INTERPOLATOR_TYPE::EXPONENTIAL:
 		ExponentialInterpolate(input, input_len, output, output_len);
 		break;
 	default:

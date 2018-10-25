@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 #include "synthesizer.h"
 #include "vocaloid/maths/base.hpp"
 namespace vocaloid{
@@ -63,6 +64,10 @@ namespace vocaloid{
                 // 9. Compute reduction gain to be compressor gain multiplied by the return value of computing the makeup gain.
                 reduction_gain = compressor_gain_ *
             }
+        }
+
+        float ComputeMakeupGain(){
+            return powf(-CompressionCurve(1.0f), 0.6f);
         }
 
         float ComputeEnvelopeRate(float attack, float release){

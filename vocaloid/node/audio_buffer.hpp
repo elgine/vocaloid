@@ -3,6 +3,7 @@
 #include <math.h>
 #include "vocaloid/utils/buffer.hpp"
 #include "vocaloid/data/format.hpp"
+#include "vocaloid/maths/base.hpp"
 namespace vocaloid{
 
     class AudioBuffer{
@@ -51,12 +52,10 @@ namespace vocaloid{
             uint16_t step = depth * channels_;
             uint64_t buffer_size = Size();
             byte_length = step * buffer_size;
-            float max = powf(2.0f, bits - 1);
+            float max = powf(2.0f, bits - 1) - 1;
             for(int i = 0;i < buffer_size;i++) {
                 for (int j = 0; j < channels_; j++) {
-                    float clipped = data_[j]->Data()[i];
-                    if(clipped > 0.999f)clipped = 0.999f;
-                    else if(clipped < -0.999f)clipped = -0.999f;
+                    float clipped = Clamp(-1.0f, 1.0f, data_[j]->Data()[i]);
                     auto value = (long)(clipped * max);
                     for (int k = 0; k < depth; k++) {
                         byte_array[i * step + j * depth + k] = (char)((value >> 8 * k) & 0xFF);

@@ -35,7 +35,7 @@ namespace vocaloid{
                     waveform_buffer_after_resampled_->Alloc(size);
                     waveform_buffer_after_resampled_->SetSize(size);
                     Resample(waveform_buffer_->Data(), ori_size,
-                             INTERPOLATOR_TYPE::LINEAR,
+                             INTERPOLATOR_TYPE::EXPONENTIAL,
                              ratio,
                              waveform_buffer_after_resampled_->Data());
                 }
