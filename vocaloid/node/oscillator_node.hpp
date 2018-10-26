@@ -17,7 +17,6 @@ namespace vocaloid{
         uint64_t offset_ = 0;
     public:
         explicit OscillatorNode(AudioContext *ctx):AudioSourceNode(ctx){
-            channels_ = 1;
             frequency_ = 440;
             waveform_dirty_ = true;
             type_ = WAVEFORM_TYPE::SINE;
@@ -48,7 +47,8 @@ namespace vocaloid{
             uint64_t buffer_size = waveform_buffer_after_resampled_->Size();
             while(size < frame_size_){
                 fill_size = min(frame_size_ - size, buffer_size - offset_);
-                in->Data()[0]->Set(waveform_buffer_after_resampled_->Data(), fill_size, offset_, size);
+                for(auto i = 0;i < channels_;i++)
+                    in->Data()[i]->Set(waveform_buffer_after_resampled_->Data(), fill_size, offset_, size);
                 size += fill_size;
                 offset_  = (offset_ + fill_size) % buffer_size;
             }

@@ -1,33 +1,27 @@
 #pragma once
 #include "audio_node.hpp"
-#include "vocaloid/synthesis/gain.hpp"
-#include "audio_context.hpp"
+#include "audio_param.hpp"
 namespace vocaloid{
 
     class GainNode: public AudioNode{
-    private:
-        Gain *gain_;
     public:
-        explicit GainNode(AudioContext *ctx, float init_value = 1.0f):AudioNode(ctx){
-            gain_ = new Gain();
-            gain_->value = init_value;
-        }
+        AudioParam *gain_;
 
-        void Initialize(uint64_t frame_size) override {
-            AudioNode::Initialize(frame_size);
-            gain_->Initialize(context_->GetSampleRate(), BITS_PER_SEC);
+        explicit GainNode(AudioContext *ctx, float v = 1.0f):AudioNode(ctx){
+            gain_ = new AudioParam();
+            gain_->value_ = v;
         }
 
         int64_t Process(AudioBuffer *in) override {
-            for(auto i = 0;i < channels_;i++){
-                gain_->Process(summing_buffer_->Channel(i)->Data(), frame_size_, in->Channel(i)->Data());
+            gain_->ComputingValues();
+            for(auto i = 0;i < frame_size_;i++){
+                auto value = gain_->ResultBuffer()->Data()[i];
+                if(value < 0)value = 0;
+                for(auto j = 0;j < channels_;j++){
+                    in->Channel(j)->Data()[i] = value * summing_buffer_->Channel(j)->Data()[i];
+                }
             }
-            gain_->Offset(frame_size_);
             return frame_size_;
-        }
-
-        Gain* GetGain(){
-            return gain_;
         }
     };
 }

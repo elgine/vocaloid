@@ -66,7 +66,7 @@ namespace vocaloid{
                 for(int i = 0;i < copy_size;i++){
                     out[i] = cached_buffer_->Data()[i];
                 }
-                cached_buffer_->RemoveLeft(copy_size);
+                cached_buffer_->Splice(copy_size);
             }
             played_ += len;
             return len;

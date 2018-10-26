@@ -28,6 +28,18 @@ namespace vocaloid{
             }
         }
 
+        void Add(AudioBuffer *b){
+            for(auto i = 0;i < min(channels_, b->Channels());i++) {
+                data_[i]->Add(b->Channel(i), b->Size());
+            }
+        }
+
+        void Splice(uint64_t len, uint64_t offset){
+            for(auto i = 0;i < channels_;i++){
+                data_[i]->Splice(len, offset);
+            }
+        }
+
         void FromByteArray(const char* byte_array, uint64_t byte_length, uint16_t bits, uint16_t channels){
             uint16_t depth = bits / 8;
             uint16_t step = depth * channels;
@@ -64,10 +76,11 @@ namespace vocaloid{
             }
         }
 
-        void Fill(float v){
+        void Fill(float v, uint64_t len = 0, uint64_t offset = 0){
+            len = len <=0?Size():len;
             for(auto i = 0;i < channels_;i++){
-                for(auto j = 0;j < Size();j++){
-                    data_[i]->Data()[j] = v;
+                for(auto j = 0;j < len;j++){
+                    data_[i]->Data()[j + offset] = v;
                 }
             }
         }

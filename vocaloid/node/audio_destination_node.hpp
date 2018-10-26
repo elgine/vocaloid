@@ -8,19 +8,15 @@ namespace vocaloid{
         uint32_t sample_rate_ = 44100;
     public:
         explicit AudioDestinationNode(AudioContext *ctx):AudioNode(ctx){
+            can_connect_ = false;
         }
-
-        // Override and make those function final, destination
-        // shouldn't have output nodes
-        void Connect(AudioNode *n) final {}
-        void Disconnect(AudioNode *n) final {}
 
         virtual int64_t PushToDestination(){
             return 0;
         }
 
         int64_t Pull(){
-            SummingInputs();
+            PullInputs();
             return PushToDestination();
         }
 

@@ -54,7 +54,7 @@ namespace vocaloid{
             }
         }
 
-        void RemoveLeft(uint64_t len, uint64_t offset = 0){
+        void Splice(uint64_t len, uint64_t offset = 0){
             auto last = min(offset + len, size_);
             for(auto i = offset;i < last;i++){
                 if(i + len < size_){
@@ -95,7 +95,7 @@ namespace vocaloid{
         void Pop(vector<T> &out, uint64_t len, uint64_t offset = 0){
             auto last = min(offset + len, size_);
             out.assign(data_.begin() + offset, data_.begin() + last);
-            RemoveLeft(len, offset);
+            Splice(len, offset);
         }
 
         void Pop(Buffer<T> *buf, uint64_t len, uint64_t offset = 0){

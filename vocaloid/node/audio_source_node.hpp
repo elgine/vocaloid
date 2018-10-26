@@ -3,11 +3,9 @@
 namespace vocaloid{
     class AudioSourceNode: public AudioNode{
     public:
-        explicit AudioSourceNode(AudioContext *ctx):AudioNode(ctx){}
-
-        void SetChannels(uint16_t c) final {}
-        void ConnectInput(AudioNode *n) final {}
-        void DisconnectInput(const AudioNode *n) final {}
+        explicit AudioSourceNode(AudioContext *ctx):AudioNode(ctx){
+            can_be_connected_ = false;
+        }
 
         void Pull(AudioBuffer *in) final {
             in->Alloc(channels_, frame_size_);

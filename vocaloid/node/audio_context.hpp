@@ -79,7 +79,7 @@ namespace vocaloid{
             SetupRecursively(dest_node_);
         }
 
-        void SetupRecursively(AudioNode *n){
+        void SetupRecursively(ConnectUnit *n){
             n->Initialize(frame_size_);
             for(auto input : n->Inputs()){
                 SetupRecursively(input);
