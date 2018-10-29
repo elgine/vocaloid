@@ -27,13 +27,18 @@ namespace vocaloid{
             enable_ = true;
             num_input_nodes_ = 0;
             num_output_nodes_ = 0;
-            input_buffer_ = new AudioBuffer(2, frame_size_);
+            input_buffer_ = new AudioBuffer(channels_, frame_size_);
             summing_buffer_ = new AudioBuffer(channels_, frame_size_);
         }
 
         virtual void Initialize(uint64_t frame_size){
             frame_size_ = frame_size;
             summing_buffer_->Alloc(channels_, frame_size_);
+            summing_buffer_->SetSize(frame_size_);
+            input_buffer_->SetSize(frame_size_);
+            for(auto input : inputs_){
+                input->Initialize(frame_size);
+            }
         }
 
         virtual void SetChannels(uint16_t c){
@@ -71,6 +76,7 @@ namespace vocaloid{
         virtual void Pull(AudioBuffer *in){
             PullInputs();
             in->Alloc(channels_, frame_size_);
+            in->SetSize(frame_size_);
             Process(in);
         }
 

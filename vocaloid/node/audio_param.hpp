@@ -26,6 +26,14 @@ namespace vocaloid{
             result_buffer_ = new Buffer<float>(frame_size_);
         }
 
+        void Initialize(uint64_t frame_size) final {}
+
+        void Initialize(uint32_t sample_rate, uint64_t frame_size){
+            ConnectUnit::Initialize(frame_size);
+            sample_rate_ = sample_rate;
+            result_buffer_->Alloc(frame_size_);
+        }
+
         virtual void ComputingValues(){
             PullInputs();
             for(auto i = 0;i < frame_size_;i++){

@@ -20,9 +20,13 @@ public:
 int main(){
     auto context = new AudioContext();
     context->SetPlayerMode(44100, 2);
-    auto source = new WAVFileReaderNode(context);
-    source->SetPath("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav");
-    auto delay = new DelayNode(context, 0.05f, 1.0f);
+//    context->SetRecorderMode("wobbulator.wav", 44100, 2);
+//    auto source = new WAVFileReaderNode(context);
+//    source->SetPath("G:\\Projects\\cpp\\vocaloid\\samples\\speech.wav");
+    auto source = new OscillatorNode(context);
+    source->GenWaveformData(440.0f, WAVEFORM_TYPE::SINE, 4096);
+
+    auto delay = new DelayNode(context, 0.05f, 0.1f);
     auto osc = new OscillatorNode(context);
     osc->GenWaveformData(5.0f, WAVEFORM_TYPE::SINE, 4096);
     auto osc_gain = new GainNode(context, 0.05f);
@@ -30,6 +34,7 @@ int main(){
     osc_gain->Connect(delay->delay_time_);
     source->Connect(delay);
     delay->Connect(context->GetDestination());
+//    source->Connect(context->GetDestination());
 
     context->Setup();
     context->Start();

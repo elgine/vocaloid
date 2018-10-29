@@ -76,14 +76,7 @@ namespace vocaloid{
          * Setup audio graph, initialize audio thread
          */
         void Setup(){
-            SetupRecursively(dest_node_);
-        }
-
-        void SetupRecursively(ConnectUnit *n){
-            n->Initialize(frame_size_);
-            for(auto input : n->Inputs()){
-                SetupRecursively(input);
-            }
+            dest_node_->Initialize(frame_size_);
         }
 
         /**

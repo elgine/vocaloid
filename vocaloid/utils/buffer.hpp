@@ -55,8 +55,7 @@ namespace vocaloid{
         }
 
         void Splice(uint64_t len, uint64_t offset = 0){
-            auto last = min(offset + len, size_);
-            for(auto i = offset;i < last;i++){
+            for(auto i = offset;i < size_;i++){
                 if(i + len < size_){
                     data_[i] = data_[i + len];
                 }else{

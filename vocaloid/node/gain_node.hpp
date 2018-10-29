@@ -1,6 +1,9 @@
 #pragma once
+#include <iostream>
 #include "audio_node.hpp"
 #include "audio_param.hpp"
+#include "audio_context.hpp"
+using namespace std;
 namespace vocaloid{
 
     class GainNode: public AudioNode{
@@ -10,6 +13,11 @@ namespace vocaloid{
         explicit GainNode(AudioContext *ctx, float v = 1.0f):AudioNode(ctx){
             gain_ = new AudioParam();
             gain_->value_ = v;
+        }
+
+        void Initialize(uint64_t frame_size) override {
+            AudioNode::Initialize(frame_size);
+            gain_->Initialize(context_->GetSampleRate(), frame_size);
         }
 
         int64_t Process(AudioBuffer *in) override {

@@ -16,7 +16,6 @@ namespace vocaloid{
         explicit AudioBuffer(uint16_t channels = 2, uint64_t max_size = 1024):channels_(0){
             data_ = new PBuffer[8];
             Alloc(channels, max_size);
-            SetSize(max_size);
         }
 
         void Copy(AudioBuffer *b){
@@ -34,7 +33,7 @@ namespace vocaloid{
             }
         }
 
-        void Splice(uint64_t len, uint64_t offset){
+        void Splice(uint64_t len, uint64_t offset = 0){
             for(auto i = 0;i < channels_;i++){
                 data_[i]->Splice(len, offset);
             }
