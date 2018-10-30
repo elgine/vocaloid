@@ -14,10 +14,10 @@ int main() {
     auto context = new AudioContext();
     context->SetPlayerMode(44100, 2);
     auto oscillator = new OscillatorNode(context);
-    oscillator->GenWaveformData(440.0f, WAVEFORM_TYPE::SINE, 4096);
+    oscillator->SetWaveform(440.0f, WAVEFORM_TYPE::SINE);
     auto gain = new GainNode(context);
     auto lfo = new OscillatorNode(context);
-    lfo->GenWaveformData(2.0f, WAVEFORM_TYPE::SINE, 4096);
+    lfo->SetWaveform(2.0f, WAVEFORM_TYPE::SINE);
     lfo->Connect(gain->gain_);
     oscillator->Connect(gain);
     gain->Connect(context->GetDestination());

@@ -91,5 +91,9 @@ namespace vocaloid{
             }
             return v;
         }
+
+        bool TimelineEmpty(){
+            return value_list.empty();
+        }
     };
 }

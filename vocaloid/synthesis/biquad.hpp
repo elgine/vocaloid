@@ -36,6 +36,7 @@ namespace vocaloid {
 	class Biquad: public Synthesizer {
 	private:
 		BIQUAD_TYPE type_;
+		float sample_rate_;
 		float freq_;
 		float b0_;
 		float b1_;
@@ -239,16 +240,43 @@ namespace vocaloid {
 			}
 		}
 	public:
-		explicit Biquad(BIQUAD_TYPE type, float sample_rate, float frequency, float Q, float gain = 0, float detune = 0) {
+		explicit Biquad(float sample_rate) {
+			sample_rate_ = sample_rate;
+		}
+
+		void SetType(BIQUAD_TYPE type){
 			type_ = type;
+		}
+
+		void SetParams(float frequency, float Q, float gain = 0, float detune = 0){
+			float nyquist = 0.5f * sample_rate_;
+			float freq = frequency / nyquist;
+			if (detune > 0) {
+				freq *= powf(2, detune / 1200);
+			}
+			if(freq_ == freq && Q_ == Q && gain_ == gain)return;
 			gain_ = gain;
 			Q_ = Q;
-			float nyquist = 0.5f * sample_rate;
-			freq_ = frequency / nyquist;
-			if (detune > 0) {
-				freq_ *= powf(2, detune / 1200);
-			}
+			freq_ = freq;
 			UpdateParams();
+		}
+
+		void Process(vector<float> input,
+							vector<float> frequency,
+							vector<float> gain,
+							vector<float> Q,
+							vector<float> detune,
+							uint64_t input_len, vector<float> &output) {
+			for (int i = 0;i < input_len;i++) {
+				SetParams(frequency[i], Q[i], gain[i], detune[i]);
+				float x = input[i],
+						y = b0_ * x + b1_ * x1_ + b2_ * x2_ - a1_ * y1_ - a2_ * y2_;
+				output[i] = y;
+				x2_ = x1_;
+				x1_ = x;
+				y2_ = y1_;
+				y1_ = y;
+			}
 		}
 
 		uint64_t Process(vector<float> input, uint64_t input_len, vector<float> &output) override {

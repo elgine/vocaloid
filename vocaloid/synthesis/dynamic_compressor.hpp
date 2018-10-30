@@ -3,6 +3,18 @@
 #include "synthesizer.h"
 #include "vocaloid/maths/base.hpp"
 namespace vocaloid{
+
+    // Linear gain unit to decibel
+    float GainUnitToDecibel(float v){
+        if(v == 0)return -1000.f;
+        return 20.0f * log10f(v);
+    }
+
+    // Decibel to linear gain unit
+    float DecibelToGainUnit(float v){
+        return powf(10.f, v * 0.05f);
+    }
+
     class DynamicCompressor: public Synthesizer{
     private:
         float knee_;

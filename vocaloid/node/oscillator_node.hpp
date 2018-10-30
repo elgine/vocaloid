@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 #include "audio_source_node.hpp"
 #include "vocaloid/synthesis/waveform.hpp"
 #include "vocaloid/utils/buffer.hpp"
@@ -12,7 +13,6 @@ namespace vocaloid{
         WAVEFORM_TYPE type_;
 
         Buffer<float> *waveform_buffer_;
-        Buffer<float> *waveform_buffer_after_resampled_;
         bool waveform_dirty_;
         uint64_t offset_;
 
@@ -22,30 +22,17 @@ namespace vocaloid{
             waveform_dirty_ = true;
             type_ = WAVEFORM_TYPE::SINE;
             waveform_buffer_ = new Buffer<float>();
-            waveform_buffer_after_resampled_ = new Buffer<float>();
             offset_ = 0;
         }
 
         int64_t Process(AudioBuffer *in) override {
             // Resample
             if(waveform_dirty_){
-                auto ori_size = waveform_buffer_->Size();
-                if(ori_size > 0){
-                    float ratio = (float)context_->GetSampleRate()/(frequency_ * ori_size);
-                    auto size = uint64_t(ori_size * ratio);
-                    waveform_buffer_after_resampled_->Alloc(size);
-                    waveform_buffer_after_resampled_->SetSize(size);
-                    Resample(waveform_buffer_->Data(), ori_size,
-                             INTERPOLATOR_TYPE::EXPONENTIAL,
-                             ratio,
-                             waveform_buffer_after_resampled_->Data());
-                    offset_ = uint64_t(size * 0.5f);
-                    if(waveform_buffer_after_resampled_->Data()[offset_] < 0){
-                        while(waveform_buffer_after_resampled_->Data()[offset_] < 0)offset_++;
-                    }else if(waveform_buffer_after_resampled_->Data()[offset_] > 0){
-                        while(waveform_buffer_after_resampled_->Data()[offset_] > 0)offset_--;
-                    }
-                }
+                uint32_t sample_rate = context_->GetSampleRate();
+                auto size = uint64_t(sample_rate / frequency_);
+                waveform_buffer_->Alloc(size);
+                waveform_buffer_->SetSize(size);
+                GenWaveform(type_, size, waveform_buffer_->Data());
                 waveform_dirty_ = false;
             }
             in->Alloc(channels_, frame_size_);
@@ -53,30 +40,30 @@ namespace vocaloid{
             // Fill buffer
             uint64_t size = 0;
             uint64_t fill_size = 0;
-            uint64_t buffer_size = waveform_buffer_after_resampled_->Size();
+            uint64_t buffer_size = waveform_buffer_->Size();
             while(size < frame_size_){
                 fill_size = min(frame_size_ - size, buffer_size - offset_);
                 for(auto i = 0;i < channels_;i++)
-                    in->Data()[i]->Set(waveform_buffer_after_resampled_->Data(), fill_size, offset_, size);
+                    in->Data()[i]->Set(waveform_buffer_->Data(), fill_size, offset_, size);
                 size += fill_size;
                 offset_  = (offset_ + fill_size) % buffer_size;
             }
             return frame_size_;
         }
 
-        void GenWaveformData(float frequency, WAVEFORM_TYPE wave_type, uint64_t buffer_size) {
+        void SetFrequency(float frequency){
             frequency_ = frequency;
-            waveform_buffer_->Alloc(buffer_size);
-            waveform_buffer_->SetSize(buffer_size);
-            GenWaveform(wave_type, buffer_size, waveform_buffer_->Data());
             waveform_dirty_ = true;
         }
 
-        void GenWaveformData(float frequency, const vector<float> &real, const vector<float> &imag, uint64_t buffer_size) {
+        void SetWaveformType(WAVEFORM_TYPE wave_type){
+            type_ = wave_type;
+            waveform_dirty_ = true;
+        }
+
+        void SetWaveform(float frequency, WAVEFORM_TYPE wave_type) {
             frequency_ = frequency;
-            waveform_buffer_->Alloc(buffer_size);
-            waveform_buffer_->SetSize(buffer_size);
-            GenWaveform(real, imag, buffer_size, waveform_buffer_->Data());
+            type_ = wave_type;
             waveform_dirty_ = true;
         }
 
