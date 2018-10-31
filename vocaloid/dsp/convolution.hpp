@@ -4,12 +4,12 @@
 #include "vocaloid/maths/fft.hpp"
 #include "vocaloid/maths/window.hpp"
 #include "vocaloid/maths/base.hpp"
-#include "synthesizer.h"
+#include "processor.h"
 #include "pitch_shifter.hpp"
 using namespace std;
 namespace vocaloid{
 
-    class Convolution: public Synthesizer{
+    class Convolution: public Processor{
     private:
         uint64_t kernel_size_;
         uint64_t input_size_;

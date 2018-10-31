@@ -2,11 +2,11 @@
 #include "vocaloid/maths/fft.hpp"
 #include "vocaloid/maths/resample.hpp"
 #include "vocaloid/maths/window.hpp"
-#include "synthesizer.h"
+#include "processor.h"
 
 namespace vocaloid{
 
-    class PitchShifter: public Synthesizer{
+    class PitchShifter: public Processor{
     private:
         FFT *fft_;
         vector<float> win_;

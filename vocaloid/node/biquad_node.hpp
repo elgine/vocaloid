@@ -48,13 +48,14 @@ namespace vocaloid{
             Q_->ComputingValues();
             gain_->ComputingValues();
             for(auto i = 0;i < channels_;i++){
-                filters_[i]->Process(summing_buffer_->Channel(i)->Data(),
-                                     frequency_->ResultBuffer()->Data(),
-                                     gain_->ResultBuffer()->Data(),
-                                     Q_->ResultBuffer()->Data(),
-                                     detune_->ResultBuffer()->Data(),
-                                     frame_size_,
-                                     in->Channel(i)->Data());
+                filters_[i]->Process(summing_buffer_->Channel(i)->Data(), frame_size_, in->Channel(i)->Data());
+//                filters_[i]->Process(summing_buffer_->Channel(i)->Data(),
+//                                     frequency_->ResultBuffer()->Data(),
+//                                     gain_->ResultBuffer()->Data(),
+//                                     Q_->ResultBuffer()->Data(),
+//                                     detune_->ResultBuffer()->Data(),
+//                                     frame_size_,
+//                                     in->Channel(i)->Data());
             }
             return frame_size_;
         }

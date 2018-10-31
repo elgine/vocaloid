@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <vector>
-#include "synthesizer.h"
+#include "processor.h"
 using namespace std;
 namespace vocaloid {
 
@@ -33,7 +33,7 @@ namespace vocaloid {
 		NOTCH
 	};
 
-	class Biquad: public Synthesizer {
+	class Biquad: public Processor {
 	private:
 		BIQUAD_TYPE type_;
 		float sample_rate_;
@@ -248,7 +248,7 @@ namespace vocaloid {
 			type_ = type;
 		}
 
-		void SetParams(float frequency, float Q, float gain = 0, float detune = 0){
+		void SetParams(float frequency = 350, float Q = 1, float gain = 0, float detune = 0){
 			float nyquist = 0.5f * sample_rate_;
 			float freq = frequency / nyquist;
 			if (detune > 0) {

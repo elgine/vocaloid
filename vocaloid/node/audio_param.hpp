@@ -8,6 +8,11 @@
 #include "timeline.hpp"
 using namespace std;
 namespace vocaloid{
+    enum AudioParamType{
+        K_RATE,
+        A_RATE
+    };
+
     class AudioParam: public ConnectUnit, public Timeline{
     protected:
         Buffer<float> *result_buffer_;
@@ -19,7 +24,7 @@ namespace vocaloid{
         }
 
     public:
-        explicit AudioParam():ConnectUnit(true, false, 1){
+        explicit AudioParam(AudioParamType type = AudioParamType::A_RATE):ConnectUnit(bool(type), false, 1){
             sample_rate_ = 44100;
             value_ = 1.0f;
             offset_ = 0;

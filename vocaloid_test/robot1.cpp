@@ -19,13 +19,13 @@ int main(){
     osc->SetFrequency(700);
     auto osc_gain = new GainNode(context, 0.004);
     auto biquad = new BiquadNode(context);
+    biquad->type_ = BIQUAD_TYPE::HIGH_PASS;
     biquad->frequency_->value_ = 695;
 
     osc->Connect(osc_gain);
     osc_gain->Connect(delay->delay_time_);
 
     source->Connect(delay);
-//    delay->Connect(context->GetDestination());
     delay->Connect(biquad);
     biquad->Connect(context->GetDestination());
 
