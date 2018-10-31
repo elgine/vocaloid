@@ -1,7 +1,7 @@
 #pragma once
 #include <math.h>
 #include "audio_source_node.hpp"
-#include "vocaloid/synthesis/waveform.hpp"
+#include "vocaloid/dsp/waveform.hpp"
 #include "vocaloid/utils/buffer.hpp"
 #include "vocaloid/maths/resample.hpp"
 #include "audio_context.hpp"

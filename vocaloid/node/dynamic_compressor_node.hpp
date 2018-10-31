@@ -6,19 +6,15 @@
 #include "audio_context.hpp"
 #include "audio_param.hpp"
 #include "vocaloid/maths/base.hpp"
-// From Chromium
-// https://github.com/nwjs/chromium.src/blob/df7f8c8582b9a78c806a7fa1e9d3f3ba51f7a698/third_party/WebKit/Source/platform/audio/DynamicsCompressorKernel.cpp
+// From Chromium, DynamicsCompressorKernel.cpp
 namespace vocaloid{
     #define DEFAULT_PREDELAY_FRAMES 256
     #define MAX_PREDELAY_FRAMES 1024
     #define MAX_PREDELAY_FRAMES_MASK 1
-    class DynamicCompressorNode: public AudioNode{
+    class DynamicsCompressorNode: public AudioNode{
     private:
-        float m_attack_;
         float m_knee_;
         float m_ratio_;
-        float m_release_;
-        float m_threshold_;
         float m_linear_threshold_;
         float m_db_knee_;
         float m_db_threshold_;
@@ -27,8 +23,8 @@ namespace vocaloid{
         float m_knee_threshold_;
         float m_y_knee_threshold_db_;
         float m_last_predelay_frames_;
-        float m_predelay_read_index_;
-        float m_predelay_write_index_;
+        uint64_t m_predelay_read_index_;
+        uint64_t m_predelay_write_index_;
         float m_detector_average_;
         float m_compressor_gain_;
         float m_max_attack_compression_diff_db_;
@@ -36,15 +32,19 @@ namespace vocaloid{
         float m_metering_release_k_;
         AudioBuffer *m_predelay_buffers_;
 
+        float m_last_filter_stage_gain_;
+        float m_last_filter_stage_ratio_;
+        float m_last_anchor_;
+
         float Slope(float x, float k){
             if(x < m_linear_threshold_){
                 return 1;
             }
-            float x2 = x * 1.001;
+            float x2 = x * 1.001f;
             float x_db = Linear2Db(x);
             float x2_db = Linear2Db(x2);
             float y_db = Linear2Db(KneeCurve(x, k));
-            float y2_db = Linear2Db(KneeCureve(x2, k));
+            float y2_db = Linear2Db(KneeCurve(x2, k));
 
             float m = (y2_db - y_db) / (x2_db - x_db);
             return m;
@@ -73,7 +73,7 @@ namespace vocaloid{
                 y = KneeCurve(x, k);
             }else{
                 float x_db = Linear2Db(x);
-                float y_db = m_y_knee_threshold_db_ + m_slope * (x_db - m_knee_threshold_);
+                float y_db = m_y_knee_threshold_db_ + m_slope_ * (x_db - m_knee_threshold_);
                 y = Db2Linear(y_db);
             }
             return y;
@@ -113,7 +113,7 @@ namespace vocaloid{
             full_range_makeup_gain = powf(full_range_makeup_gain, 0.6f);
             float master_linear_gain = Db2Linear(db_post_gain) * full_range_makeup_gain;
 
-            attack = max(0.001, attack);
+            attack = fmax(0.001, attack);
             float attack_frames = attack * sample_rate;
 
             float release_frames = sample_rate * release;
@@ -169,13 +169,13 @@ namespace vocaloid{
                     }
 
                     float x = compression_diff_db;
-                    x = Clamp(-12, 0, x);
-                    x = 0.25 * (x + 12);
+                    x = Clamp(-12.0f, 0.0f, x);
+                    x = 0.25f * (x + 12);
 
                     float x2 = x * x;
                     float x3 = x2 * x;
                     float x4 = x2 * x2;
-                    float release_frames = a + b * x + c * x2 + d * x3 + e * x4;
+                    auto release_frames = a + b * x + c * x2 + d * x3 + e * x4;
 
 #define SPACING_DB 5
                     float db_per_frame = SPACING_DB / release_frames;
@@ -189,8 +189,8 @@ namespace vocaloid{
                     if(m_max_attack_compression_diff_db_ == -1 ||
                         m_max_attack_compression_diff_db_ < compression_diff_db)
                         m_max_attack_compression_diff_db_ = compression_diff_db;
-                    float eff_atten_diff_db = max(0.5, m_max_attack_compression_diff_db_);
-                    float x = 0.25 / eff_atten_diff_db;
+                    float eff_atten_diff_db = fmax(0.5f, m_max_attack_compression_diff_db_);
+                    float x = 0.25f / eff_atten_diff_db;
                     envelope_rate = 1 - powf(x, 1 / attack_frames);
                 }
 
@@ -221,7 +221,7 @@ namespace vocaloid{
                         float attenuation = abs_input <= 0.0001?1:shaped_input/abs_input;
 
                         float attenuation_db = -Linear2Db(attenuation);
-                        attenuation_db = max(2.0f, abs_undelayed_source);
+                        attenuation_db = max(2.0f, attenuation_db);
 
                         float db_per_frame = attenuation_db / sat_release_frames;
                         float sat_release_rate = Db2Linear(db_per_frame) - 1;
@@ -254,7 +254,7 @@ namespace vocaloid{
                         }
 
                         for(auto i = 0;i < channels_;i++){
-                            in->Channel(i)[frame_index] = m_predelay_buffers_->Channel(i)->Data()[predelay_read_index] * total_gain;
+                            in->Channel(i)->Data()[frame_index] = m_predelay_buffers_->Channel(i)->Data()[predelay_read_index] * total_gain;
                         }
                         frame_index++;
                         predelay_read_index = (predelay_read_index + 1) & MAX_PREDELAY_FRAMES_MASK;
@@ -270,33 +270,64 @@ namespace vocaloid{
             }
         }
     public:
-        AudioParam *attack_;
-        AudioParam *knee_;
-        AudioParam *ratio_;
-        AudioParam *release_;
-        AudioParam *threshold_;
+        float attack_;
+        float knee_;
+        float ratio_;
+        float release_;
+        float threshold_;
+        float predelay_;
+        float release_zone1_;
+        float release_zone2_;
+        float release_zone3_;
+        float release_zone4_;
+        float filter_stage_gain_;
+        float filter_stage_ratio_;
+        float filter_anchor_;
+        float post_gain_;
+        float reduction_;
+        float effect_blend_;
 
-        static Db2Linear(float v){
-            if(v == 0)return -1000;
-            return 20 * log10f(v);
+        static float Db2Linear(float v){
+            return powf(10.0f, v * 0.05f);
         }
 
-        static Linear2Db(float v){
-            return powf(10, v * 0.05f);
+        static float Linear2Db(float v){
+            if(v == 0)return -1000.0f;
+            return 20.0f * log10f(v);
         }
 
-        explicit DynamicCompressorNode(AudioContext *ctx):AudioNode(ctx){
-            delay_buf_ = new Buffer<float>();
-            attack_ = new AudioParam(AudioParamType::K_RATE);
-            attack_->value_ = 0.003;
-            knee_ = new AudioParam(AudioParamType::K_RATE);
-            knee_->value_ = 30;
-            ratio_ = new AudioParam(AudioParamType::K_RATE);
-            ratio_->value_ = 12;
-            release_ = new AudioParam(AudioParamType::K_RATE);
-            release_->value_ = 0.25;
-            threshold_ = new AudioParam(AudioParamType::K_RATE);
-            threshold_->value_ = -24;
+        explicit DynamicsCompressorNode(AudioContext *ctx):AudioNode(ctx){
+            m_last_predelay_frames_ = DEFAULT_PREDELAY_FRAMES;
+            m_predelay_read_index_ = 0;
+            m_predelay_write_index_ = DEFAULT_PREDELAY_FRAMES;
+            m_ratio_ = -1;
+            m_slope_ = -1;
+            m_linear_threshold_ = -1;
+            m_db_threshold_ = -1;
+            m_db_knee_ = -1;
+            m_knee_threshold_ = -1;
+            m_knee_threshold_db_ = -1;
+            m_y_knee_threshold_db_ = -1;
+            m_knee_ = -1;
+
+            attack_ = 0.003;
+            knee_ = 30;
+            ratio_ = 12;
+            release_ = 0.25;
+            threshold_ = -24;
+            predelay_ = 0.006f;
+            release_zone1_ = 0.09;
+            release_zone2_ = 0.16;
+            release_zone3_ = 0.42;
+            release_zone4_ = 0.98;
+            filter_stage_gain_ = 4.4;
+            filter_stage_ratio_ = 2;
+            filter_anchor_ = 30000.0f / context_->GetSampleRate();
+            post_gain_ = 0;
+            reduction_ = 0;
+            effect_blend_ = 1;
+            m_predelay_buffers_ = new AudioBuffer(channels_, frame_size_);
+            Reset();
         }
 
         float UpdateStaticCurve(float db_threshold, float db_knee, float ratio){
@@ -315,15 +346,10 @@ namespace vocaloid{
             return m_knee_;
         }
 
-        void Initialize(uint64_t frame_size){
+        void Initialize(uint64_t frame_size) override {
             AudioNode::Initialize(frame_size);
-            auto sample_rate = context_->GetSampleRate();
-            attack_->Initialize(sample_rate, frame_size);
-            knee_->Initialize(sample_rate, frame_size);
-            ratio_->Initialize(sample_rate, frame_size);
-            release_->Initialize(sample_rate, frame_size);
-            threshold_->Initialize(sample_rate, frame_size);
             m_predelay_buffers_->Alloc(channels_, frame_size_);
+            Reset();
         }
 
         void Reset(){
@@ -336,8 +362,21 @@ namespace vocaloid{
             m_max_attack_compression_diff_db_ = -1;
         }
 
-        int64_t Process(AudioBuffer *in){
-
+        int64_t Process(AudioBuffer *in) override {
+            float filter_stage_gain = filter_stage_gain_;
+            float filter_stage_ratio = filter_stage_ratio_;
+            float anchor = filter_anchor_;
+            if(filter_stage_gain_ != m_last_filter_stage_gain_ ||
+                filter_stage_ratio != m_last_filter_stage_ratio_ ||
+                anchor != m_last_anchor_){
+                m_last_filter_stage_gain_ = filter_stage_gain;
+                m_last_filter_stage_ratio_ = filter_stage_ratio;
+                m_last_anchor_ = anchor;
+            }
+            Process(in, threshold_, knee_, ratio_, attack_, release_, predelay_,
+                    post_gain_, effect_blend_, release_zone1_, release_zone2_, release_zone3_,
+                    release_zone4_);
+            reduction_ = m_metering_gain_;
             return frame_size_;
         }
     };

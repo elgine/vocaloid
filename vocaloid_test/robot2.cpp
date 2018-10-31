@@ -1,7 +1,7 @@
 //
 // Created by Elgine on 2018/10/31.
 //
-
+#include <vocaloid/dsp/waveform.hpp>
 #include <vocaloid/node/wav_file_node.hpp>
 #include <vocaloid/node/audio_context.hpp>
 #include <vocaloid/node/oscillator_node.hpp>

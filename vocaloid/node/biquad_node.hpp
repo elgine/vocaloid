@@ -2,7 +2,7 @@
 #include "audio_node.hpp"
 #include "audio_param.hpp"
 #include "audio_context.hpp"
-#include "vocaloid/synthesis/biquad.hpp"
+#include "vocaloid/dsp/biquad.hpp"
 namespace vocaloid{
 
     class BiquadNode: public AudioNode{
