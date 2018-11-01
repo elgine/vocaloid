@@ -2,7 +2,6 @@
 // Created by Elgine on 2018/10/24.
 //
 #include <math.h>
-#include <vocaloid/io/wav.hpp>
 #include <vocaloid/node/audio_file_node.hpp>
 #include <vocaloid/node/audio_context.hpp>
 #include <vocaloid/node/oscillator_node.hpp>
