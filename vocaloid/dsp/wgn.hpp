@@ -22,10 +22,6 @@ namespace vocaloid{
         return sum / len;
     }
 
-//    float SNR(vector<float> source, vector<float> noise){
-//
-//    }
-
     void WGN(uint64_t len, float p, vector<float> &out){
         float noise_power_sqrt = sqrtf(p);
         Randn(len, out);

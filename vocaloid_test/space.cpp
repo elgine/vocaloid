@@ -14,8 +14,8 @@ using namespace vocaloid;
 void MakeDistortionCurve(int amount, uint32_t samples, vector<float> &curve) {
     auto deg = M_PI / 180;
     float x;
-    for (auto i = 0; i < samples; ++i ) {
-        x = i * 2 / samples - 1;
+    for (int i = 0; i < samples; ++i ) {
+        x = i * 2.0f / samples - 1;
         curve[i] = float(( 3 + amount ) * x * 20 * deg / (M_PI + amount * abs(x)));
     }
 }
@@ -31,7 +31,7 @@ int main(){
     uint32_t curve_len = 44100;
     vector<float> curve(curve_len);
     MakeDistortionCurve(50, curve_len, curve);
-    wave_shaper->SetCurve(curve);
+    wave_shaper->SetCurve(curve, curve_len);
     auto b2 = new BiquadNode(context);
     b2->frequency_->value_ = 2000;
     auto b3 = new BiquadNode(context);
@@ -43,16 +43,17 @@ int main(){
     b5->frequency_->value_ = 500;
     b5->type_ = BIQUAD_TYPE::HIGH_PASS;
     auto compressor = new DynamicsCompressorNode(context);
-//    compressor->reduction_ = -0.784786f;
-
     source->Connect(b1);
     b1->Connect(wave_shaper);
     wave_shaper->Connect(b2);
     b2->Connect(b3);
     b3->Connect(b4);
     b4->Connect(b5);
-    b5->Connect(compressor);
-    compressor->Connect(context->GetDestination());
+    b5->Connect(context->GetDestination());
+//    compressor->Connect(context->GetDestination());
+//    source->Connect(wave_shaper);
+//    wave_shaper->Connect(compressor);
+//    compressor->Connect(context->GetDestination());
 
     context->Setup();
     context->Start();

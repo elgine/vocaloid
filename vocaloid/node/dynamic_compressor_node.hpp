@@ -113,7 +113,7 @@ namespace vocaloid{
             full_range_makeup_gain = powf(full_range_makeup_gain, 0.6f);
             float master_linear_gain = Db2Linear(db_post_gain) * full_range_makeup_gain;
 
-            attack = fmax(0.001, attack);
+            attack = fmax(0.001f, attack);
             float attack_frames = attack * sample_rate;
 
             float release_frames = sample_rate * release;
