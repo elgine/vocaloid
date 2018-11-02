@@ -49,8 +49,8 @@ int main(){
     b2->Connect(b3);
     b3->Connect(b4);
     b4->Connect(b5);
-    b5->Connect(context->GetDestination());
-//    compressor->Connect(context->GetDestination());
+    b5->Connect(compressor);
+    compressor->Connect(context->GetDestination());
 //    source->Connect(wave_shaper);
 //    wave_shaper->Connect(compressor);
 //    compressor->Connect(context->GetDestination());

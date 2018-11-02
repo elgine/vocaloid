@@ -148,7 +148,7 @@ namespace vocaloid{
                 if(isnan(m_detector_average_))m_detector_average_ = 1;
                 if(isinf(m_detector_average_))m_detector_average_ = 1;
                 float desired_gain = m_detector_average_;
-                float scaled_desired_gain = asinf(desired_gain) / M_PI_2;
+                float scaled_desired_gain = asinf(desired_gain) / M_PI * 2.0f;
 
                 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 // Deal with envelopes
@@ -243,7 +243,7 @@ namespace vocaloid{
                             compressor_gain = min(1.0f, compressor_gain);
                         }
 
-                        float post_warp_compressor_gain = sinf(M_PI_2 * compressor_gain);
+                        float post_warp_compressor_gain = sinf(M_PI * 0.5f * compressor_gain);
                         float total_gain = dry_mix + wet_mix * master_linear_gain * post_warp_compressor_gain;
 
                         float db_real_gain = 20 * log10f(post_warp_compressor_gain);
